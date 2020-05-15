@@ -194,6 +194,8 @@ class MainForm(Tk) :
 
     def set_mode(self, event):
 
+        print('Chosen mode is ', self.choose_mode_variable.get())
+
         if self.choose_mode_variable.get() == "TA Experiment":
 
             self.g_sys_instance.bsimulation = False
