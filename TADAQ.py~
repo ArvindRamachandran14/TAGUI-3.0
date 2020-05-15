@@ -271,7 +271,7 @@ async def main() :
 
     if len(sys.argv) == 1:
 
-        print('Simulation mode on')
+	print('Simulation mode on')
 
         # No arguments passed i.e. simulation mode on
 
