@@ -198,6 +198,8 @@ class MainForm(Tk) :
 
         if self.choose_mode_variable.get() == "TA Experiment":
 
+            print()
+
             self.g_sys_instance.bsimulation = False
 
         elif self.choose_mode_variable.get() == "TA Simulation":
