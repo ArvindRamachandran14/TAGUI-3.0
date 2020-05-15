@@ -174,6 +174,9 @@ class producer() :
         ### Creating shared memory region between TADAQ and TAGUI ### 
         self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(tempTASH))
         self.sem = asyncio.Semaphore(1)         # Added semaphore creation
+
+    def socket_connection(self):
+
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.host, self.port))
 
@@ -271,7 +274,9 @@ async def main() :
 
     if len(sys.argv) == 1:
 
-	print('Simulation mode on')
+        print('Simulation mode on')
+
+        self.socket_connection()
 
         # No arguments passed i.e. simulation mode on
 
