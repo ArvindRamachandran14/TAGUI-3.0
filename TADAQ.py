@@ -219,13 +219,15 @@ class producer() :
 
         elif g.bsimulation == "False": #Experiment mode on
 
-            if cmd == 'g-all':
+            if cmd == 'g all':
 
-                cmd+='\n'
+                #cmd+='\n'
 
                 ser.write(cmd.encode())
 
                 Output_string = ser.readline().decode()
+
+                print('Output is', Outptut_string)
 
                 Split_strings_list  = Output_string.split(',')
 
@@ -245,13 +247,13 @@ class producer() :
 
             else:
 
-                cmd+='\n' 
+                #cmd+='\n' 
 
                 #print('Command sent is', command)
 
                 #print('Command type is', type(command))
 
-                ser.write(command.encode())
+                ser.write(cmd.encode())
 
                 while True:
 
@@ -296,7 +298,7 @@ async def main() :
 
         reply = ser.readline().decode()
 
-        #print('TADAQ reply was', reply)
+        print('TADAQ reply was', reply)
 
         if reply == "Ok\r\n":
 
