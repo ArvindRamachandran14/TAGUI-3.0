@@ -149,7 +149,7 @@ class producer() :
                         self.bDone = True
                         sReply = 'OK'
                     else :
-                        sReply = self.getDataFromTA(command)
+                        sReply = self.getDataFromTA(command, ser)
 
 
                     #print('Reply is', sReply)
@@ -186,6 +186,7 @@ class producer() :
         ############################# This is the function that reads the latest data stored in the TAC ############################# 
 
         #print(dt.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
+	
 
         with open(g.cfgFile, 'r') as fCfg :
             config = json.loads(fCfg.read())        # Read config file
@@ -219,15 +220,17 @@ class producer() :
 
         elif g.bsimulation == "False": #Experiment mode on
 
+            print('commmand received in TADAQ end is', cmd)
+
             if cmd == 'g all':
 
-                #cmd+='\n'
+                cmd+='\n'
 
                 ser.write(cmd.encode())
 
                 Output_string = ser.readline().decode()
 
-                print('Output is', Outptu_string)
+                #print('Output is', Output_string)
 
                 Split_strings_list  = Output_string.split(',')
 
@@ -245,13 +248,11 @@ class producer() :
 
                 return(data_list)
 
-            else:
+            else:                 
 
-                #cmd+='\n' 
-
-                #print('Command sent is', command)
-
-                #print('Command type is', type(command))
+                print('Command sent is', cmd)
+                cmd+='\n'
+                print('Command sent is', cmd)
 
                 ser.write(cmd.encode())
 

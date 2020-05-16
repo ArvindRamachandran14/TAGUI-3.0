@@ -195,17 +195,13 @@ class MainForm(Tk) :
 
     def set_mode(self, event):
 
-        print('\n'.join(difflib.Differ().compare("TA Experiment", self.choose_mode_variable.get())))
+        #print('\n'.join(difflib.Differ().compare("TA Experiment", self.choose_mode_variable.get())))
 
         if self.choose_mode_variable.get() == "TA Experiment":
-	    
-            print(False)
 
             self.g_sys_instance.bsimulation = False
 
         elif self.choose_mode_variable.get() == "TA Simulation":
-
-            print(True)
 
             self.g_sys_instance.bsimulation = True
 
