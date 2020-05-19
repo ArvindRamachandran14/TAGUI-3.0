@@ -141,7 +141,7 @@ class producer() :
                 tash = TAShare.from_buffer(self.mmShare)
                 command = bytearray(tash.command).decode(encoding).rstrip('\x00')
                 if not command == '' :
-                    print(f'Command received in TADAQ is: {command}')
+                    #print(f'Command received in TADAQ is: {command}')
                     for idx in range(0,80) :
                         tash.reply[idx] = 0
                         tash.command[idx] = 0
@@ -149,8 +149,7 @@ class producer() :
                         self.bDone = True
                         sReply = 'OK'
                     else :
-                        sReply = self.getDataFromTA(command)
-
+                        sReply = self.getDataFromTA(command, ser)
 
                     #print('Reply is', sReply)
 
@@ -186,6 +185,7 @@ class producer() :
         ############################# This is the function that reads the latest data stored in the TAC ############################# 
 
         #print(dt.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
+	
 
         with open(g.cfgFile, 'r') as fCfg :
             config = json.loads(fCfg.read())        # Read config file
@@ -210,22 +210,24 @@ class producer() :
                     else :
                         retval = sData # string with single value
                 else :
-                    #print('received data at TADAQ is', rData)
-                    #print('sending command to tasim', cmd)
+                    #print('received response at TADAQ is', sData)
                     retval = sData
-                    #print('received data at TADAQ is', retval)
 
             return retval
 
         elif g.bsimulation == "False": #Experiment mode on
 
-            if cmd == 'g-all':
+            print('commmand received in TADAQ end is', cmd)
+
+            if cmd == 'g all':
 
                 cmd+='\n'
 
                 ser.write(cmd.encode())
 
                 Output_string = ser.readline().decode()
+
+                #print('Output is', Output_string)
 
                 Split_strings_list  = Output_string.split(',')
 
@@ -243,15 +245,13 @@ class producer() :
 
                 return(data_list)
 
-            else:
+            else:                 
 
-                cmd+='\n' 
+                #print('Command sent is', cmd)
+                cmd+='\n'
+                print('Command sent is', cmd)
 
-                #print('Command sent is', command)
-
-                #print('Command type is', type(command))
-
-                ser.write(command.encode())
+                ser.write(cmd.encode())
 
                 while True:
 
@@ -296,7 +296,7 @@ async def main() :
 
         reply = ser.readline().decode()
 
-        #print('TADAQ reply was', reply)
+        print('TADAQ reply was', reply)
 
         if reply == "Ok\r\n":
 
