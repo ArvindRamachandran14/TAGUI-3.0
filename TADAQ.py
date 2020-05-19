@@ -141,7 +141,7 @@ class producer() :
                 tash = TAShare.from_buffer(self.mmShare)
                 command = bytearray(tash.command).decode(encoding).rstrip('\x00')
                 if not command == '' :
-                    #print(f'Command received in TADAQ is: {command}')
+                    print(f'Command received in TADAQ is: {command}')
                     for idx in range(0,80) :
                         tash.reply[idx] = 0
                         tash.command[idx] = 0

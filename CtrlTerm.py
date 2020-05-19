@@ -41,6 +41,8 @@ class CtrlTerm(Frame) :
         #parsing the terminal command into a cmd and a parm needs to happen here 
 
         command = self.input_text.get(1.0,'end-1c') 
+        
+        print('command sent form terminal is', command)
 
         reply = self.cons.send_command_to_PC(command)
 
