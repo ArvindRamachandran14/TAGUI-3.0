@@ -200,7 +200,7 @@ class consumer() :
 
         tash.command[0:len(cmdBuf)] = cmdBuf #adding command to shared memory
 
-        time.sleep(0.1) #Small time delay needed to get response back
+        time.sleep(2) #Small time delay needed to get response back
 
         #Get the reply until its not empty, but also have a time out incase there was no commmand or the connection broke
 
