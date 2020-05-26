@@ -10,6 +10,7 @@ from math import exp
 from sympy.solvers import solve
 from sympy import Symbol
 import scipy.optimize as opt
+import time
 
 class CtrlSetup(Frame) :
     def __init__(self, parent, cons, *args, **kwargs) :
@@ -92,17 +93,35 @@ class CtrlSetup(Frame) :
 
     def send_command(self): 
 
-        #print(self.sb1.get(), self.sb2.get(), self.sb3.get(), self.sb4.get())  
-        
-        reply1 = self.cons.send_command_to_PC('s SC_set '+  self.sb1.get())
+        reply1 = self.cons.send_command_to_PC('s SC_power '+str(int(self.v1.get())))
 
-        reply2 = self.cons.send_command_to_PC('s CC_set '+  self.sb2.get())
+        time.sleep(2)
+
+        reply2 = self.cons.send_command_to_PC('s CC_power '+str(int(self.v2.get())))
+
+        time.sleep(2)
+
+        reply3 = self.cons.send_command_to_PC('s DPG_power '+str(int(self.v3.get())))
+
+        time.sleep(2)
+
+        reply4 = self.cons.send_command_to_PC('s SC_set '+  self.sb1.get())
+
+        time.sleep(2)
+
+        reply5 = self.cons.send_command_to_PC('s CC_set '+  self.sb2.get())
+
+        time.sleep(2)
 
         target_pressure = (float(self.sb3.get())/100.0)*self.ph2oSat(float(self.sb1.get()))
 
         target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-        reply3 = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+        reply6 = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+
+        #print(reply2, reply5)
+
+        print(reply1, reply2, reply3, reply4, reply5, reply6)
 
         #if reply1 == reply2 == reply3 == 'OK':
 

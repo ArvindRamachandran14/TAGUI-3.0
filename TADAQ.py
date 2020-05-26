@@ -95,7 +95,7 @@ class producer() :
                 #################### Transfer data to the data buffer ####################
                 if type(taData).__name__ == 'list' :
 
-                    (TSC, TSC2, TCC, TDP, H2O, pCO2, TDP2, Wgt, status) = taData #Watch out for the order of variables
+                    (TSC, TSC2, TCC, TDP, pH2O, pCO2, TDP2, Wgt, status) = taData #Watch out for the order of variables
 
                     tash.data[recIdx].SC_T1 = TSC
                     #tash.data[recIdx].SC_T2 = data_list[1] #SC_T2 omitted in this model
@@ -217,7 +217,7 @@ class producer() :
 
         elif g.bsimulation == "False": #Experiment mode on
 
-            print('commmand received in TADAQ end is', cmd)
+            #print('commmand received in TADAQ end is', cmd)
 
             if cmd == 'g all':
 

@@ -151,7 +151,6 @@ class producer() :
                     else :
                         sReply = self.getDataFromTA(command, ser)
 
-
                     #print('Reply is', sReply)
 
                     # Put the reply into the shared reply buffer
@@ -211,16 +210,14 @@ class producer() :
                     else :
                         retval = sData # string with single value
                 else :
-                    #print('received data at TADAQ is', rData)
-                    #print('sending command to tasim', cmd)
+                    #print('received response at TADAQ is', sData)
                     retval = sData
-                    #print('received data at TADAQ is', retval)
 
             return retval
 
         elif g.bsimulation == "False": #Experiment mode on
 
-            print('commmand received in TADAQ end is', cmd)
+            #print('commmand received in TADAQ end is', cmd)
 
             if cmd == 'g all':
 
@@ -250,7 +247,7 @@ class producer() :
 
             else:                 
 
-                print('Command sent is', cmd)
+                #print('Command sent is', cmd)
                 cmd+='\n'
                 print('Command sent is', cmd)
 

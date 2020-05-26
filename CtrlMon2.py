@@ -126,13 +126,15 @@ class CtrlMon2(Frame) :
 
         self.ax2.clear()
         self.ax2.set_xlabel('Time (sec)')
-        self.ax2.set_ylabel('pH20 (Pa)')
+        self.ax2.set_ylabel('pH20')
         self.ax2.set_autoscalex_on(True)
         self.ax2.grid(True, 'major', 'both')
 
         plot_range = self.scale2.get()*60 #converting seconds to list range
 
         index = int(plot_range/15.0)
+
+        #print(self.g_sys_instance.pH2O_list[-1])
 
         self.ax2.plot(self.g_sys_instance.time_list[(10000-self.plot2_range*index)::index], self.g_sys_instance.pH2O_list[(10000-self.plot2_range*index)::index], 'k')
 

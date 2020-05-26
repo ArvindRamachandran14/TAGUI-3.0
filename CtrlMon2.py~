@@ -134,6 +134,8 @@ class CtrlMon2(Frame) :
 
         index = int(plot_range/15.0)
 
+        #print(self.g_sys_instance.pH2O_list[-1])
+
         self.ax2.plot(self.g_sys_instance.time_list[(10000-self.plot2_range*index)::index], self.g_sys_instance.pH2O_list[(10000-self.plot2_range*index)::index], 'k')
 
         #self.ax2.plot(self.g_sys_instance.time_list[800::1], self.g_sys_instance.pH2O_list[800::1])
