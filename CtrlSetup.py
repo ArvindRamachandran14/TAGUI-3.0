@@ -4,7 +4,7 @@
 # Change history:
 #   20191115:KDT - Original issue
 
-from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton
+from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, messagebox
 import Data_coord
 from math import exp
 from sympy.solvers import solve
@@ -169,13 +169,42 @@ class CtrlSetup(Frame) :
 
         if self.label7.cget('state') == 'normal' and self.label9.cget('state') == 'disabled': #RH input
 
-            target_pressure = (float(self.sb3.get())/100.0)*self.ph2oSat(float(self.sb1.get()))
+            RH_input = float(self.sb3.get())
 
-            Cell_pressure = float(self.cons.send_command_to_PC('g CellP').split('---')[0])*1000 #Convert to Pa
+            print("RH_input", RH_input)
 
-            self.pH2O_textvariable.set('pH2O (ppt): ' + str(round((target_pressure/Cell_pressure)*1000,2)))
+            if RH_input >=10 and RH_input <=90: #RH limits
 
-            self.RH_textvariable.set('')
+                target_pressure = (RH_input/100.0)*self.ph2oSat(float(self.sb1.get()))
+
+                Cell_pressure = float(self.cons.send_command_to_PC('g CellP').split('---')[0])*1000 #Convert to Pa
+
+                self.pH2O_textvariable.set('pH2O (ppt): ' + str(round((target_pressure/Cell_pressure)*1000,2)))
+
+                self.RH_textvariable.set('')
+
+                target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
+
+                if int(self.v3.get()) == 1 and reply3 == str('Done\n'):
+
+                    reply6 = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+
+            elif RH_input >=90:
+
+                messagebox.showwarning(title='RH offlimits', message="Condensation Warning")
+
+                self.RH_textvariable.set('')
+
+                self.pH2O_textvariable.set('')
+
+            else:
+
+                messagebox.showwarning(title='RH offlimits', message="Low RH Warning")
+
+                self.RH_textvariable.set('')
+
+                self.pH2O_textvariable.set('')
+
 
         elif self.label9.cget('state') == 'normal' and self.label7.cget('state') == 'disabled': # pH2O input
 
@@ -183,23 +212,36 @@ class CtrlSetup(Frame) :
 
             target_pressure = (float(self.sb4.get())/1000.0)*Cell_pressure
 
-            self.RH_textvariable.set('RH (%): ' + str(round((target_pressure/self.ph2oSat(float(self.sb1.get()))*100),2)))
+            RH_input = (target_pressure/self.ph2oSat(float(self.sb1.get())))*100
 
-            self.pH2O_textvariable.set('')
+            if RH_input >=10 and RH_input <=90: #RH limits
 
-        target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
+                self.RH_textvariable.set('RH (%): ' + str(round((target_pressure/self.ph2oSat(float(self.sb1.get()))*100),2)))
 
-        if int(self.v3.get()) == 1 and reply3 == str('Done\n'):
+                self.pH2O_textvariable.set('')
 
-            reply6 = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-        #print(reply1, reply2, reply3, reply4, reply5, reply6)
+                if int(self.v3.get()) == 1 and reply3 == str('Done\n'):
 
-        #if reply1 == reply2 == reply3 == 'OK':
+                    reply6 = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
 
-        #self.output.set("Ok")
+            elif RH_input >=90:
 
-        #self.output.set("")
+                messagebox.showwarning(title='pH2O offlimits', message="Condensation Warning")
+
+                self.RH_textvariable.set('')
+
+                self.pH2O_textvariable.set('')
+
+            else:
+
+                messagebox.showwarning(title='pH2O offlimits', message="Low pH2O warning")
+
+                self.RH_textvariable.set('')
+
+                self.pH2O_textvariable.set('')
+
 
     def ph2oSat_solve(self, T, P):
         return 610.78 * exp((T * 17.2684) / (T + 238.3)) - P
