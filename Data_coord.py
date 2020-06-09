@@ -8,7 +8,7 @@ from random import random
 import mmap
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from subprocess import Popen
 from pathlib import Path
 import tkinter as tk
@@ -59,6 +59,8 @@ class consumer() :
         self.lastIdx = -1
         self.recsGot = 0
         self.f = None
+        self.last_logged_time = datetime.now()
+        self.log_frequency = 2
         #self.f = open('data_file_'+str(datetime.now())+'.xml', "w+")
         #self.kb = pykb.KBHit()
 
@@ -95,7 +97,9 @@ class consumer() :
 
                 self.g_sys_instance.time_list.append(tad.recTime)
 
-                temp_dict['time'] = str(datetime.now())
+                temp_dict['datetime'] = datetime.now()
+
+                temp_dict['time'] = str(temp_dict['datetime'])
 
                 temp_dict['SC_T1'] = tad.SC_T1
 
@@ -125,11 +129,14 @@ class consumer() :
 
             self.g_sys_instance.sample_weight.pop(0)
 
-            if self.g_sys_instance.blogging == True: 
+
+            if self.g_sys_instance.blogging == True and temp_dict['datetime'] >= self.last_logged_time + timedelta(seconds=self.log_frequency):   
 
                 #print(xmlstring.decode("utf-8"))
 
                 self.f.write(xmlstring.decode("utf-8")+'\n')
+
+                self.last_logged_time += timedelta(seconds=self.log_frequency)
 
             '''
             print('P: {0:4d} {1:10.3f} {2:10.3f} {3:10.3f} {4:10.3f} {5:10.3f} {6:10.3f} {7:10.3f} {8:d}'.format( \
@@ -177,9 +184,17 @@ class consumer() :
 
             mainform_object.connect_btn_text.set("Disconnect")
 
-    def log_data(self, monitor_object):
+            mainform_object.status_label_text.set('Running')
+
+            #self.g_sys_instance.run_experiment = True
+
+    def log_data(self, monitor_object, start_time, log_frequency):
 
         self.g_sys_instance.blogging = True
+
+        self.last_logged_time = start_time
+
+        self.log_frequency = log_frequency
 
         monitor_object.log_btn_text.set("Stop recording")
 
@@ -223,6 +238,10 @@ class consumer() :
         tash.command[0:len(cmdBuf)] = cmdBuf
 
         g_tech_instance.bconnected = "False"
+
+        mainform_object.status_label_text.set('Idle')
+
+        #self.g_sys_instance.run_experiment = False
 
         print(g_tech_instance.cfg)
 

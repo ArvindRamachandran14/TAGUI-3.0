@@ -14,6 +14,7 @@ import matplotlib.animation as animation
 from matplotlib import style
 from matplotlib import pyplot as plt
 import global_sys_var as g_sys
+from datetime import datetime
 import Data_coord
 
 class CtrlMon(Frame) :
@@ -31,6 +32,7 @@ class CtrlMon(Frame) :
         self.plot1_range = 7 #7 data points leads to 15 second data
         self.plot2_range = 7 
         self.plot3_range = 7 
+        self.log_frequency_list = [2, 4, 10, 60]
         self.slider_list = [1, 15, 30, 60]
         self.buildContent()
 
@@ -40,8 +42,8 @@ class CtrlMon(Frame) :
 
         self.label.grid(row=0, column=0, rowspan=2)
 
-        self.button1 = ttk.Button(self, textvariable=self.exp_btn_text, command=self.run_experiment)
-        self.button1.grid(row=2, column=0, columnspan=2)
+        self.log_frequency_scale = Scale(self, from_=min(self.log_frequency_list), to=max(self.log_frequency_list), command=self.log_frquency_scale_value_check, orient=HORIZONTAL, label='log rate (s)')#, command=set_plot_range(1))
+        self.log_frequency_scale.grid(row=2, column=0, columnspan=2)
 
         self.button2 = ttk.Button(self, textvariable=self.log_btn_text, command=self.log_data)
         self.button2.grid(row=2, column=1, columnspan=2)
@@ -179,6 +181,13 @@ class CtrlMon(Frame) :
             self.plot3_range = self.scale3.get()
     '''
 
+    def log_frquency_scale_value_check(self, value):
+
+        newvalue = min(self.log_frequency_list, key=lambda x:abs(x-float(value)))
+       
+        self.log_frequency_scale.set(newvalue)
+
+
     def scale_value_check1(self, value):
 
         newvalue = min(self.slider_list, key=lambda x:abs(x-float(value)))
@@ -270,31 +279,13 @@ class CtrlMon(Frame) :
         self.outputtextbox3_variable.set("WGT = "+str(self.g_sys_instance.sample_weight[-1]))
 
 
-    def run_experiment(self):
-
-        if str(self.exp_btn_text.get()) == "Start experiment":
-
-            self.g_sys_instance.run_experiment = True
-
-            self.exp_btn_text.set('Stop experiment')
-
-            self.mainform_object.status_label_text.set('Running')
-
-        elif str(self.exp_btn_text.get()) == 'Stop experiment':
-
-            self.g_sys_instance.run_experiment = False
-
-            self.exp_btn_text.set('Start experiment')
-
-            self.mainform_object.status_label_text.set('Idle')
-
     def log_data(self):
 
         #print(self.log_btn_text.get())
 
         if str(self.log_btn_text.get()) == "Record data": 
 
-            self.consumer_object.log_data(self) 
+            self.consumer_object.log_data(self, datetime.now(), self.log_frequency_scale.get()) 
 
         elif str(self.log_btn_text.get()) == 'Stop recording':
 

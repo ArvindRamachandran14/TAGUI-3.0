@@ -94,6 +94,8 @@ class CtrlSetup(Frame) :
         self.label9.grid(row = 7, column = 0, padx = 2, pady = 2, sticky='e')
         self.sb4 = Spinbox(self.grpSetpoint, from_ = 1, to_ = 100, width = 5)
         self.sb4.grid(row = 7, column = 1, padx = 2, pady = 2, sticky='w')
+        self.label9.configure(state='disabled')
+        self.sb4.configure(state='disabled')
         self.RH_textvariable = StringVar()
         self.label10 = Label(self.grpSetpoint, textvariable=self.RH_textvariable)
         self.label10.grid(row = 7, column = 2)
@@ -153,13 +155,17 @@ class CtrlSetup(Frame) :
 
         time.sleep(2)
 
-        reply4 = self.cons.send_command_to_PC('s SC_set '+  self.sb1.get())
+        if int(self.v1.get()) == 1 and reply1 == 'Done\n':
 
-        time.sleep(2)
+            reply4 = self.cons.send_command_to_PC('s SC_set '+  self.sb1.get())
 
-        reply5 = self.cons.send_command_to_PC('s CC_set '+  self.sb2.get())
+            time.sleep(2)
 
-        time.sleep(2)
+        if int(self.v2.get()) == 1 and reply2 == 'Done\n':
+
+            reply5 = self.cons.send_command_to_PC('s CC_set '+  self.sb2.get())
+
+            time.sleep(2)
 
         if self.label7.cget('state') == 'normal' and self.label9.cget('state') == 'disabled': #RH input
 
@@ -183,11 +189,11 @@ class CtrlSetup(Frame) :
 
         target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-        reply6 = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+        if int(self.v3.get()) == 1 and reply3 == str('Done\n'):
 
-        #print(reply2, reply5)
+            reply6 = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
 
-        print(reply1, reply2, reply3, reply4, reply5, reply6)
+        #print(reply1, reply2, reply3, reply4, reply5, reply6)
 
         #if reply1 == reply2 == reply3 == 'OK':
 

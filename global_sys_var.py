@@ -22,3 +22,5 @@ class globals_:
         self.bsimulation = True
 
         self.run_experiment = False
+
+        self.log_frequency = 2 #seconds

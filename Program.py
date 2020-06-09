@@ -56,7 +56,7 @@ def main(argv) :
             bconnected = config["bconnected"]
     
         
-        if mainForm.connect_btn_text.get() == "Disconnect" and g_sys_instance.run_experiment == True:
+        if mainForm.connect_btn_text.get() == "Disconnect":
     
             #print('Consumption in progress')
 
