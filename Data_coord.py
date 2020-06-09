@@ -81,17 +81,17 @@ class consumer() :
 
             if tad.SC_T1 > 0.0:
                 
-                self.g_sys_instance.Temperatures_SC.append(tad.SC_T1)
+                self.g_sys_instance.Temperatures_SC.append(round(tad.SC_T1,2))
 
-                self.g_sys_instance.Temperatures_CC.append(tad.CC_T1)
+                self.g_sys_instance.Temperatures_CC.append(round(tad.CC_T1,2))
 
-                self.g_sys_instance.Temperatures_DPG.append(tad.DPG_T1)
+                self.g_sys_instance.Temperatures_DPG.append(round(tad.DPG_T1,2))
 
-                self.g_sys_instance.pH2O_list.append(tad.pH2O)
+                self.g_sys_instance.pH2O_list.append(round(tad.pH2O,2))
 
-                self.g_sys_instance.pCO2_list.append(tad.pCO2)
+                self.g_sys_instance.pCO2_list.append(round(tad.pCO2,2))
 
-                self.g_sys_instance.sample_weight.append(tad.Sample_weight)
+                self.g_sys_instance.sample_weight.append(round(tad.Sample_weight,2))
 
                 self.g_sys_instance.time_list.append(tad.recTime)
 

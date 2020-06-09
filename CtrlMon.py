@@ -5,7 +5,7 @@
 #   20191115:KDT - Original issue
 
 import tkinter as tk 
-from tkinter import ttk, Frame, Canvas, LabelFrame, Label, Spinbox, OptionMenu, StringVar, Button, Scale, HORIZONTAL, VERTICAL
+from tkinter import ttk, Frame, Canvas, LabelFrame, Label, Spinbox, OptionMenu, StringVar, Button, Scale, HORIZONTAL, VERTICAL, Text, Entry
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -50,13 +50,13 @@ class CtrlMon(Frame) :
 
         self.label.grid(row=3, column=0, rowspan=2)
 
-        self.label1 = Label(self, text = 'Sample Chamber Temperature')
+        self.label1 = Label(self, text = 'Temperatures')
         self.label1.grid(row = 5, column = 0, padx = 2, pady = 2)
   
-        self.label2 = Label(self, text = 'Conditioning Chamber Temperature')
+        self.label2 = Label(self, text = 'Partial Pressures')
         self.label2.grid(row = 5, column = 1, padx = 2, pady = 2)
   
-        self.label3 = Label(self, text = 'Dew Point Generator Temperatures')
+        self.label3 = Label(self, text = 'Sample Weight')
         self.label3.grid(row = 5, column = 2, padx = 3, pady = 3)
 
         self.toolbarframe1 = Frame(self)
@@ -84,10 +84,18 @@ class CtrlMon(Frame) :
         self.ax1.set_ybound(10, 40)
         self.ax1.set_autoscaley_on(True)
         self.ax1.grid(True, 'major', 'both')
+
         self.fig1.tight_layout()
       
         self.cnvs1 = FigureCanvasTkAgg(self.fig1, self)
         self.cnvs1.get_tk_widget().grid(row=7, column=0)
+
+        self.outputtextbox1_variable = StringVar()
+
+        self.outputtextbox1 = Label(self, textvariable=self.outputtextbox1_variable)
+
+        self.outputtextbox1.grid(row=8, column=0)
+
 
         #self.toolbarframe1.grid(row=8, column=0)
 
@@ -97,11 +105,14 @@ class CtrlMon(Frame) :
       
         #Plot Conditioning Chamber temperature
 
-        self.fig2 = Figure(figsize=(3.8, 3.8))
+        self.fig2 = Figure(figsize=(4.1, 3.8))
         self.ax2 = self.fig2.add_subplot(111)
+        self.ax2_twin = self.ax2.twinx()
         self.ax2.set_xlabel('Time (sec)')
-        self.ax2.set_ylabel('Temperature ($^\circ$C)')
+        self.ax2.set_ylabel('pCO2 (ppm)')
+        self.ax2_twin.set_ylabel('pH2O (ppt)')
         self.ax2.set_autoscalex_on(True)
+        self.ax2_twin.set_autoscalex_on(True)
         #self.ax2.set_ybound(10, 40)
         self.ax2.set_autoscaley_on(True)
         self.ax2.grid(True, 'major', 'both')
@@ -109,6 +120,12 @@ class CtrlMon(Frame) :
    
         self.cnvs2 = FigureCanvasTkAgg(self.fig2, self)
         self.cnvs2.get_tk_widget().grid(row=7, column=1)
+
+        self.outputtextbox2_variable = StringVar()
+
+        self.outputtextbox2 = Label(self, textvariable=self.outputtextbox2_variable)
+
+        self.outputtextbox2.grid(row=8, column=1)
 
         #self.toolbarframe2.grid(row=8, column=1)
 
@@ -131,6 +148,12 @@ class CtrlMon(Frame) :
    
         self.cnvs3 = FigureCanvasTkAgg(self.fig3, self)
         self.cnvs3.get_tk_widget().grid(row=7, column=2)
+
+        self.outputtextbox3_variable = StringVar()
+
+        self.outputtextbox3 = Label(self, textvariable=self.outputtextbox3_variable)
+
+        self.outputtextbox3.grid(row=8, column=2)
 
         #self.toolbarframe3.grid(row=8, column=2)
 
@@ -174,59 +197,78 @@ class CtrlMon(Frame) :
        
         self.scale3.set(newvalue)
 
-
-    def animate_SC(self, i):
+    def animate_temperatures(self, i):
 
         self.ax1.clear()
         self.ax1.set_xlabel('Time (sec)')
         self.ax1.set_ylabel('Temperature ($^\circ$C)')
         self.ax1.set_autoscalex_on(True)
-        self.ax1.set_ybound(10, 40)
-        self.ax1.set_autoscaley_on(False)
+        #self.ax1.set_ybound(10, 40)
+        self.ax1.set_autoscaley_on(True)
         self.ax1.grid(True, 'major', 'both')
 
-        plot_range = self.scale1.get()*60 #converting seconds to list range
+        plot1_range = self.scale1.get()*60 #converting seconds to list range
 
         #print('range type', type(range))
 
-        index = int(plot_range/15.0)
+        index = int(plot1_range/15.0)
 
-        self.ax1.plot(self.g_sys_instance.time_list[(10000-self.plot1_range*index)::index], self.g_sys_instance.Temperatures_SC[(10000-self.plot1_range*index)::index], 'k')
+        self.ax1.plot(self.g_sys_instance.time_list[(10000-self.plot1_range*index):], self.g_sys_instance.Temperatures_SC[(10000-self.plot1_range*index):], 'k', label="TSC")
 
-    def animate_CC(self, i):
+        self.ax1.plot(self.g_sys_instance.time_list[(10000-self.plot1_range*index):], self.g_sys_instance.Temperatures_CC[(10000-self.plot1_range*index):], 'b', label="TCC")
+
+        self.ax1.plot(self.g_sys_instance.time_list[(10000-self.plot1_range*index):], self.g_sys_instance.Temperatures_DPG[(10000-self.plot1_range*index):], 'r', label="TDPG")
+
+        self.ax1.legend()
+
+        self.outputtextbox1_variable.set("TCC = "+str(self.g_sys_instance.Temperatures_CC[-1])+" TSC = "+str(self.g_sys_instance.Temperatures_SC[-1])+" TDPG = "+str(self.g_sys_instance.Temperatures_DPG[-1]))
+
+    def animate_pressures(self, i):
 
         self.ax2.clear()
-
+        self.ax2_twin.clear()
         self.ax2.set_xlabel('Time (sec)')
-        self.ax2.set_ylabel('Temperature ($^\circ$C)')
+        self.ax2.set_ylabel('pCO2 (ppm)')
+        self.ax2_twin.set_ylabel('pH2O (ppt)')
+        self.ax2.tick_params('y', colors='b')
+        self.ax2_twin.tick_params('y', colors='r')
         self.ax2.set_autoscalex_on(True)
-        self.ax2.set_ybound(10, 40)
-        self.ax2.set_autoscaley_on(False)
         self.ax2.grid(True, 'major', 'both')
 
+        plot2_range = self.scale2.get()*60 #converting seconds to list range
 
-        plot_range = self.scale2.get()*60 #converting seconds to list range
+        index = int(plot2_range/15.0)
 
-        index = int(plot_range/15.0)
+        #print(self.g_sys_instance.pH2O_list[-1])
 
-        self.ax2.plot(self.g_sys_instance.time_list[(10000-self.plot2_range*index)::index], self.g_sys_instance.Temperatures_CC[(10000-self.plot2_range*index)::index], 'k')
+        self.ax2.plot(self.g_sys_instance.time_list[(10000-self.plot2_range*index):], self.g_sys_instance.pCO2_list[(10000-self.plot2_range*index):], color='b', label='pCO2')
 
-    def animate_DPG(self, i):
+        self.ax2_twin.plot(self.g_sys_instance.time_list[(10000-self.plot2_range*index):], self.g_sys_instance.pH2O_list[(10000-self.plot2_range*index):], color='r', label='pH2O')
+
+        #self.ax2.legend(loc=3)
+
+        #self.ax2_twin.legend(loc=4)
+
+        self.outputtextbox2_variable.set("pCO2 = "+str(self.g_sys_instance.pCO2_list[-1])+" pH2O = "+str(self.g_sys_instance.pH2O_list[-1]))
+
+    def animate_sw(self, i):
 
         self.ax3.clear()
-
         self.ax3.set_xlabel('Time (sec)')
-        self.ax3.set_ylabel('Temperature ($^\circ$C)')
+        self.ax3.set_ylabel('Weight (g)')
+
         self.ax3.set_autoscalex_on(True)
-        self.ax3.set_ybound(10, 40)
-        self.ax3.set_autoscaley_on(False)
+
         self.ax3.grid(True, 'major', 'both')
 
-        plot_range = self.scale3.get()*60 #converting seconds to list range
+        plot3_range = self.scale3.get()*60 #converting seconds to list range
 
-        index = int(plot_range/15.0)
+        index = int(plot3_range/15.0)
 
-        self.ax3.plot(self.g_sys_instance.time_list[(10000-self.plot3_range*index)::index], self.g_sys_instance.Temperatures_DPG[(10000-self.plot3_range*index)::index], 'k')
+        self.ax3.plot(self.g_sys_instance.time_list[(10000-self.plot3_range*index):], self.g_sys_instance.sample_weight[(10000-self.plot3_range*index):], 'k')
+
+        self.outputtextbox3_variable.set("WGT = "+str(self.g_sys_instance.sample_weight[-1]))
+
 
     def run_experiment(self):
 
@@ -245,7 +287,6 @@ class CtrlMon(Frame) :
             self.exp_btn_text.set('Start experiment')
 
             self.mainform_object.status_label_text.set('Idle')
-
 
     def log_data(self):
 

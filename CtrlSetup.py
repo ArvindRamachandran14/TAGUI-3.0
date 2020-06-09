@@ -23,6 +23,8 @@ class CtrlSetup(Frame) :
 
         MODES = [("ON", "1"),("OFF", "0")]
 
+        PH2O_options = [("RH (%)", "0"),("pH2O (ppt)", "1")]
+
         self.output = StringVar()
 
         self.grpSetpoint = LabelFrame(self, text = ' Control Variables ')
@@ -37,7 +39,6 @@ class CtrlSetup(Frame) :
         for i in range(2):
             self.rb1 = Radiobutton(self.grpSetpoint, text=MODES[i][0], variable=self.v1, value=MODES[i][1])
             self.rb1.grid(row=0, column=i+1, padx = 2, pady = 2, sticky='w')
-       
        
         self.label2 = Label(self.grpSetpoint, text = 'CC  power:')
         self.label2.grid(row = 1, column = 0, padx = 2, pady = 2, sticky='e')
@@ -69,26 +70,73 @@ class CtrlSetup(Frame) :
         self.sb2 = Spinbox(self.grpSetpoint, from_ = 5, to_ = 50, width = 5)
         self.sb2.grid(row = 4, column = 1, padx = 2, pady = 2, sticky='w')
 
-        self.label6 = Label(self.grpSetpoint, text = 'RH (%):')
-        self.label6.grid(row = 5, column = 0, padx = 2, pady = 2, sticky='e')
-        self.sb3 = Spinbox(self.grpSetpoint, from_ = 1, to_ = 100, width = 5)
-        self.sb3.grid(row = 5, column = 1, padx = 2, pady = 2, sticky='w')
-
-        self.label4 = Label(self.grpSetpoint, text="SC bypass:")
-        self.label4.grid(row=6,column=0, padx = 2, pady = 2, sticky='e')
-
         self.v4 = StringVar()
         self.v4.set("0") # initialize
 
+
+        self.label6 = Label(self.grpSetpoint, text = 'Set:')
+        self.label6.grid(row = 5, column = 0, padx = 2, pady = 2, sticky='e')
+
         for i in range(2):
-            self.rb = Radiobutton(self.grpSetpoint, text=MODES[i][0], variable=self.v4, value=MODES[i][1])
-            self.rb.grid(row=6, column=i+1, padx = 2, pady = 2, sticky='w')
+
+            self.rb1 = Radiobutton(self.grpSetpoint, text=PH2O_options[i][0], variable=self.v4, value=PH2O_options[i][1], command=self.pH2O_vs_RH)
+            self.rb1.grid(row=5, column=i+1, padx = 2, pady = 2, sticky='w')
+
+        self.label7 = Label(self.grpSetpoint, text = 'RH (%):')
+        self.label7.grid(row = 6, column = 0, padx = 2, pady = 2, sticky='e')
+        self.sb3 = Spinbox(self.grpSetpoint, from_ = 1, to_ = 100, width = 5)
+        self.sb3.grid(row = 6, column = 1, padx = 2, pady = 2, sticky='w')
+        self.pH2O_textvariable = StringVar()
+        self.label8 = Label(self.grpSetpoint, textvariable=self.pH2O_textvariable)
+        self.label8.grid(row = 6, column = 2)
+
+        self.label9 = Label(self.grpSetpoint, text = 'pH2O (ppt):')
+        self.label9.grid(row = 7, column = 0, padx = 2, pady = 2, sticky='e')
+        self.sb4 = Spinbox(self.grpSetpoint, from_ = 1, to_ = 100, width = 5)
+        self.sb4.grid(row = 7, column = 1, padx = 2, pady = 2, sticky='w')
+        self.RH_textvariable = StringVar()
+        self.label10 = Label(self.grpSetpoint, textvariable=self.RH_textvariable)
+        self.label10.grid(row = 7, column = 2)
+
+        self.label11 = Label(self.grpSetpoint, text="SC bypass:")
+        self.label11.grid(row=8,column=0, padx = 2, pady = 2, sticky='e')
+
+        self.v5 = StringVar()
+        self.v5.set("0") # initialize
+
+        for i in range(2):
+            self.rb2 = Radiobutton(self.grpSetpoint, text=MODES[i][0], variable=self.v5, value=MODES[i][1])
+            self.rb2.grid(row=8, column=i+1, padx = 2, pady = 2, sticky='w')
 
         self.output_text = Label(self.grpSetpoint, borderwidth=1, width=5, textvariable=self.output)
-        self.output_text.grid(row = 7, column = 0, columnspan=2, padx = 2, pady = 2)
+        self.output_text.grid(row = 9, column = 0, columnspan=2, padx = 2, pady = 2)
 
         self.box_values = Button(self.grpSetpoint, text="Apply", command=self.send_command)
-        self.box_values.grid(row = 8, column = 2, columnspan=1, padx = 2, pady = 2, sticky='w')
+        self.box_values.grid(row = 10, column = 2, columnspan=1, padx = 2, pady = 2, sticky='w')
+
+    def pH2O_vs_RH(self):
+
+        if int(self.v4.get()):
+
+            self.label9.configure(state='normal')
+
+            self.sb4.configure(state='normal')
+
+            self.label7.configure(state='disabled')
+
+            self.sb3.configure(state='disabled')
+
+
+        else:
+
+            self.label7.configure(state='normal')
+
+            self.sb3.configure(state='normal')
+
+            self.label9.configure(state='disabled')
+
+            self.sb4.configure(state='disabled')
+
 
 
     def send_command(self): 
@@ -113,7 +161,25 @@ class CtrlSetup(Frame) :
 
         time.sleep(2)
 
-        target_pressure = (float(self.sb3.get())/100.0)*self.ph2oSat(float(self.sb1.get()))
+        if self.label7.cget('state') == 'normal' and self.label9.cget('state') == 'disabled': #RH input
+
+            target_pressure = (float(self.sb3.get())/100.0)*self.ph2oSat(float(self.sb1.get()))
+
+            Cell_pressure = float(self.cons.send_command_to_PC('g CellP').split('---')[0])*1000 #Convert to Pa
+
+            self.pH2O_textvariable.set('pH2O (ppt): ' + str(round((target_pressure/Cell_pressure)*1000,2)))
+
+            self.RH_textvariable.set('')
+
+        elif self.label9.cget('state') == 'normal' and self.label7.cget('state') == 'disabled': # pH2O input
+
+            Cell_pressure = float(self.cons.send_command_to_PC('g CellP').split('---')[0])*1000 #Convert to Pa
+
+            target_pressure = (float(self.sb4.get())/1000.0)*Cell_pressure
+
+            self.RH_textvariable.set('RH (%): ' + str(round((target_pressure/self.ph2oSat(float(self.sb1.get()))*100),2)))
+
+            self.pH2O_textvariable.set('')
 
         target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
