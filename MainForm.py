@@ -17,6 +17,7 @@ import CtrlTerm
 import CtrlCfg
 import serial
 import time
+import Calib
 #import TADAQ
 import Data_coord
 import json
@@ -106,7 +107,7 @@ class MainForm(Tk) :
 
         self.serial_port_label.grid(row=0, column=2)
 
-        tty_list = ["/dev/ttyUSB0", "/dev/ttyUSB1"]
+        tty_list = ["/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/tty.usbserial-FTY3UOSS"]
 
         self.tty_variable = StringVar()
 
@@ -190,8 +191,9 @@ class MainForm(Tk) :
         self.tabTerm = CtrlTerm.CtrlTerm(self.ctrlTab, self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.tabTerm, text = 'Terminal')
         self.tabCfg = CtrlCfg.CtrlCfg(self.ctrlTab)
-        self.ctrlTab.add(self.tabCfg, text = 'Config')
-        self.ctrlTab.grid(row=1, column=0,sticky=tk.E+tk.W+tk.S+tk.N)
+        self.calibTab = Calib.Calib(self.ctrlTab,  self.cons)
+        self.ctrlTab.add(self.calibTab, text = 'Calibration')
+        self.ctrlTab.grid(row=1, column=0, sticky=tk.E+tk.W+tk.S+tk.N)
 
     def set_mode(self, event):
 
