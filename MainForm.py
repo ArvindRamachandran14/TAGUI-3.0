@@ -184,9 +184,9 @@ class MainForm(Tk) :
         self.tabMon = CtrlMon.CtrlMon(self.ctrlTab, self.g_sys_instance, self.cons, self)
         self.tabMon2 = CtrlMon2.CtrlMon2(self.ctrlTab, self.g_sys_instance)
 
-        self.ctrlTab.add(self.tabMon, text = 'Monitor 1')
+        self.ctrlTab.add(self.tabMon, text = 'Monitor')
 
-        self.ctrlTab.add(self.tabMon2, text = 'Monitor 2')
+        #self.ctrlTab.add(self.tabMon2, text = 'Monitor 2')
 
         self.tabTerm = CtrlTerm.CtrlTerm(self.ctrlTab, self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.tabTerm, text = 'Terminal')
@@ -224,7 +224,7 @@ class MainForm(Tk) :
         if str(self.connect_btn_text.get()) == "Connect":
 
             self.cons.Connect(self, self.tty_variable.get(), self.baud_rate_variable.get(), str(time_out)) #Send all variables regardless of operation mode
-        
+
         elif str(self.connect_btn_text.get()) == "Disconnect":
 
             self.cons.Disconnect()
@@ -235,7 +235,7 @@ class MainForm(Tk) :
 
     def onFileNew(self):
         
-        filename  = filedialog.asksaveasfilename(initialdir = "./",title = "Select file",filetypes = (("xml files","*.xml"),("all files","*.*")))
+        filename  = filedialog.asksaveasfilename(initialdir = "./",title = "Select file",filetypes = (("xml files","*.xml"), ("csv files","*.csv"), ("all files","*.*")))
 
         if filename != '':
 
@@ -244,7 +244,7 @@ class MainForm(Tk) :
 
     def onFileOpen(self) :
 
-        ftypes = [('xml files', '*.xml'), ('All files', '*')]
+        ftypes = [('xml files', '*.xml'), ("csv files","*.csv"), ('All files', '*')]
         dlg = filedialog.Open(self, filetypes = ftypes)
         filename = dlg.show()
 
