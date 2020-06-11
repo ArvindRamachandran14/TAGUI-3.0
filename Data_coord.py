@@ -156,7 +156,7 @@ class consumer() :
         self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(TAShare))
 
 
-    def Connect(self, monitor_object, mainform_object, serial_port, baud_rate, time_out):
+    def Connect(self, mainform_object,  monitor_object, serial_port, baud_rate, time_out):
         
         shFile = Path('taShare')
         if shFile.is_file() :
