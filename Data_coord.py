@@ -156,7 +156,7 @@ class consumer() :
         self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(TAShare))
 
 
-    def Connect(self, mainform_object, serial_port, baud_rate, time_out):
+    def Connect(self, monitor_object, mainform_object, serial_port, baud_rate, time_out):
         
         shFile = Path('taShare')
         if shFile.is_file() :
@@ -185,6 +185,14 @@ class consumer() :
             mainform_object.connect_btn_text.set("Disconnect")
 
             mainform_object.status_label_text.set('Running')
+
+            monitor_object.ax1.clear()
+
+            monitor_object.ax2.clear()
+
+            monitor_object.ax2_twin.clear()
+
+            monitor_object.ax3.clear()
 
             #self.g_sys_instance.run_experiment = True
 
