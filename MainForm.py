@@ -223,7 +223,7 @@ class MainForm(Tk) :
 
         if str(self.connect_btn_text.get()) == "Connect":
 
-            self.cons.Connect(self, self.tty_variable.get(), self.baud_rate_variable.get(), str(time_out)) #Send all variables regardless of operation mode
+            self.cons.Connect(self, self.tabMon, self.tty_variable.get(), self.baud_rate_variable.get(), str(time_out)) #Send all variables regardless of operation mode
 
         elif str(self.connect_btn_text.get()) == "Disconnect":
 
