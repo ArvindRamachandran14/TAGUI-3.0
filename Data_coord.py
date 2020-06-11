@@ -227,7 +227,7 @@ class consumer() :
 
         return(reply)
         
-    def Disconnect(self):
+    def Disconnect(self, mainform_object):
 
         print('Disconnecting')
 

@@ -227,7 +227,7 @@ class MainForm(Tk) :
 
         elif str(self.connect_btn_text.get()) == "Disconnect":
 
-            self.cons.Disconnect()
+            self.cons.Disconnect(self)
 
             self.connect_btn_text.set("Connect")
 
