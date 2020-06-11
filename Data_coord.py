@@ -186,13 +186,13 @@ class consumer() :
 
             mainform_object.status_label_text.set('Running')
 
-            monitor_object.ax1.clear()
+            #monitor_object.ax1.clear()
 
-            monitor_object.ax2.clear()
+            #monitor_object.ax2.clear()
 
-            monitor_object.ax2_twin.clear()
+            #monitor_object.ax2_twin.clear()
 
-            monitor_object.ax3.clear()
+            #monitor_object.ax3.clear()
 
             #self.g_sys_instance.run_experiment = True
 
@@ -235,7 +235,7 @@ class consumer() :
 
         return(reply)
         
-    def Disconnect(self, mainform_object):
+    def Disconnect(self, mainform_object, monitor_object):
 
         print('Disconnecting')
 
@@ -253,6 +253,14 @@ class consumer() :
 
         print(g_tech_instance.cfg)
 
-        print('Disconnected')
+        monitor_object.ax1.clear()
+
+        monitor_object.ax2.clear()
+
+        monitor_object.ax2_twin.clear()
+
+        monitor_object.ax3.clear()
+
+        #print('Disconnected')
 
         #self.ser_PC.close()
