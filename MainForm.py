@@ -191,7 +191,7 @@ class MainForm(Tk) :
         self.tabTerm = CtrlTerm.CtrlTerm(self.ctrlTab, self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.tabTerm, text = 'Terminal')
         self.tabCfg = CtrlCfg.CtrlCfg(self.ctrlTab)
-        self.calibTab = Calib.Calib(self.ctrlTab,  self.cons)
+        self.calibTab = Calib.Calib(self.ctrlTab,  self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
         self.ctrlTab.grid(row=1, column=0, sticky=tk.E+tk.W+tk.S+tk.N)
 

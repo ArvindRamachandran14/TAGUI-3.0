@@ -15,6 +15,8 @@ import datetime
 
 from MainForm import MainForm
 
+from Calib import Calib
+
 
 def reset_bconnected():
 
@@ -49,7 +51,9 @@ def main(argv) :
 
     def apploop():
 
-        with open('taui.json', 'r') as fCfg :
+        with open('taui.json', 'r') as fCfg : 
+
+            #check if there is ~/.TAGUI file and modify any of the values
             
             config = json.loads(fCfg.read())
 
@@ -75,6 +79,12 @@ def main(argv) :
     ani_pressures = animation.FuncAnimation(mainForm.tabMon.fig2, mainForm.tabMon.animate_pressures, interval=1000)
 
     animate_sw = animation.FuncAnimation(mainForm.tabMon.fig3, mainForm.tabMon.animate_sw, interval=1000)
+
+    ani_calib_temperatures_SC = animation.FuncAnimation(mainForm.calibTab.fig1, mainForm.calibTab.animate_temperatures, interval=1000)
+
+    #ani_calib_temperatures_CC = animation.FuncAnimation(mainForm.calibTab.fig2, mainForm.calibTab.animate_temperatures, interval=1000)
+
+    #ani_calib_temperatures = animation.FuncAnimation(mainForm.calibTab.fig3, mainForm.calibTab.animate_temperatures, interval=1000)
 
     mainForm.mainloop()
 

@@ -164,11 +164,11 @@ class consumer() :
 
         if self.g_sys_instance.bsimulation == True:
 
-            Popen(['python3.7', 'TADAQ.py']) #Starts the TADAQ program
+            Popen(['python3', 'TADAQ.py']) #Starts the TADAQ program
 
         elif self.g_sys_instance.bsimulation == False:
 
-            Popen(['python3.7', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
+            Popen(['python3', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
 
         time.sleep(2) #Time for TADAQ to edit bconnected flag in taui.json
 
