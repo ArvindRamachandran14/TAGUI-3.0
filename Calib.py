@@ -211,7 +211,7 @@ class Calib(Frame) :
 
     def send_power_settings(self):
 
-        command_power = 's '+self.choose_controller_variable.get()+ '_power '+self.P_entry.get()
+        command_power = 's '+self.choose_controller_variable.get()+ '_power '+self.v1
 
         reply_power = self.cons.send_command_to_PC(command_power)
 
