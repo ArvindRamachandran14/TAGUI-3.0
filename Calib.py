@@ -65,7 +65,7 @@ class Calib(Frame) :
 
         self.outputtextbox = Label(self, textvariable=self.outputtextbox_variable)
 
-        #self.outputtextbox.grid(row=2, column=2)
+        self.outputtextbox.grid(row=2, column=2)
 
         MODES = [("ON", "1"),("OFF", "0")]
 
@@ -211,7 +211,7 @@ class Calib(Frame) :
 
     def send_power_settings(self):
 
-        command_power = 's '+self.choose_controller_variable.get()+ '_power '+self.v1
+        command_power = 's '+self.choose_controller_variable.get()+ '_power '+self.v1.get()
 
         reply_power = self.cons.send_command_to_PC(command_power)
 
