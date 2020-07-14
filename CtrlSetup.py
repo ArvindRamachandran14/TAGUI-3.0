@@ -13,10 +13,11 @@ import scipy.optimize as opt
 import time
 
 class CtrlSetup(Frame) :
-    def __init__(self, parent, cons, *args, **kwargs) :
+    def __init__(self, parent, cons, g_sys_instance, *args, **kwargs) :
         Frame.__init__(self, *args, **kwargs)
         self.cons = cons
         self.parent = parent
+        self.g_sys_instance = g_sys_instance
         self.buildContent()
 
     def buildContent(self) :
@@ -132,6 +133,8 @@ class CtrlSetup(Frame) :
         self.label_converted_RH = Label(self.pH2OgrpSetpoint, textvariable=self.RH_textvariable)
         self.label_converted_RH.grid(row = 3, column = 2)
 
+        self.label_pH2O_set.configure(state='disabled')
+
         self.label_converted_pH2O.configure(state='disabled')
 
         self.sb_pH2O_set.configure(state='disabled')
@@ -191,6 +194,12 @@ class CtrlSetup(Frame) :
 
         reply_DPG_Power = self.cons.send_command_to_PC('s DPG_power '+str(int(self.v_DPG_power.get())))
 
+        print(self.label_RH_set.cget('state'))
+
+        print(self.label_pH2O_set.cget('state'))
+
+        TSC = self.g_sys_instance.Temperatures_SC[-1]
+
         if self.label_RH_set.cget('state') == 'normal' and self.label_pH2O_set.cget('state') == 'disabled': #RH input
 
             RH_input = float(self.sb_RH_set.get())
@@ -199,9 +208,19 @@ class CtrlSetup(Frame) :
 
             if RH_input >=10 and RH_input <=90: #RH limits
 
-                target_pressure = (RH_input/100.0)*self.ph2oSat(float(self.sb_SC_set.get()))
+                target_pressure = (RH_input/100.0)*self.ph2oSat(TSC)
 
-                Cell_pressure = float(self.cons.send_command_to_PC('g CellP').split('---')[0])*1000 #Convert to Pa
+                Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
+
+                time.sleep(0.5)
+
+                print(Cell_pressure_output)
+
+                Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+
+                Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+
+                Cell_pressure = float(Cell_pressure_string)*1000
 
                 self.pH2O_textvariable.set('pH2O (ppt): ' + str(round((target_pressure/Cell_pressure)*1000,2)))
 
@@ -209,9 +228,10 @@ class CtrlSetup(Frame) :
 
                 target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-                if int(self.v3.get()) == 1 and reply3 == str('Done\n'):
+                if int(self.v_DPG_power.get()) == 1 and reply_DPG_Power == str('Done\n'):
 
                     reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                    
 
                     print('reply_DPG_set', reply_DPG_set)
 
@@ -234,21 +254,31 @@ class CtrlSetup(Frame) :
 
         elif self.label_pH2O_set.cget('state') == 'normal' and self.label_RH_set.cget('state') == 'disabled': # pH2O input
 
-            Cell_pressure = float(self.cons.send_command_to_PC('g CellP').split('---')[0])*1000 #Convert to Pa
+            Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
+
+            print(Cell_pressure_output)
+            
+            time.sleep(0.5)
+
+            Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+
+            Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+
+            Cell_pressure = float(Cell_pressure_string)*1000
 
             target_pressure = (float(self.sb_pH2O_set.get())/1000.0)*Cell_pressure
 
-            RH_input = (target_pressure/self.ph2oSat(float(self.sb_sc_set.get())))*100
+            RH_input = (target_pressure/self.ph2oSat(TSC))*100
 
             if RH_input >=10 and RH_input <=90: #RH limits
 
-                self.RH_textvariable.set('RH (%): ' + str(round((target_pressure/self.ph2oSat(float(self.sb_sc_set.get()))*100),2)))
+                self.RH_textvariable.set('RH (%): ' + str(round((target_pressure/self.ph2oSat(TSC)*100),2)))
 
                 self.pH2O_textvariable.set('')
 
                 target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-                if int(self.v3.get()) == 1 and reply3 == str('Done\n'):
+                if int(self.v_DPG_power.get()) == 1 and reply_DPG_Power == str('Done\n'):
 
                     reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
 

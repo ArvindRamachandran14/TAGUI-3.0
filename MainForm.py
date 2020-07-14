@@ -179,7 +179,7 @@ class MainForm(Tk) :
         ################# Hosts the different tabs such as SetUp, Monitor, Terminal, and Config #################
         
         self.ctrlTab = ttk.Notebook(container)
-        self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons)
+        self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance)
         self.ctrlTab.add(self.tabSetup, text = 'Setup')
         self.tabMon = CtrlMon.CtrlMon(self.ctrlTab, self.g_sys_instance, self.cons, self)
         self.tabMon2 = CtrlMon2.CtrlMon2(self.ctrlTab, self.g_sys_instance)
