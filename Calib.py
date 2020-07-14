@@ -1,4 +1,4 @@
-from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, OptionMenu, Entry
+from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, OptionMenu, Entry, Scale, HORIZONTAL
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 import time
@@ -9,12 +9,17 @@ class Calib(Frame) :
         Frame.__init__(self, *args, **kwargs)
         self.g_sys_instance = g_sys_instance
         self.cons = cons
+        self.plot_density = 7
+        self.slider_list = [0,1,2,3,4]
+        self.slider_list_value = [0.5,1,15,30,60]
         #self.parent = parent
         self.buildContent()
 
     def buildContent(self) :
 
         self.output = StringVar()
+
+        self.scale_textvariable = StringVar()
 
         choose_controller_list = ["SC", "CC", "DPG"]
 
@@ -43,6 +48,14 @@ class Calib(Frame) :
 
         self.Settings.grid(row=1,column=1, padx=2, pady=2, rowspan=12, sticky='N')
 
+        self.scale = Scale(self, from_=min(self.slider_list), to=max(self.slider_list), command=self.scale_value_show, showvalue=0, orient=HORIZONTAL)#, command=set_plot_range(1))
+        self.scale.grid(row=1, column=2, rowspan=1)
+
+        self.scale_textvariable.set('Plot range(m): '+ str(self.slider_list_value[0]))
+
+        self.scale1_label = Label(self, textvariable=self.scale_textvariable)
+
+        self.scale1_label.grid(row=2, column=2, rowspan=1)
 
         self.fig1 = Figure(figsize=(3.8, 3.8))
         self.ax1 = self.fig1.add_subplot(111)
@@ -56,7 +69,7 @@ class Calib(Frame) :
         self.fig1.tight_layout()
       
         self.cnvs1 = FigureCanvasTkAgg(self.fig1, self)
-        self.cnvs1.get_tk_widget().grid(row=1, column=2, padx = 2, pady = 2, sticky='n')
+        self.cnvs1.get_tk_widget().grid(row=3, column=2, padx = 2, pady = 2, sticky='n')
 
         self.outputtextbox_variable = StringVar()
 
@@ -66,7 +79,7 @@ class Calib(Frame) :
 
         self.outputtextbox = Label(self, textvariable=self.outputtextbox_variable)
 
-        self.outputtextbox.grid(row=2, column=2)
+        self.outputtextbox.grid(row=4, column=2)
 
         MODES = [("ON", "1"),("OFF", "0")]
 
@@ -162,15 +175,15 @@ class Calib(Frame) :
         self.ax1.set_autoscaley_on(True)
         self.ax1.grid(True, 'major', 'both')
 
-        self.plot1_range = 60 #converting seconds to list range
+        self.plot_range = self.slider_list_value[self.scale.get()]*60 
 
         #print('range type', type(range))
 
-        index = int(self.plot1_range/15.0)
+        index = int(self.plot_range/15.0)
 
         if self.choose_controller_variable.get() == "SC":
 
-            self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot1_range*index):], self.g_sys_instance.Temperatures_SC[(25000-self.plot1_range*index):], 'k', label="TSC")
+            self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_SC[(25000-self.plot_density*index):], 'k', label="TSC")
 
             self.outputtextbox_variable.set(" TSC = "+str(self.g_sys_instance.Temperatures_SC[-1]))
 
@@ -178,7 +191,7 @@ class Calib(Frame) :
 
         elif self.choose_controller_variable.get() == "CC":
 
-            self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot1_range*index):], self.g_sys_instance.Temperatures_CC[(25000-self.plot1_range*index):], 'b', label="TSC")
+            self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_CC[(25000-self.plot_density*index):], 'b', label="TSC")
 
             self.outputtextbox_variable.set("TCC = "+str(self.g_sys_instance.Temperatures_CC[-1])) 
 
@@ -186,7 +199,7 @@ class Calib(Frame) :
 
         elif self.choose_controller_variable.get() == "DPG":
             
-            self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot1_range*index):], self.g_sys_instance.Temperatures_DPG[(25000-self.plot1_range*index):], 'r', label="TSC")
+            self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_DPG[(25000-self.plot_density*index):], 'r', label="TSC")
 
             self.outputtextbox_variable.set("TDPG = "+str(self.g_sys_instance.Temperatures_DPG[-1]))
 
@@ -199,6 +212,9 @@ class Calib(Frame) :
 
         #self.outputtextbox1_variable.set("TCC = "+str(self.g_sys_instance.Temperatures_CC[-1])+" TSC = "+str(self.g_sys_instance.Temperatures_SC[-1])+" TDPG = "+str(self.g_sys_instance.Temperatures_DPG[-1]))
 
+    def scale_value_show(self, value):
+        
+        self.scale_textvariable.set('Plot range(m): '+ str(self.slider_list_value[int(value)]))
 
     def show_plot(self, list):
 
