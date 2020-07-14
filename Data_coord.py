@@ -156,7 +156,7 @@ class consumer() :
         self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(TAShare))
 
 
-    def Connect(self, mainform_object, serial_port, baud_rate, time_out):
+    def Connect(self, mainform_object,  monitor_object, serial_port, baud_rate, time_out):
         
         shFile = Path('taShare')
         if shFile.is_file() :
@@ -164,11 +164,11 @@ class consumer() :
 
         if self.g_sys_instance.bsimulation == True:
 
-            Popen(['python3.7', 'TADAQ.py']) #Starts the TADAQ program
+            Popen(['python3', 'TADAQ.py']) #Starts the TADAQ program
 
         elif self.g_sys_instance.bsimulation == False:
 
-            Popen(['python3.7', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
+            Popen(['python3', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
 
         time.sleep(2) #Time for TADAQ to edit bconnected flag in taui.json
 
@@ -185,6 +185,14 @@ class consumer() :
             mainform_object.connect_btn_text.set("Disconnect")
 
             mainform_object.status_label_text.set('Running')
+
+            #monitor_object.ax1.clear()
+
+            #monitor_object.ax2.clear()
+
+            #monitor_object.ax2_twin.clear()
+
+            #monitor_object.ax3.clear()
 
             #self.g_sys_instance.run_experiment = True
 
@@ -227,7 +235,7 @@ class consumer() :
 
         return(reply)
         
-    def Disconnect(self, mainform_object):
+    def Disconnect(self, mainform_object, monitor_object):
 
         print('Disconnecting')
 
@@ -245,6 +253,14 @@ class consumer() :
 
         print(g_tech_instance.cfg)
 
-        print('Disconnected')
+        monitor_object.ax1.clear()
+
+        monitor_object.ax2.clear()
+
+        monitor_object.ax2_twin.clear()
+
+        monitor_object.ax3.clear()
+
+        #print('Disconnected')
 
         #self.ser_PC.close()
