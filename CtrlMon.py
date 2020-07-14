@@ -32,8 +32,8 @@ class CtrlMon(Frame) :
         self.log_btn_text.set('Record data')
         self.exp_btn_text.set('Start experiment')
         self.plot1_density = 7 #7 data points leads to 15 second data
-        self.plot2_density = 7 
-        self.plot3_density = 7 
+        self.plot2_density = 7 #7 data points leads to 15 second data
+        self.plot3_density = 7 #7 data points leads to 15 second data
         self.log_frequency_list = [2, 4, 10, 60]
         self.slider_list = [0,1,2,3,4,5]
         self.slider_list_value = [1,15,30,60,120,7200]
@@ -237,13 +237,15 @@ class CtrlMon(Frame) :
 
         self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot1_density*index):], self.g_sys_instance.Temperatures_SC[(25000-self.plot1_density*index):], 'k', label="TSC")
 
-        self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot2_density*index):], self.g_sys_instance.Temperatures_CC[(25000-self.plot2_density*index):], 'b', label="TCC")
+        self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot1_density*index):], self.g_sys_instance.Temperatures_CC[(25000-self.plot1_density*index):], 'b', label="TCC")
 
-        self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot3_density*index):], self.g_sys_instance.Temperatures_DPG[(25000-self.plot3_density*index):], 'r', label="TDPG")
+        self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot1_density*index):], self.g_sys_instance.Temperatures_DPG[(25000-self.plot1_density*index):], 'r', label="TDPG")
+
+        self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot1_density*index):], self.g_sys_instance.Temperatures_DP[(25000-self.plot1_density*index):], 'y', label="TDP")
 
         self.ax1.legend()
 
-        self.outputtextbox1_variable.set("TCC = "+str(self.g_sys_instance.Temperatures_CC[-1])+" TSC = "+str(self.g_sys_instance.Temperatures_SC[-1])+" TDPG = "+str(self.g_sys_instance.Temperatures_DPG[-1]))
+        self.outputtextbox1_variable.set("TCC = "+str(self.g_sys_instance.Temperatures_CC[-1])+" TSC = "+str(self.g_sys_instance.Temperatures_SC[-1])+" TDPG = "+str(self.g_sys_instance.Temperatures_DPG[-1])+" TDP = "+str(self.g_sys_instance.Temperatures_DP[-1]))
 
     def animate_pressures(self, i):
 

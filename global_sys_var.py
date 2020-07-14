@@ -9,6 +9,8 @@ class globals_:
 
         self.Temperatures_DPG = [0]*25000
 
+        self.Temperatures_DP = [0]*25000
+
         self.pCO2_list = [0]*25000
 
         self.pH2O_list = [0]*25000
