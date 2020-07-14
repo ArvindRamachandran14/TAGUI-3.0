@@ -29,14 +29,6 @@ class Calib(Frame) :
 
         self.choose_controller_variable.set("SC")
 
-        self.Settings = LabelFrame(self, text= 'Settings')
-
-        self.Settings.grid(row=1,column=1, padx=2, pady=2, rowspan=6, sticky='N')
-
-        self.grpControllerSettings = LabelFrame(self.Settings, text = 'Controller settings')
-        
-        self.grpControllerSettings.grid(row=2,column=1, padx=2, pady=2, rowspan=6, sticky='N')
-
         self.plot_label_variable = StringVar()
 
         self.plot_label = Label(self, textvariable=self.plot_label_variable)
@@ -44,6 +36,11 @@ class Calib(Frame) :
         self.plot_label_variable.set("Sample Chamber Temperature")
 
         self.plot_label.grid(row=0, column=2, padx = 2, pady = 2, sticky='n')
+
+
+        self.Settings = LabelFrame(self, text= 'Settings')
+
+        self.Settings.grid(row=1,column=1, padx=2, pady=2, rowspan=12, sticky='N')
 
 
         self.fig1 = Figure(figsize=(3.8, 3.8))
@@ -62,79 +59,97 @@ class Calib(Frame) :
 
         self.outputtextbox_variable = StringVar()
 
+        self.PowerSettings = LabelFrame(self.Settings, text = 'Power')
+        
+        self.PowerSettings.grid(row=2,column=1, padx=2, pady=2, rowspan=2, columnspan=4, sticky='e')
+
         self.outputtextbox = Label(self, textvariable=self.outputtextbox_variable)
 
-        self.outputtextbox.grid(row=2, column=2)
+        #self.outputtextbox.grid(row=2, column=2)
 
         MODES = [("ON", "1"),("OFF", "0")]
 
-        self.power_label = Label(self.grpControllerSettings, text = 'Power:', width = 5)
+        Label(self.PowerSettings, text = '', width=7).grid(row=3, column=1)
 
-        self.power_label.grid(row = 3, column = 0, padx = 2, pady = 2, sticky='e')
+        self.power_label = Label(self.PowerSettings, text = 'Power:', width = 5)
+
+        self.power_label.grid(row = 3, column = 2, padx = 2, pady = 2, sticky='e')
 
         self.v1 = StringVar()
         self.v1.set("0") # initialize
 
         for i in range(2):
-            self.rb1 = Radiobutton(self.grpControllerSettings, text=MODES[i][0], variable=self.v1, value=MODES[i][1])
-            self.rb1.grid(row=3, column=i+1, padx = 2, pady = 2, sticky='w')
-    
+            self.rb1 = Radiobutton(self.PowerSettings, text=MODES[i][0], variable=self.v1, value=MODES[i][1])
+            self.rb1.grid(row=3, column=i+3, padx = 2, pady = 2, sticky='w')
+ 
+        self.box_values_power = Button(self.PowerSettings, text="Apply", command=self.send_power_settings)#, command=self.send_command)
+        self.box_values_power.grid(row = 4, column = 4, padx = 2, pady = 2, sticky='e')
+
+        self.PIDSettings = LabelFrame(self.Settings, text = 'PID paramters')
+        
+        self.PIDSettings.grid(row=5,column=1, padx=2, pady=2, rowspan=4, columnspan=4, sticky='e')
+
         self.P = StringVar()
 
-        self.P_label = Label(self.grpControllerSettings, text = "Proportional gain:")
+        self.P_label = Label(self.PIDSettings, text = "Proportional gain:")
 
-        self.P_label.grid(row = 4, column = 0, padx = 2, pady = 2, sticky='e')
+        self.P_label.grid(row = 6, column = 1, padx = 2, pady = 2, sticky='e')
 
 
-        self.P_entry = Entry(self.grpControllerSettings, width=5, textvariable=self.P) 
+        self.P_entry = Entry(self.PIDSettings, width=5, textvariable=self.P) 
 
-        self.P_entry.grid(row = 4, column = 1, padx = 2, pady = 2, sticky='w')
+        self.P_entry.grid(row = 6, column = 2, padx = 2, pady = 2, sticky='e')
 
 
         self.I = StringVar()
 
-        self.I_label = Label(self.grpControllerSettings, text = "Integral gain:")
+        self.I_label = Label(self.PIDSettings, text = "Integral gain:")
 
-        self.I_label.grid(row = 5, column = 0, padx = 2, pady = 2, sticky='e')
+        self.I_label.grid(row = 7, column = 1, padx = 2, pady = 2, sticky='e')
 
 
-        self.I_entry = Entry(self.grpControllerSettings, width=5, textvariable=self.I) 
+        self.I_entry = Entry(self.PIDSettings, width=5, textvariable=self.I) 
 
-        self.I_entry.grid(row = 5, column = 1, padx = 2, pady = 2, sticky='w')
+        self.I_entry.grid(row = 7, column = 2, padx = 2, pady = 2, sticky='e')
 
 
         self.D = StringVar()
 
-        self.D_label = Label(self.grpControllerSettings, text = "Derivative gain:")
+        self.D_label = Label(self.PIDSettings, text = "Derivative gain:")
 
-        self.D_label.grid(row = 6, column = 0, padx = 2, pady = 2, sticky='e')
-
-
-        self.D_entry = Entry(self.grpControllerSettings, width=5, textvariable=self.D) 
-
-        self.D_entry.grid(row = 6, column = 1, padx = 2, pady = 2, sticky='w')
-
-        self.box_values = Button(self.grpControllerSettings, text="Apply", command=self.send_settings)#, command=self.send_command)
-        self.box_values.grid(row = 7, column = 2, columnspan=1, padx = 2, pady = 2, sticky='w')
+        self.D_label.grid(row = 8, column = 1, padx = 2, pady = 2, sticky='e')
 
 
-        self.grpSetPoint = LabelFrame(self.Settings, text = 'Set Point Settings')
+        self.D_entry = Entry(self.PIDSettings, width=5, textvariable=self.D) 
 
-        self.grpSetPoint.grid(row=8,column=1, padx=2, pady=2, sticky='NSEW')
+        self.D_entry.grid(row = 8, column = 2, padx = 2, pady = 2, sticky='e')
 
-        self.setpoint_label = Label(self.grpSetPoint, text="Set Point")
+        self.box_values_PID = Button(self.PIDSettings, text="Apply", command=self.send_PID_settings)#, command=self.send_command)
+        self.box_values_PID.grid(row = 9, column = 3, padx = 2, pady = 2, sticky='e')
 
-        self.setpoint_label.grid(row=9,column=1, padx=2, pady=2, sticky='e')
+
+        self.grpSetPoint = LabelFrame(self.Settings, text = 'Set Point')
+
+
+        self.grpSetPoint.grid(row=10, column=1, rowspan=2, padx=2, pady=2, columnspan=4, sticky='e')
+
+        Label(self.grpSetPoint, text = '', width=5).grid(row=11, column=1)
+
+        self.setpoint_label = Label(self.grpSetPoint, text="Set Point:")
+
+        self.setpoint_label.grid(row=11,column=2, padx=2, pady=2, sticky='w')
 
         self.setpoint_variable = StringVar()
 
         self.setpoint_entry = Entry(self.grpSetPoint, width=5, textvariable=self.setpoint_variable) 
 
-        self.setpoint_entry.grid(row=9,column=2, padx=2, pady=2, sticky='e')
+        self.setpoint_entry.grid(row=11,column=3, padx=2, pady=2, sticky='e')
 
-        self.box_values_2 = Button(self.grpSetPoint, text="Apply", command=self.send_set_point)
-        self.box_values_2.grid(row = 10, column = 3, padx = 2, pady = 2, sticky='W')
-  
+        self.box_values_setpoint = Button(self.grpSetPoint, text="Apply", command=self.send_set_point)
+        self.box_values_setpoint.grid(row = 12, column = 4, padx = 2, pady = 2, sticky='e')
+ 
+        #Label(self.grpSetPoint, text="Arvind").grid(row=12, column=4)
+
 
     def animate_temperatures(self, i):
 
@@ -194,13 +209,15 @@ class Calib(Frame) :
 
             self.cnvs2.get_tk_widget().grid(row=1, column=2, padx = 2, pady = 2, sticky='n')
 
-    def send_settings(self):
+    def send_power_settings(self):
 
         command_power = 's '+self.choose_controller_variable.get()+ '_power '+self.P_entry.get()
 
         reply_power = self.cons.send_command_to_PC(command_power)
 
         time.sleep(2)
+
+    def send_PID_settings(self):
 
         command_P = 's '+self.choose_controller_variable.get()+ '_P '+self.P_entry.get()
 
