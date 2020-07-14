@@ -224,7 +224,7 @@ class Calib(Frame) :
 
         command_set = 's '+self.choose_controller_variable.get()+'_set '+self.setpoint_entry.get()
 
-        reply_set = self.cons.send_command_to_PC(command)
+        reply_set = self.cons.send_command_to_PC(command_set)
 
 
 
