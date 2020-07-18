@@ -26,11 +26,12 @@ class TAData(Structure) :
     _fields_ = [ \
         ('recNum', c_int),
         ('recTime', c_double),
-        ('SC_T1', c_double),
-        ('CC_T1', c_double),
-        ('DPG_T1', c_double),
+        ('SC_T', c_double),
+        ('CC_T', c_double),
+        ('DPG_T', c_double),
         ('pH2O', c_double),
         ('pCO2', c_double),
+        ('TDP', c_double),
         ('Sample_weight', c_double),
         ('Status', c_int)
         ]
@@ -81,13 +82,15 @@ class consumer() :
 
             temp_dict = {}
 
-            if tad.SC_T1 > 0.0:
+            if tad.SC_T > 0.0:
                 
-                self.g_sys_instance.Temperatures_SC.append(round(tad.SC_T1,2))
+                self.g_sys_instance.Temperatures_SC.append(round(tad.SC_T,2))
 
-                self.g_sys_instance.Temperatures_CC.append(round(tad.CC_T1,2))
+                self.g_sys_instance.Temperatures_CC.append(round(tad.CC_T,2))
 
-                self.g_sys_instance.Temperatures_DPG.append(round(tad.DPG_T1,2))
+                self.g_sys_instance.Temperatures_DPG.append(round(tad.DPG_T,2))
+
+                self.g_sys_instance.Temperatures_DP.append(round(tad.TDP,2))
 
                 self.g_sys_instance.pH2O_list.append(round(tad.pH2O,2))
 
@@ -101,11 +104,13 @@ class consumer() :
 
                 temp_dict['time'] = str(temp_dict['datetime'])
 
-                temp_dict['SC_T1'] = tad.SC_T1
+                temp_dict['SC_T'] = tad.SC_T
 
-                temp_dict['CC_T1'] = tad.CC_T1
+                temp_dict['CC_T'] = tad.CC_T
 
-                temp_dict['DPG_T1'] = tad.DPG_T1
+                temp_dict['DPG_T'] = tad.DPG_T
+
+                temp_dict['TDP'] = tad.TDP
 
                 temp_dict['pCO2'] = tad.pCO2
 
@@ -122,6 +127,8 @@ class consumer() :
             self.g_sys_instance.Temperatures_CC.pop(0)
 
             self.g_sys_instance.Temperatures_DPG.pop(0)
+
+            self.g_sys_instance.Temperatures_DP.pop(0)
 
             self.g_sys_instance.pH2O_list.pop(0)
 
@@ -164,11 +171,11 @@ class consumer() :
 
         if self.g_sys_instance.bsimulation == True:
 
-            Popen(['python3.7', 'TADAQ.py']) #Starts the TADAQ program
+            Popen(['python3', 'TADAQ.py']) #Starts the TADAQ program
 
         elif self.g_sys_instance.bsimulation == False:
 
-            Popen(['python3.7', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
+            Popen(['python3', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
 
         time.sleep(2) #Time for TADAQ to edit bconnected flag in taui.json
 
@@ -212,7 +219,6 @@ class consumer() :
 
         self.f.close()
 
-    
     def send_command_to_PC(self, command):
 
         #print('command received is', command)

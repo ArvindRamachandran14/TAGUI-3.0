@@ -27,11 +27,12 @@ class TAData(Structure) :
     _fields_ = [ \
         ('recNum', c_int),
         ('recTime', c_double),
-        ('SC_T1', c_double),
-        ('CC_T1', c_double),
-        ('DPG_T1', c_double),
+        ('SC_T', c_double),
+        ('CC_T', c_double),
+        ('DPG_T', c_double),
         ('pH2O', c_double),
         ('pCO2', c_double),
+        ('TDP', c_double),
         ('Sample_weight', c_double),
         ('Status', c_int)
         ]
@@ -97,25 +98,25 @@ class producer() :
 
                     (TSC, TSC2, TCC, TDP, pH2O, pCO2, TDP2, Wgt, status) = taData #Watch out for the order of variables
 
-                    tash.data[recIdx].SC_T1 = TSC
+                    tash.data[recIdx].SC_T = TSC
                     #tash.data[recIdx].SC_T2 = data_list[1] #SC_T2 omitted in this model
-                    tash.data[recIdx].CC_T1 = TCC
-                    tash.data[recIdx].DPG_T1 = TDP
+                    tash.data[recIdx].CC_T = TCC
+                    tash.data[recIdx].DPG_T = TDP
                     tash.data[recIdx].pH2O = pH2O
                     tash.data[recIdx].pCO2 = pCO2
-                    #tash.data[recIdx].Dew_point_temp = data_list[6] #Domitted in this model
+                    tash.data[recIdx].TDP = TDP2 
                     tash.data[recIdx].Sample_weight = Wgt
                     tash.data[recIdx].Status = status
                 
                 else:
 
-                    tash.data[recIdx].SC_T1 = 0
+                    tash.data[recIdx].SC_T = 0
                     #tash.data[recIdx].SC_T2 = data_list[1] #SC_T2 omitted in this model
-                    tash.data[recIdx].CC_T1 = 0
-                    tash.data[recIdx].DPG_T1 = 0
+                    tash.data[recIdx].CC_T = 0
+                    tash.data[recIdx].DPG_T = 0
                     tash.data[recIdx].pH2O = 0
                     tash.data[recIdx].pCO2 = 0
-                    #tash.data[recIdx].Dew_point_temp = data_list[6] #Domitted in this model
+                    tash.data[recIdx].TDP = 0
                     tash.data[recIdx].Sample_weight = 0
                     tash.data[recIdx].Status = -1
 
