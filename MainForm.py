@@ -257,7 +257,8 @@ class MainForm(Tk) :
 
     def onFileExit(self) :
         # Need to do cleanup here, save files, etc. before quitting.
-        quit()
+        # quit()
+        self.destroy()
 
     def onClosing(self) :
         self.onFileExit()
