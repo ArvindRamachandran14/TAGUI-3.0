@@ -118,7 +118,7 @@ class consumer() :
 
                 temp_dict['Sample_weight'] = tad.Sample_weight
 
-            xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='TAData')
+            xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='TAData').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
 
             self.g_sys_instance.time_list.pop(0)
 
@@ -205,6 +205,8 @@ class consumer() :
 
     def log_data(self, monitor_object, start_time, log_frequency):
 
+        #self.f.write('<Data>')
+
         self.g_sys_instance.blogging = True
 
         self.last_logged_time = start_time
@@ -216,6 +218,8 @@ class consumer() :
     def stop_logging(self):
 
         self.g_sys_instance.blogging = False
+
+        #self.f.write('<\Data>')
 
         self.f.close()
 

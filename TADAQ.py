@@ -299,7 +299,7 @@ async def main() :
 
         print('TADAQ reply was', reply)
 
-        if reply == "Ok\r\n":
+        if reply == "Ok\n":
 
         #print('TADAQ reply was', reply)
    
