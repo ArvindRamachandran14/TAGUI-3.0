@@ -29,7 +29,7 @@ class Calib(Frame) :
 
         self.choose_controller_variable = StringVar()
 
-        self.choose_controller_widget = OptionMenu(self, self.choose_controller_variable, *choose_controller_list)#, command=self.show_plot)
+        self.choose_controller_widget = OptionMenu(self, self.choose_controller_variable, *choose_controller_list, command=self.update_settings)
 
         self.choose_controller_widget.grid(row = 0, column = 1, padx = 2, pady = 2, sticky='w')
 
@@ -43,8 +43,13 @@ class Calib(Frame) :
 
         self.plot_label.grid(row=0, column=2, padx = 2, pady = 2, sticky='n')
 
+        self.settings_variable = StringVar()
 
-        self.Settings = LabelFrame(self, text= 'Settings')
+        self.settings_label = Label(self, textvariable=self.settings_variable)
+
+        self.Settings = LabelFrame(self, labelwidget=self.settings_label)
+
+        self.settings_variable.set(self.choose_controller_variable.get()+' settings')
 
         self.Settings.grid(row=1,column=1, padx=2, pady=2, rowspan=12, sticky='N')
 
@@ -164,6 +169,41 @@ class Calib(Frame) :
  
         #Label(self.grpSetPoint, text="Arvind").grid(row=12, column=4)
 
+    def update_settings(self, list):
+
+        self.settings_variable.set(self.choose_controller_variable.get()+' settings')
+
+        temp_power = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_power')
+
+        print('Power', temp_power)
+
+        '''
+        if temp_power == '1':
+
+            self.v1.set("1")
+
+        elif temp_power == 'OFF':
+
+            self.v1.set("1")
+
+        '''    
+        temp_P = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_P')
+
+        print('P', temp_P)
+
+        #self.P_entry.set(temp_P)
+
+        temp_I = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_I')
+
+        print('I', temp_I)
+
+        #self.I_entry.set(temp_I)
+
+        temp_D = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_D')
+
+        print('D', temp_D)
+
+        #self.D_entry.set(temp_D)
 
     def animate_temperatures(self, i):
 
@@ -259,6 +299,4 @@ class Calib(Frame) :
         command_set = 's '+self.choose_controller_variable.get()+'_set '+self.setpoint_entry.get()
 
         reply_set = self.cons.send_command_to_PC(command_set)
-
-
 

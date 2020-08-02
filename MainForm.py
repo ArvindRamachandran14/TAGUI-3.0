@@ -101,7 +101,7 @@ class MainForm(Tk) :
 
         self.choose_mode_widget.grid(row=0, column=1)
 
-        self.choose_mode_variable.set("TA Simulation")
+        self.choose_mode_variable.set("TA Experiment")
 
         self.serial_port_label = Label(self.serialBar, text="Port") 
 
