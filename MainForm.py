@@ -103,6 +103,8 @@ class MainForm(Tk) :
 
         self.choose_mode_variable.set("TA Experiment")
 
+        self.g_sys_instance.bsimulation = False
+
         self.serial_port_label = Label(self.serialBar, text="Port") 
 
         self.serial_port_label.grid(row=0, column=2)
