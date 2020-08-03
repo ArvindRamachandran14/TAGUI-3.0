@@ -29,7 +29,7 @@ class Calib(Frame) :
 
         self.choose_controller_variable = StringVar()
 
-        self.choose_controller_widget = OptionMenu(self, self.choose_controller_variable, *choose_controller_list)#, command=self.show_plot)
+        self.choose_controller_widget = OptionMenu(self, self.choose_controller_variable, *choose_controller_list, command=self.update_settings)
 
         self.choose_controller_widget.grid(row = 0, column = 1, padx = 2, pady = 2, sticky='w')
 
@@ -41,23 +41,19 @@ class Calib(Frame) :
 
         self.plot_label_variable.set("Sample Chamber Temperature")
 
-        self.plot_label.grid(row=0, column=2, padx = 2, pady = 2, sticky='n')
+        self.plot_label.grid(row=0, column=2, padx = 2, pady = 2, sticky='N')
 
+        self.settings_variable = StringVar()
 
-        self.Settings = LabelFrame(self, text= 'Settings')
+        self.settings_label = Label(self, textvariable=self.settings_variable)
+
+        self.Settings = LabelFrame(self, labelwidget=self.settings_label)
+
+        self.settings_variable.set(self.choose_controller_variable.get()+' settings')
 
         self.Settings.grid(row=1,column=1, padx=2, pady=2, rowspan=12, sticky='N')
 
-        self.scale = Scale(self, from_=min(self.slider_list), to=max(self.slider_list), command=self.scale_value_show, showvalue=0, orient=HORIZONTAL)#, command=set_plot_range(1))
-        self.scale.grid(row=1, column=2, rowspan=1)
-
-        self.scale_textvariable.set('Plot range(m): '+ str(self.slider_list_value[0]))
-
-        self.scale1_label = Label(self, textvariable=self.scale_textvariable)
-
-        self.scale1_label.grid(row=2, column=2, rowspan=1)
-
-        self.fig1 = Figure(figsize=(3.8, 3.8))
+        self.fig1 = Figure(figsize=(5.7, 3.8))
         self.ax1 = self.fig1.add_subplot(111)
         self.ax1.set_xlabel('Time (sec)')
         self.ax1.set_ylabel('Temperature ($^\circ$C)')
@@ -69,7 +65,7 @@ class Calib(Frame) :
         self.fig1.tight_layout()
       
         self.cnvs1 = FigureCanvasTkAgg(self.fig1, self)
-        self.cnvs1.get_tk_widget().grid(row=3, column=2, padx = 2, pady = 2, sticky='n')
+        self.cnvs1.get_tk_widget().grid(row=1, column=2, padx = 2, pady = 0, sticky='N')
 
         self.outputtextbox_variable = StringVar()
 
@@ -77,9 +73,21 @@ class Calib(Frame) :
         
         self.PowerSettings.grid(row=2,column=1, padx=2, pady=2, rowspan=2, columnspan=4, sticky='e')
 
+        self.scale = Scale(self, from_=min(self.slider_list), to=max(self.slider_list), command=self.scale_value_show, showvalue=0, orient=HORIZONTAL)#, command=set_plot_range(1))
+        self.scale.grid(row=2, column=2, rowspan=1)
+
+        self.scale_textvariable.set('Plot range(m): '+ str(self.slider_list_value[0]))
+
+        self.scale1_label = Label(self, textvariable=self.scale_textvariable)
+
+        self.scale1_label.grid(row=3, column=2, rowspan=1)
+
         self.outputtextbox = Label(self, textvariable=self.outputtextbox_variable)
 
         self.outputtextbox.grid(row=4, column=2)
+
+
+
 
         MODES = [("ON", "1"),("OFF", "0")]
 
@@ -109,11 +117,9 @@ class Calib(Frame) :
 
         self.P_label.grid(row = 6, column = 1, padx = 2, pady = 2, sticky='e')
 
-
         self.P_entry = Entry(self.PIDSettings, width=5, textvariable=self.P) 
 
         self.P_entry.grid(row = 6, column = 2, padx = 2, pady = 2, sticky='e')
-
 
         self.I = StringVar()
 
@@ -121,11 +127,9 @@ class Calib(Frame) :
 
         self.I_label.grid(row = 7, column = 1, padx = 2, pady = 2, sticky='e')
 
-
         self.I_entry = Entry(self.PIDSettings, width=5, textvariable=self.I) 
 
         self.I_entry.grid(row = 7, column = 2, padx = 2, pady = 2, sticky='e')
-
 
         self.D = StringVar()
 
@@ -163,6 +167,50 @@ class Calib(Frame) :
         self.box_values_setpoint.grid(row = 12, column = 4, padx = 2, pady = 2, sticky='e')
  
         #Label(self.grpSetPoint, text="Arvind").grid(row=12, column=4)
+
+    def update_settings(self, list):
+
+        time.sleep(2)
+
+        self.settings_variable.set(self.choose_controller_variable.get()+' settings')
+
+        temp_power = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_power')
+
+        #time.sleep(2)
+
+        print(temp_power)
+     
+        temp_power = int(float(temp_power.split('---')[0]))
+
+        if temp_power == 1:
+
+            self.v1.set("1")
+
+        elif temp_power == 0:
+
+            self.v1.set("0")
+
+        temp_P = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_P').split('---')[0]
+
+        #time.sleep(2)
+
+        self.P.set(temp_P)
+
+        temp_I = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_I').split('---')[0]
+
+        #time.sleep(2)
+
+        self.I.set(temp_I)
+
+        temp_D = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_D').split('---')[0]
+
+        #time.sleep(2)
+
+        self.D.set(temp_D)
+
+        temp_set_point = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_set').split('---')[0]
+
+        self.setpoint_variable.set(temp_set_point)
 
 
     def animate_temperatures(self, i):
@@ -259,6 +307,4 @@ class Calib(Frame) :
         command_set = 's '+self.choose_controller_variable.get()+'_set '+self.setpoint_entry.get()
 
         reply_set = self.cons.send_command_to_PC(command_set)
-
-
 
