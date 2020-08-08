@@ -13,6 +13,8 @@ import global_sys_var as g_sys
 import Data_coord
 import datetime
 
+
+
 from MainForm import MainForm
 
 from Calib import Calib
@@ -49,17 +51,22 @@ def main(argv) :
 
     mainForm = MainForm(g_sys_instance, cons)
 
+    
+
     def apploop():
 
+            #check if there is ~/.TAGUI file and modify any of the values
+
+        '''
         with open('taui.json', 'r') as fCfg : 
 
-            #check if there is ~/.TAGUI file and modify any of the values
-            
             config = json.loads(fCfg.read())
 
+            
             bconnected = config["bconnected"]
+
+        '''
     
-        
         if mainForm.connect_btn_text.get() == "Disconnect":
     
             #print('Consumption in progress')

@@ -187,11 +187,11 @@ class producer() :
 
         #print(dt.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
 	
-
+        '''
         with open(g.cfgFile, 'r') as fCfg :
             config = json.loads(fCfg.read())        # Read config file
             g.initialize(config)              # Initialize the globals
-
+        '''
         if g.bsimulation == "True": #Simulation mode on
 
             cmdBytes = bytearray(cmd, 'utf-8')
@@ -260,9 +260,8 @@ class producer() :
 
                     if len(Output) > 0:
 
-                        return(Output) 
+                        return(Output)
 
-        
 # main program
 
 async def main() :
@@ -314,6 +313,7 @@ async def main() :
     g.update()
 
     if g.bconnected == "True":
+        
         prod = producer(2)      # Interval argument
 
         if g.bsimulation == "True":
