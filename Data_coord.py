@@ -235,11 +235,13 @@ class consumer() :
         
         #Get the reply until its not empty, but also have a time out incase there was no commmand or the connection broke
 
+        reply = ''
+
         while True:
 
             reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memory
 
-            if reply !='':
+            if len(reply) > 0:
 
                 break
 
