@@ -232,12 +232,16 @@ class consumer() :
         cmdBuf = bytearray(command, encoding) 
 
         tash.command[0:len(cmdBuf)] = cmdBuf #adding command to shared memory
-
-        time.sleep(2.5) #Small time delay needed to get response back
-
+        
         #Get the reply until its not empty, but also have a time out incase there was no commmand or the connection broke
 
-        reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memory
+        while True:
+
+            reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memory
+
+            if reply !='':
+
+                break
 
         print('reply on the consumer end is ', reply)
 

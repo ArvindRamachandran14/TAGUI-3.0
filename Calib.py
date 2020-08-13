@@ -1,6 +1,7 @@
 from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, OptionMenu, Entry, Scale, HORIZONTAL
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
+from datetime import datetime
 import time
 
 class Calib(Frame) :
@@ -170,15 +171,13 @@ class Calib(Frame) :
 
     def update_settings(self, list):
 
-        time.sleep(2)
+        #print(time.time())
 
         self.settings_variable.set(self.choose_controller_variable.get()+' settings')
 
         temp_power = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_power')
 
-        #time.sleep(2)
-
-        print(temp_power)
+        #print(temp_power)
      
         temp_power = int(float(temp_power.split('---')[0]))
 
@@ -190,27 +189,31 @@ class Calib(Frame) :
 
             self.v1.set("0")
 
-        temp_P = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_P').split('---')[0]
+        #print(datetime.now())
 
-        #time.sleep(2)
+        temp_P = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_P').split('---')[0]
 
         self.P.set(temp_P)
 
-        temp_I = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_I').split('---')[0]
+        #print(datetime.now())
 
-        #time.sleep(2)
+        temp_I = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_I').split('---')[0]
 
         self.I.set(temp_I)
 
+        #print(datetime.now())
+
         temp_D = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_D').split('---')[0]
 
-        #time.sleep(2)
-
         self.D.set(temp_D)
+
+        #print(datetime.now())
 
         temp_set_point = self.cons.send_command_to_PC('g '+self.choose_controller_variable.get()+'_set').split('---')[0]
 
         self.setpoint_variable.set(temp_set_point)
+
+        #print(datetime.now())
 
 
     def animate_temperatures(self, i):
