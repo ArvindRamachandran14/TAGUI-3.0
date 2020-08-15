@@ -75,7 +75,6 @@ class consumer() :
         while not self.lastIdx == tash.recIdx :
             self.lastIdx += 1
             if self.lastIdx == recCount :
-                
                 self.lastIdx = 0
 
             tad = TAData.from_buffer(tash.data[self.lastIdx])
@@ -83,7 +82,6 @@ class consumer() :
             temp_dict = {}
 
             if tad.SC_T > 0.0:
-                
                 self.g_sys_instance.Temperatures_SC.append(round(tad.SC_T,2))
 
                 self.g_sys_instance.Temperatures_CC.append(round(tad.CC_T,2))
@@ -118,7 +116,7 @@ class consumer() :
 
                 temp_dict['Sample_weight'] = tad.Sample_weight
 
-            xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='TAData').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
+                xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='TAData').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
 
             self.g_sys_instance.time_list.pop(0)
 
@@ -158,9 +156,13 @@ class consumer() :
 
     def initialize(self) :
 
-        self.mmfd = open('taShare', 'r+b')
-
-        self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(TAShare))
+        bOK = True
+        try :
+            self.mmfd = open('taShare', 'r+b')
+            self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(TAShare))
+        except :
+            bOK = False
+        return bOK
 
 
     def Connect(self, mainform_object,  monitor_object, serial_port, baud_rate, time_out):
@@ -185,13 +187,13 @@ class consumer() :
 
             bconnected = config["bconnected"] 
 
-        if bconnected == "True":
+        if bconnected == 1:
 
-            self.initialize()
+            if self.initialize():
 
-            mainform_object.connect_btn_text.set("Disconnect")
+                mainform_object.connect_btn_text.set("Disconnect")
 
-            mainform_object.status_label_text.set('Running')
+                mainform_object.status_label_text.set('Running')
 
             #monitor_object.ax1.clear()
 
@@ -226,23 +228,18 @@ class consumer() :
     def send_command_to_PC(self, command):
 
         #print('command received is', command)
-
-        tash = TAShare.from_buffer(self.mmShare)
-
-        cmdBuf = bytearray(command, encoding) 
-
-        tash.command[0:len(cmdBuf)] = cmdBuf #adding command to shared memory
-        
-        #Get the reply until its not empty, but also have a time out incase there was no commmand or the connection broke
-
         reply = ''
+        tash = TAShare.from_buffer(self.mmShare)
+        tash.reply = (c_byte * 80)(0)
+        cmdBuf = bytearray(command, encoding) 
+        tash.command[0:len(cmdBuf)] = cmdBuf #adding command to shared memory
 
+        # Wait for reply to be ready
         while True:
-
-            reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memory
-
-            if len(reply) > 0:
-
+            reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memor
+            if '\n' in reply :
+                reply = reply[0:-1]
+                tash.command = (c_byte * 80)(0)
                 break
 
         print('reply on the consumer end is ', reply)
@@ -261,7 +258,7 @@ class consumer() :
 
         tash.command[0:len(cmdBuf)] = cmdBuf
 
-        g_tech_instance.bconnected = "False"
+        g_tech_instance.bconnected = 0
 
         mainform_object.status_label_text.set('Idle')
 
