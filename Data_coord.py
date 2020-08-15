@@ -187,7 +187,9 @@ class consumer() :
 
             bconnected = config["bconnected"] 
 
-        if bconnected == 1:
+            #print('bconnected is', bconnected)
+
+        if bconnected:
 
             if self.initialize():
 

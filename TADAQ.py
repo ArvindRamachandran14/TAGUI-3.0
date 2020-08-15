@@ -221,13 +221,12 @@ class producer() :
             #print('commmand received in TADAQ end is', cmd)
 
             if cmd == 'g all':
-                #cmd+='\n'
+                
+                cmd+='\n'
 
                 ser.write(cmd.encode())
 
                 Output_string = ser.readline().decode()
-
-                #print('Output is', Output_string)
 
                 Split_strings_list  = Output_string.split(',')
 
@@ -248,7 +247,8 @@ class producer() :
             else:                 
 
                 #print('Command sent is', cmd)
-                #cmd+='\n'
+                cmd+='\n'
+                
                 print('Command sent is', cmd)
 
                 ser.write(cmd.encode())
@@ -295,6 +295,7 @@ async def main() :
             reply = ser.readline().decode()
 
         except :
+
             reply = 'e INVTTY\n'
             
         print('TADAQ reply was', reply)
