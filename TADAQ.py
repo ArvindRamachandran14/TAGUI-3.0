@@ -11,8 +11,8 @@ import datetime as dt
 import asyncio #timing to work right asychronous call - go and read the data and the meanwhile you can do other things
 import socket
 import xml.etree.ElementTree as ET
-import time
 import global_tech_var as g
+import time
 import sys
 import json
 import serial
@@ -64,7 +64,7 @@ class producer() :
         self.port = 50007
         self.initialize()
 
-    async def produce(self, ser) :
+    async def produce(self, ser, bsimulation) :
         TCC = TSC = TSC2 = TDP = TDP2 = Wgt = pH2O = pCO2 = 0.0 # Changed temp1, temp2, temp3 to TCC TSC TDP, added Wgt 
         status = 0
         tash = TAShare.from_buffer(self.mmShare) 
@@ -80,7 +80,7 @@ class producer() :
                         recIdx = 0
 
                     # Get some data
-                    taData = self.getDataFromTA('g all', ser) #added 'g all' paramter to  self.getDataFromTA()
+                    taData = self.getDataFromTA('g all', ser, bsimulation) #added 'g all' paramter to  self.getDataFromTA()
 
                     # Get the time
                     now = datetime.now()
@@ -134,7 +134,7 @@ class producer() :
         
         return 0
         
-    async def doCmd(self, ser) :
+    async def doCmd(self, ser, bsimulation) :
         while not self.bDone :
             async with self.sem:            # async with added here to control access
                 tash = TAShare.from_buffer(self.mmShare)
@@ -150,9 +150,15 @@ class producer() :
                         self.bDone = True
                         sReply = 'OK\n'
                     else :
-                        sReply = self.getDataFromTA(command, ser)
-
-                    sReply+='\n'
+                        sReply = self.getDataFromTA(command, ser, bsimulation)
+                    if command == 'g all':
+                        sReply =  'v {0:.4f},{1:.4f},{2:.4f},{3:.4f},{4:.2f},{5:.2f},{6:.4f},{7:d}\n'.format( \
+                        sReply[0], sReply[1], sReply[2], sReply[3], \
+                        sReply[4], sReply[5], sReply[6], int(sReply[7]))
+                    elif isinstance(sReply, int):
+                        sReply = 'e SOCKERR\n'
+                    else:                       
+                        sReply += '\n'
 
                     #print('Reply is', sReply)
 
@@ -186,12 +192,12 @@ class producer() :
     # Query the TA for the current record
 
 
-    def getDataFromTA(self, cmd, ser) :
+    def getDataFromTA(self, cmd, ser, bsimulation) :
 
         #print(dt.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
 
         retval = ''
-        if g.bsimulation == 1: #Simulation mode on
+        if bsimulation == 1: #Simulation mode on
 
             cmdBytes = bytearray(cmd, 'utf-8')
             try :
@@ -265,25 +271,31 @@ class producer() :
 
 async def main() :
 
+    '''
     with open(g.cfgFile, 'r') as fCfg :
         config = json.loads(fCfg.read())        # Read config file
         g.initialize(config)              # Initialize the globals
+    '''
 
     #print(len(sys.argv))
+
+    bconnected = False
+
+    bsimulation = False
 
     if len(sys.argv) == 1: # No arguments passed i.e. simulation mode on
 
         print('Simulation mode on')
 
-        g.bsimulation = 1
+        bsimulation = True
 
-        g.bconnected = 1 
+        bconnected = True
 
     elif len(sys.argv) > 1: # arguments passed i.e. experiment mode on
 
         print('Experiment mode on')
 
-        g.bsimulation = 0
+        bsimulation = False
 
         port = sys.argv[1]
         baud_rate = sys.argv[2]
@@ -304,28 +316,26 @@ async def main() :
 
         #print('TADAQ reply was', reply)
    
-            g.bconnected = 1
+            bconnected = True
 
             time.sleep(1)
             ser.reset_input_buffer()
             ser.reset_output_buffer()
 
-    g.update()
-
-    if g.bconnected:
+    if bconnected:
         
         prod = producer(2)      # Interval argument
 
-        if g.bsimulation:
+        if bsimulation:
             prod.socket_connection()
-            task1 = asyncio.create_task(prod.produce(None))
-            task2 = asyncio.create_task(prod.doCmd(None))
+            task1 = asyncio.create_task(prod.produce(None, bsimulation))
+            task2 = asyncio.create_task(prod.doCmd(None, bsimulation))
             await task1
             await task2
 
         else:
-            task1 = asyncio.create_task(prod.produce(ser))
-            task2 = asyncio.create_task(prod.doCmd(ser))
+            task1 = asyncio.create_task(prod.produce(ser, bsimulation))
+            task2 = asyncio.create_task(prod.doCmd(ser, bsimulation))
             await task1
             await task2
        

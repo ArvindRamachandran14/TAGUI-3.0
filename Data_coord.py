@@ -82,6 +82,7 @@ class consumer() :
             temp_dict = {}
 
             if tad.SC_T > 0.0:
+                
                 self.g_sys_instance.Temperatures_SC.append(round(tad.SC_T,2))
 
                 self.g_sys_instance.Temperatures_CC.append(round(tad.CC_T,2))
@@ -179,15 +180,14 @@ class consumer() :
 
             Popen(['python3', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
 
-        time.sleep(2) #Time for TADAQ to edit bconnected flag in taui.json
+        time.sleep(2) #Time for TADAQ to edit bconnected flag
 
-        with open('taui.json', 'r') as fCfg :
-            
-            config = json.loads(fCfg.read())
+        bconnected = False
 
-            bconnected = config["bconnected"] 
-
-            #print('bconnected is', bconnected)
+        shFile = Path('taShare')
+        if shFile.is_file():
+            print('taShare exists')
+            bconnected  = True
 
         if bconnected:
 
@@ -260,13 +260,9 @@ class consumer() :
 
         tash.command[0:len(cmdBuf)] = cmdBuf
 
-        g_tech_instance.bconnected = 0
-
         mainform_object.status_label_text.set('Idle')
 
         #self.g_sys_instance.run_experiment = False
-
-        print(g_tech_instance.cfg)
 
         monitor_object.ax1.clear()
 
