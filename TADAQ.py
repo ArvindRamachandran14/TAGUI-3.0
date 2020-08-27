@@ -41,13 +41,13 @@ class TAShare(Structure) :
     _pack_ = 4
     _fields_ = [ \
             ('command', c_byte * 80), # 80 byte buffer
-            ('reply', c_byte * 80),
+            ('reply', c_byte * 80), # change reply buffer size to 256 from 80 and edit rest of the code accordingly 
             ('recCount', c_int),
             ('recIdx', c_int),
             ('data', TAData * recCount)]
 
 class producer() :
-    def __init__(self, interval) :
+    def __init__(self, interval, bsimulation) :
         self.startTime = None
         self.bDone = False 
         self.interval = interval
@@ -62,6 +62,7 @@ class producer() :
         self.sock = None
         self.host = 'localhost'     # localhost
         self.port = 50007
+        self.bsimulation = bsimulation
         self.initialize()
 
     async def produce(self, ser, bsimulation) :
@@ -182,11 +183,9 @@ class producer() :
         ### Creating shared memory region between TADAQ and TAGUI ### 
         self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(tempTASH))
         self.sem = asyncio.Semaphore(1)         # Added semaphore creation
-
-    def socket_connection(self):
-
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((self.host, self.port))
+        if self.bsimulation:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((self.host, self.port))
 
     # getDataFromTA
     # Query the TA for the current record
@@ -197,7 +196,7 @@ class producer() :
         #print(dt.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
 
         retval = ''
-        if bsimulation == 1: #Simulation mode on
+        if bsimulation: #Simulation mode on
 
             cmdBytes = bytearray(cmd, 'utf-8')
             try :
@@ -291,7 +290,7 @@ async def main() :
 
         bconnected = True
 
-    elif len(sys.argv) > 1: # arguments passed i.e. experiment mode on
+    elif len(sys.argv) > 1: # arguments passed i.e. experiment mode on 
 
         print('Experiment mode on')
 
@@ -324,10 +323,9 @@ async def main() :
 
     if bconnected:
         
-        prod = producer(2)      # Interval argument
+        prod = producer(2, bsimulation)      # Interval argument
 
         if bsimulation:
-            prod.socket_connection()
             task1 = asyncio.create_task(prod.produce(None, bsimulation))
             task2 = asyncio.create_task(prod.doCmd(None, bsimulation))
             await task1

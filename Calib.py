@@ -1,4 +1,4 @@
-from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, OptionMenu, Entry, Scale, HORIZONTAL
+from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, OptionMenu, Entry, Scale, HORIZONTAL, Checkbutton, IntVar
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from datetime import datetime
@@ -40,9 +40,18 @@ class Calib(Frame) :
 
         self.plot_label = Label(self, textvariable=self.plot_label_variable)
 
-        self.plot_label_variable.set("Sample Chamber Temperature")
+        #self.plot_label_variable.set("Sample Chamber Temperature")
 
-        self.plot_label.grid(row=0, column=2, padx = 2, pady = 2, sticky='N')
+        #self.plot_label.grid(row=0, column=2, padx = 2, pady = 2, sticky='N')
+
+        self.check_var1 = IntVar()
+        Checkbutton(self, text="TSC", variable=self.check_var1).grid(row=0, column=3, sticky='NW')
+        self.check_var2 = IntVar()
+        Checkbutton(self, text="TCC", variable=self.check_var2).grid(row=0, column=3, sticky='N')
+        self.check_var3 = IntVar()
+        Checkbutton(self, text="TDPG", variable=self.check_var3).grid(row=0, column=3, sticky='NE')
+
+
 
         self.settings_variable = StringVar()
 
@@ -66,7 +75,7 @@ class Calib(Frame) :
         self.fig1.tight_layout()
       
         self.cnvs1 = FigureCanvasTkAgg(self.fig1, self)
-        self.cnvs1.get_tk_widget().grid(row=1, column=2, padx = 2, pady = 0, sticky='N')
+        self.cnvs1.get_tk_widget().grid(row=1, column=2, padx = 2, pady = 0, columnspan=3, sticky='NW')
 
         self.outputtextbox_variable = StringVar()
 
@@ -75,17 +84,17 @@ class Calib(Frame) :
         self.PowerSettings.grid(row=2,column=1, padx=2, pady=2, rowspan=2, columnspan=4, sticky='e')
 
         self.scale = Scale(self, from_=min(self.slider_list), to=max(self.slider_list), command=self.scale_value_show, showvalue=0, orient=HORIZONTAL)#, command=set_plot_range(1))
-        self.scale.grid(row=2, column=2, rowspan=1)
+        self.scale.grid(row=2, column=3, rowspan=1)
 
         self.scale_textvariable.set('Plot range(m): '+ str(self.slider_list_value[0]))
 
         self.scale1_label = Label(self, textvariable=self.scale_textvariable)
 
-        self.scale1_label.grid(row=3, column=2, rowspan=1)
+        self.scale1_label.grid(row=3, column=3, rowspan=1)
 
         self.outputtextbox = Label(self, textvariable=self.outputtextbox_variable)
 
-        self.outputtextbox.grid(row=4, column=2)
+        self.outputtextbox.grid(row=4, column=3)
 
 
 
@@ -169,6 +178,10 @@ class Calib(Frame) :
  
         #Label(self.grpSetPoint, text="Arvind").grid(row=12, column=4)
 
+    def check_box_settings(self):
+
+        print('self.check_var1',  self.check_var1.get())
+
     def update_settings(self, list):
 
         #print(time.time())
@@ -232,29 +245,39 @@ class Calib(Frame) :
 
         index = int(self.plot_range/15.0)
 
-        if self.choose_controller_variable.get() == "SC":
+        outputstring=""
+
+        if self.check_var1.get():
 
             self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_SC[(25000-self.plot_density*index):], 'k', label="TSC")
 
-            self.outputtextbox_variable.set(" TSC = "+str(self.g_sys_instance.Temperatures_SC[-1]))
+            outputstring=" TSC = "+str(self.g_sys_instance.Temperatures_SC[-1])+"   "
 
-            self.plot_label_variable.set("  Sample Chamber Temperature")
+            self.outputtextbox_variable.set(outputstring)
 
-        elif self.choose_controller_variable.get() == "CC":
+            #self.plot_label_variable.set("  Sample Chamber Temperature")
+
+        if self.check_var2.get():
 
             self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_CC[(25000-self.plot_density*index):], 'b', label="TSC")
 
-            self.outputtextbox_variable.set("TCC = "+str(self.g_sys_instance.Temperatures_CC[-1])) 
+            outputstring+="TCC = "+str(self.g_sys_instance.Temperatures_CC[-1])+"   "
 
-            self.plot_label_variable.set("  Conditioning Chamber Temperature")
+            self.outputtextbox_variable.set(outputstring) 
 
-        elif self.choose_controller_variable.get() == "DPG":
+            #self.plot_label_variable.set("  Conditioning Chamber Temperature")
+
+        if self.check_var3.get():
             
             self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_DPG[(25000-self.plot_density*index):], 'r', label="TSC")
 
-            self.outputtextbox_variable.set("TDPG = "+str(self.g_sys_instance.Temperatures_DPG[-1]))
+            outputstring+="TDPG = "+str(self.g_sys_instance.Temperatures_DPG[-1])
 
-            self.plot_label_variable.set("  Dew Point Generator Temperature")
+            self.outputtextbox_variable.set(outputstring)
+
+            #self.plot_label_variable.set("  Dew Point Generator Temperature")
+
+        outputstring=""
 
 
         #self.ax1.plot(self.g_sys_instance.time_list[(10000-self.plot1_range*index):], self.g_sys_instance.Temperatures_DPG[(10000-self.plot1_range*index):], 'r', label="TDPG")

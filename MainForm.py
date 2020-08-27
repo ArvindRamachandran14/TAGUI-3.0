@@ -87,7 +87,7 @@ class MainForm(Tk) :
 
         self.serialBar = tk.Frame(container, relief=tk.SUNKEN)
 
-        self.serialBar.grid(row=0, column=0) # Serial bar is positioned at the top row of the frame
+        self.serialBar.grid(row=0, column=0, sticky='w') # Serial bar is positioned at the top row of the frame
 
         choose_mode_list = ["TA Experiment", "TA Simulation"]
 
@@ -99,7 +99,9 @@ class MainForm(Tk) :
 
         self.choose_mode_widget = OptionMenu(self.serialBar, self.choose_mode_variable, *choose_mode_list, command=self.set_mode)
 
-        self.choose_mode_widget.grid(row=0, column=1)
+        self.choose_mode_widget.config(width=11)#, direction='left')
+
+        self.choose_mode_widget.grid(row=0, column=1, sticky='w')
 
         self.choose_mode_variable.set("TA Experiment")
 
@@ -117,6 +119,8 @@ class MainForm(Tk) :
 
         self.serial_port_widget = OptionMenu(self.serialBar, self.tty_variable, *tty_list, command=self.update_json_file)
 
+        self.serial_port_widget.config(width=21)#, justify='left')
+
         self.serial_port_widget.grid(row=0, column=3)
 
         self.baud_rate_label = Label(self.serialBar, text="Baud")
@@ -130,6 +134,8 @@ class MainForm(Tk) :
         self.baud_rate_variable.set(g_tech_instance.baud_rate)
 
         self.baud_rate_list = OptionMenu(self.serialBar, self.baud_rate_variable, *baud_rate_list, command=self.update_json_file)
+
+        self.baud_rate_list.config(width=6)
 
         self.baud_rate_list.grid(row=0, column=5)        
 
@@ -180,7 +186,13 @@ class MainForm(Tk) :
         
         ################# Hosts the different tabs such as SetUp, Monitor, Terminal, and Config #################
         
+
+        s = ttk.Style()
+        s.configure('TNotebook', tabposition='nw')
+
         self.ctrlTab = ttk.Notebook(container)
+        self.ctrlTab.grid(row=1, column=0)#tk.E+tk.W+tk.S+tk.N)
+
         self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance)
         self.ctrlTab.add(self.tabSetup, text = 'Setup')
         self.tabMon = CtrlMon.CtrlMon(self.ctrlTab, self.g_sys_instance, self.cons, self)
@@ -195,7 +207,7 @@ class MainForm(Tk) :
         self.tabCfg = CtrlCfg.CtrlCfg(self.ctrlTab)
         self.calibTab = Calib.Calib(self.ctrlTab,  self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
-        self.ctrlTab.grid(row=1, column=0, sticky=tk.E+tk.W+tk.S+tk.N)
+        
 
     def set_mode(self, event):
 
