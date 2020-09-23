@@ -46,10 +46,11 @@ class TAShare(Structure) :
             ('data', TAData * recCount)]
 
 class consumer() :
-    def __init__(self, g_sys_instance) :
+    def __init__(self, g_sys_instance, g_cal_instance) :
 
         #self.g_tech_instance= g_tech_instance
         self.g_sys_instance = g_sys_instance
+        self.g_cal_instance = g_cal_instance
         self.startTime = None
         self.bDone = False
         self.recNum = 0
@@ -153,6 +154,13 @@ class consumer() :
             '''
             self.recsGot += 1
 
+            '''
+            if self.g_cal_instance.bcalibration:
+
+                cal_variable_output_string = self.send_command_to_PC('g cal_variables')
+
+                cal_variable_output_list = cal_variable_output_string.split(',')
+            '''
         return 0
 
     def initialize(self) :
