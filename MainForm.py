@@ -18,7 +18,7 @@ import CtrlTerm
 import CtrlCfg
 import serial
 import time
-import Calib_new
+import Calib_2
 #import TADAQ
 import Data_coord
 import json
@@ -208,7 +208,7 @@ class MainForm(Tk) :
         self.tabTerm = CtrlTerm.CtrlTerm(self.ctrlTab, self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.tabTerm, text = 'Terminal')
         self.tabCfg = CtrlCfg.CtrlCfg(self.ctrlTab)
-        self.calibTab = Calib_new.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
+        self.calibTab = Calib_2.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
         
 

@@ -153,7 +153,7 @@ class producer() :
                         self.bDone = True
                         sReply = 'OK\n'
                     else :
-                        sReply = self.getDataFromTA(command, ser, bsimulation)
+                        sReply = self.getDataFromTA(command)
                     if command == 'g all':
                         sReply =  'v {0:.4f},{1:.4f},{2:.4f},{3:.4f},{4:.2f},{5:.2f},{6:.4f},{7:d}\n'.format( \
                         sReply[0], sReply[1], sReply[2], sReply[3], \
@@ -226,7 +226,6 @@ class producer() :
             try :
                 self.sock.send(cmdBytes)
                 rData = self.sock.recv(128)
-                #print(rData)
             except Exception(e) :
                 msg = e.msg
                 print(f'Socket error: {msg}')
@@ -234,7 +233,7 @@ class producer() :
             else :
                 sData = rData.decode('utf-8')
 
-                print(cmd)
+                #print(cmd)
 
                 if cmd == 'g all' :
                     if sData[0] == 'v' :

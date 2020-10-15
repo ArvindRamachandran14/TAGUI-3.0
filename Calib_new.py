@@ -83,118 +83,173 @@ class Calib(Frame) :
 
     def build_calib_table(self):
 
+        self.check_buttom_frame = Frame(self.Table_Frame)
+        self.check_button_frame.grid(row=0,column=0)
+
         self.calib_check_var = IntVar()
-        Checkbutton(self.Table_Frame, text="Calibration mode", variable=self.calib_check_var, command=self.set_bcalibration).grid(row=0, column=1, columnspan=2, sticky='EW')
+        Checkbutton(self.check_button_frame, text="Calibration mode", variable=self.calib_check_var, command=self.set_bcalibration).grid(row=0, column=0, columnspan=2, sticky='W')
 
         var_names = ["Var name", "Measured T", "Output", "Power", "", "P", "I", "D", "", "Set Point", ""]
 
-        colors = ["gray", "slate gray", "slate gray", "light gray", "light gray", "gray", "gray", "gray",  "gray", "light gray", "light gray"]
+        colors = ["gray", "slate gray", "slate gray", "light gray", "light gray", "gray", "gray", "gray",  "gray", "gray", "light gray", "light gray"]
 
-        var_names_dummy = [""]*len(var_names)
-
+        var_names_dummy = [""]*12
+        
         for i in range(len(var_names)):
 
-            label = Label(self.Table_Frame,text=var_names[i],bg=colors[i],fg="white", width=15)#, padx=1, pady=1)
+            label = Label(self.Table_Frame,text=var_names[i],bg=colors[i],fg="black", width=15, relief="solid")#, padx=1, pady=1)
 
             label.grid(row=i+1,column=0,padx=1,pady=1,sticky='N')
 
-            label = Label(self.Table_Frame,text=var_names_dummy[i],bg=colors[i],fg="white", width=15)#, padx=1, pady=1)
+            label.config(highlightbackground="black") 
 
-            label.grid(row=i+1,column=1, columnspan=2, padx=1,pady=1, sticky='N')
+        for i in [4, 5, 9, 11]:
 
-            label = Label(self.Table_Frame,text=var_names_dummy[i],bg=colors[i],fg="white", width=15)#, padx=1, pady=1)
+            label = Label(self.Table_Frame,text=var_names_dummy[i],bg=colors[i],fg="black", width=15, relief="solid")#, padx=1, pady=1)
 
-            label.grid(row=i+1,column=3, columnspan=2, padx=1,pady=1, sticky='N')
+            label.grid(row=i,column=1, columnspan=2, padx=1,pady=1, sticky='N')
 
-            label = Label(self.Table_Frame,text=var_names_dummy[i],bg=colors[i],fg="white", width=15)#, padx=1, pady=1)
+            label.config(highlightbackground="black") 
 
-            label.grid(row=i+1,column=5, columnspan=2, padx=1,pady=1, sticky='N')
+            label = Label(self.Table_Frame,text=var_names_dummy[i],bg=colors[i],fg="black", width=15, relief="solid")#, padx=1, pady=1)
 
-        label_SC =  Label(self.Table_Frame,text="SC", bg="gray",fg="white", width=15, padx=1, pady=1)
+            label.grid(row=i,column=3, columnspan=2, padx=1,pady=1, sticky='N')
+
+            label.config(highlightbackground="black") 
+
+            label = Label(self.Table_Frame,text=var_names_dummy[i],bg=colors[i],fg="black", width=15, relief="solid")#, padx=1, pady=1)
+
+            label.grid(row=i,column=5, columnspan=2, padx=1,pady=1, sticky='N')
+
+            label.config(highlightbackground="black") 
+
+        label_SC =  Label(self.Table_Frame,text="SC", bg="gray",fg="black", width=15, padx=1, pady=1, relief="solid")
 
         label_SC.grid(row=1,column=1, columnspan=2, sticky="w", padx=1, pady=1)
 
-        label_CC =  Label(self.Table_Frame,text="CC", bg="gray",fg="white", width=15 ,padx=1, pady=1)
+        label_SC.config(highlightbackground="black") 
+
+        label_CC =  Label(self.Table_Frame,text="CC", bg="gray",fg="black", width=15 ,padx=1, pady=1, relief="solid")
 
         label_CC.grid(row=1,column=3, columnspan=2, sticky="w", padx=1, pady=1)
 
-        label_DPG =  Label(self.Table_Frame,text="DPG", bg="gray",fg="white", width=15, padx=1, pady=1)
+        label_CC.config(highlightbackground="black") 
+
+        label_DPG =  Label(self.Table_Frame,text="DPG", bg="gray",fg="black", width=15, padx=1, pady=1, relief="solid")
 
         label_DPG.grid(row=1,column=5, columnspan=2, sticky="w", padx=1, pady=1)
 
+        label_DPG.config(highlightbackground="black") 
+
         self.TSC = self.TCC = self.TDPG = StringVar()
  
-        self.TSC_entry = Entry(self.Table_Frame, bg="slate gray", fg="white", width=15, textvariable=self.TSC)
+        self.TSC_entry = Entry(self.Table_Frame, bg="slate gray", fg="black", width=13, textvariable=self.TSC)
 
-        self.TSC_entry.grid(row=2,column=1, columnspan=2, sticky="w", padx=1, pady=1)
+        self.TSC_entry.grid(row=2,column=1, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.TCC_entry = Entry(self.Table_Frame, bg="slate gray", fg="white", width=15, textvariable=self.TCC)
+        self.TSC_entry.config(highlightbackground="black", highlightthickness=0, relief='solid')
 
-        self.TCC_entry.grid(row=2,column=3, columnspan=2, sticky="w", padx=1, pady=1)
+        self.TCC_entry = Entry(self.Table_Frame, bg="slate gray", fg="black", width=13, textvariable=self.TCC)
 
-        self.TDPG_entry = Entry(self.Table_Frame, bg="slate gray", fg="white", width=15, textvariable=self.TDPG)
+        self.TCC_entry.grid(row=2,column=3, columnspan=2, sticky="ew", padx=1, pady=1)
+
+        self.TCC_entry.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.TDPG_entry = Entry(self.Table_Frame, bg="slate gray", fg="black", width=13, textvariable=self.TDPG)
 
         self.TDPG_entry.grid(row=2,column=5, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.SC_output = Entry(self.Table_Frame, bg="slate gray", fg="white", width=15)
+        self.TDPG_entry.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.SC_output = Entry(self.Table_Frame, bg="slate gray", fg="black", width=13)
 
         self.SC_output.grid(row=3,column=1, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.CC_output = Entry(self.Table_Frame, bg="slate gray", fg="white", width=15)
+        self.SC_output.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.CC_output = Entry(self.Table_Frame, bg="slate gray", fg="black", width=13)
 
         self.CC_output.grid(row=3,column=3, columnspan=2, sticky="ew")
 
-        self.DPG_output = Entry(self.Table_Frame, bg="slate gray", fg="white", width=15)
+        self.CC_output.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.DPG_output = Entry(self.Table_Frame, bg="slate gray", fg="black", width=13)
 
         self.DPG_output.grid(row=3,column=5, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.SC_P = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.DPG_output.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.SC_P = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.SC_P.grid(row=6,column=1, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.CC_P = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.SC_P.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.CC_P = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.CC_P.grid(row=6,column=3, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.DPG_P = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.CC_P.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.DPG_P = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.DPG_P.grid(row=6,column=5, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.SC_I = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.DPG_P.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.SC_I = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.SC_I.grid(row=7,column=1, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.CC_I = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.SC_I.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.CC_I = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.CC_I.grid(row=7,column=3, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.DPG_I = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.CC_I.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.DPG_I = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.DPG_I.grid(row=7,column=5, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.SC_D = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.DPG_I.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.SC_D = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.SC_D.grid(row=8,column=1, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.CC_D = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.SC_D.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.CC_D = Entry(self.Table_Frame, bg="gray", fg="black", width=15)
 
         self.CC_D.grid(row=8,column=3, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.DPG_D = Entry(self.Table_Frame, bg="gray", fg="white", width=15)
+        self.CC_D.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.DPG_D = Entry(self.Table_Frame, bg="gray", fg="black", width=13)
 
         self.DPG_D.grid(row=8,column=5, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.SC_set = Entry(self.Table_Frame, bg="light gray", fg="white", width=15)
+        self.DPG_D.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.SC_set = Entry(self.Table_Frame, bg="light gray", fg="black", width=13)
 
         self.SC_set.grid(row=10,column=1, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.CC_set = Entry(self.Table_Frame, bg="light gray", fg="white", width=15)
+        self.SC_set.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.CC_set = Entry(self.Table_Frame, bg="light gray", fg="black", width=13)
 
         self.CC_set.grid(row=10,column=3, columnspan=2, sticky="ew", padx=1, pady=1)
 
-        self.DPG_set = Entry(self.Table_Frame, bg="light gray", fg="white", width=15)
+        self.CC_set.config(highlightbackground="black", highlightthickness=0, relief='solid')
+
+        self.DPG_set = Entry(self.Table_Frame, bg="light gray", fg="black", width=13)
 
         self.DPG_set.grid(row=10,column=5, columnspan=2, sticky="ew", padx=1, pady=1)
+
+        self.DPG_set.config(highlightbackground="black", highlightthickness=0, relief='solid')
 
         MODES = [("ON", "1"),("OFF", "0")]
 
@@ -204,59 +259,59 @@ class Calib(Frame) :
         sticky_list = ['e','w']
 
         for i in range(2):
-            self.SC_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.SC_power, value=MODES[i][1])
-            self.SC_rb1.grid(row=4, column=i+1, padx = 2, pady = 2, sticky=sticky_list[i])
+            self.SC_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.SC_power, value=MODES[i][1], height=1)
+            self.SC_rb1.grid(row=4, column=i+1, padx =1, pady =1, sticky=sticky_list[i])
 
 
         self.CC_power = StringVar()
         self.CC_power.set("0") # initialize
 
         for i in range(2):
-            self.CC_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.CC_power, value=MODES[i][1])
-            self.CC_rb1.grid(row=4, column=i+3, padx = 2, pady = 2, sticky=sticky_list[i])
+            self.CC_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.CC_power, value=MODES[i][1], height=1)
+            self.CC_rb1.grid(row=4, column=i+3, padx =1, pady =1, sticky=sticky_list[i])
 
 
         self.DPG_power = StringVar()
         self.DPG_power.set("0") # initialize
 
         for i in range(2):
-            self.DPG_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.DPG_power, value=MODES[i][1])
-            self.DPG_rb1.grid(row=4, column=i+5, padx = 2, pady = 2, sticky=sticky_list[i])
+            self.DPG_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.DPG_power, value=MODES[i][1], height=1)
+            self.DPG_rb1.grid(row=4, column=i+5, padx =1, pady = 1, sticky=sticky_list[i])
 
 
-        self.SC_power_apply = Button(self.Table_Frame, text="Apply")
+        self.SC_power_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.SC_power_apply.grid(row=5, column=2, sticky='w')
 
-        self.SC_PID_apply = Button(self.Table_Frame, text="Apply")
+        self.SC_PID_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.SC_PID_apply.grid(row=9, column=2, sticky='w')
 
-        self.SC_SetPoint_apply = Button(self.Table_Frame, text="Apply")
+        self.SC_SetPoint_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.SC_SetPoint_apply.grid(row=11, column=2, sticky='w')
 
-        self.CC_power_apply = Button(self.Table_Frame, text="Apply")
+        self.CC_power_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.CC_power_apply.grid(row=5, column=4, sticky='w')
 
-        self.CC_PID_apply = Button(self.Table_Frame, text="Apply")
+        self.CC_PID_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.CC_PID_apply.grid(row=9, column=4, sticky='w')
 
-        self.CC_SetPoint_apply = Button(self.Table_Frame, text="Apply")
+        self.CC_SetPoint_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.CC_SetPoint_apply.grid(row=11, column=4, sticky='w')
 
-        self.DPG_power_apply = Button(self.Table_Frame, text="Apply")
+        self.DPG_power_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.DPG_power_apply.grid(row=5, column=6, sticky='w')
 
-        self.DPG_PID_apply = Button(self.Table_Frame, text="Apply")
+        self.DPG_PID_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.DPG_PID_apply.grid(row=9, column=6, sticky='w')
 
-        self.DPG_SetPoint_apply = Button(self.Table_Frame, text="Apply")
+        self.DPG_SetPoint_apply = Button(self.Table_Frame, text="Apply", height=1)
 
         self.DPG_SetPoint_apply.grid(row=11, column=6, sticky='w')
 
