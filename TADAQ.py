@@ -100,6 +100,9 @@ class producer() :
                     if isinstance(taData, list) :
                         (TSC, TSC2, TCC, TDP, pH2O, pCO2, TDP2, Wgt, status) = taData #Watch out for the order of variables
                         tash.data[recIdx].SC_T = TSC
+
+                        #print('status type is', type(status))
+
                         #tash.data[recIdx].SC_T2 = data_list[1] #SC_T2 omitted in this model
                         tash.data[recIdx].CC_T = TCC
                         tash.data[recIdx].DPG_T = TDP
@@ -122,7 +125,6 @@ class producer() :
                         tash.data[recIdx].Status = -1
 
                     tash.recIdx = recIdx
-
                 
                 # Print the TADAQ output
                 '''
@@ -192,7 +194,7 @@ class producer() :
     # getDataFromTA
     # Query the TA for the current record
 
-    def connecttoTA(self, port, baud_rate, timeout):
+    def connecttoTA(self, port, baud_rate, time_out):
 
         if self.bsimulation:
 
@@ -200,12 +202,14 @@ class producer() :
 
         else:
 
-            try :
-                self.ser = serial.Serial(port, baud_rate, timeout=time_out)
-                self.ser.write('c-check\n'.encode()) #Send connection check command to TAC program
-                self.connection_reply = ser.readline().decode()
-            except :
-                self.connection_reply = 'e INVTTY\n'
+            #try :
+                #baud_rate = int(baud_rate)
+            self.ser = serial.Serial(port, baud_rate, timeout=time_out)
+            self.ser.write('c-check\n'.encode()) #Send connection check command to TAC program
+            self.connection_reply = self.ser.readline().decode()
+
+            #except :
+            #self.connection_reply = 'e INVTTY\n'
             
             print('TADAQ reply was', self.connection_reply)
 
@@ -257,9 +261,19 @@ class producer() :
                 
                 cmd+='\n'
 
+                output_length = 0
+
                 self.ser.write(cmd.encode())
 
-                Output_string = self.ser.readline().decode()
+                while output_length<2:
+
+                    Output_string = self.ser.readline().decode()
+
+                    output_length = len(Output_string)
+
+                #print('output_length', output_length)
+
+                #print('Output string', Output_string)
 
                 Split_strings_list  = Output_string.split(',')
 

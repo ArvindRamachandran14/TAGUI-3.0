@@ -54,7 +54,7 @@ def main(argv) :
 
     def apploop():
 
-            #check if there is ~/.TAGUI file and modify any of the values
+        #check if there is ~/.TAGUI file and modify any of the values
 
         '''
         with open('taui.json', 'r') as fCfg : 
@@ -72,7 +72,7 @@ def main(argv) :
 
             cons.consume() #indentation removed, consume all the time
 
-            mainForm.status_time_text.set('Run time: '+ str(datetime.timedelta(seconds=round(g_sys_instance.time_list[-1]))))
+            mainForm.status_time_text.set('Run time: ' + str(datetime.timedelta(seconds=round(g_sys_instance.time_list[-1]))))
 
         mainForm.after(2000, apploop)
 
