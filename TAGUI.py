@@ -60,12 +60,10 @@ def main(argv) :
         with open('taui.json', 'r') as fCfg : 
 
             config = json.loads(fCfg.read())
-
             
             bconnected = config["bconnected"]
 
         '''
-    
         if mainForm.connect_btn_text.get() == "Disconnect":
     
             #print('Consumption in progress')
@@ -73,6 +71,8 @@ def main(argv) :
             cons.consume() #indentation removed, consume all the time
 
             mainForm.status_time_text.set('Run time: ' + str(datetime.timedelta(seconds=round(g_sys_instance.time_list[-1]))))
+
+            mainForm.calibTab.animate_calibration_table()
 
         mainForm.after(2000, apploop)
 

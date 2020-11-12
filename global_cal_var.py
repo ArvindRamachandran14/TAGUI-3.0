@@ -41,8 +41,3 @@ class globals_:
 
         self.DPG_output_list = [0]*25000
 
-
-
-
-
-

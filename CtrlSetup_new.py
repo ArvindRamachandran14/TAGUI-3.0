@@ -11,29 +11,37 @@ from datetime import datetime
 
 class CtrlSetup(Frame):
 
-    def __init__(self, parent, cons, g_sys_instance, *args, **kwargs):
+    def __init__(self, parent, cons, g_sys_instance, g_cal_instance, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
         self.cons = cons
         self.parent = parent
         self.g_sys_instance = g_sys_instance
+        self.g_cal_instance = g_cal_instance
         self.Table_Frame = Frame(self)
         self.Table_Frame.grid(row=0, column=0, rowspan=9, columnspan=4, sticky='N')
         self.MODES = ['OFF', 'ON']
-        self.buildContent()
-
     
+        self.SC_set = StringVar()
+
+        self.CC_set = StringVar()
+
+        self.pH2O_set = StringVar()
+
+        self.RH_set = StringVar()
+
+        self.buildContent()
 
     def buildContent(self):
 
-        var_names = ["Parameter", "Power", "Temperature (C)", "ByPass", "pH2O (ppt)", "RH (%)", "Control"]
+        var_names = ["Parameter", "Power", "Temperature (C)", "ByPass", "pH2O (ppt)", "RH (%)", "Control", "IRGA pump"]
 
-        row_span = [1, 1, 1, 1, 1, 1, 1]
+        row_span = [1, 1, 1, 1, 1, 1, 1, 1]
 
-        column_span = [1, 1, 1, 1, 1, 1, 1]
+        column_span = [1, 1, 1, 1, 1, 1, 1, 1]
 
         #colors =  ["white"]*len(var_names)
 
-        colors = ["white", "white", "gray25", "gray25", "gray25", "gray25", "white" ]
+        colors = ["white", "white", "gray25", "gray25", "gray25", "gray25", "white", "gray25" ]
 
         var_names_dummy = [""]*len(var_names)
 
@@ -57,7 +65,7 @@ class CtrlSetup(Frame):
 
                 #j_list = [7]
 
-            elif i==3:
+            elif i==3 or i==7:
 
                 j_list = [2,3]
 
@@ -135,6 +143,19 @@ class CtrlSetup(Frame):
         self.SC_bypass.set(self.MODES[0])
         self.SC_bypass_label.grid(row=0, column=1, sticky='w')
 
+        self.IRGA_pump_outerframe = Label(self.Table_Frame, text="", bg="white", fg="black", relief="solid", width=12)
+        self.IRGA_pump_outerframe.grid(row=7, column=1, rowspan=1, columnspan=1, padx=1, pady=1, sticky='NSEW')
+        self.IRGA_pump_frame = Frame(self.Table_Frame)
+        self.IRGA_pump_frame.grid(row=7, column=1)
+        self.IRGA_pump = StringVar()
+        self.IRGA_pump.set("0") # initialize
+        self.IRGA_pump_scale = Scale(self.IRGA_pump_frame, from_=0, to=1, showvalue=0, length=50, orient=HORIZONTAL, command=self.IRGA_pump_switch)#, command=set_plot_range(1))
+        self.IRGA_pump_scale.grid(row=0, column=0, sticky='e')
+        self.IRGA_pump_label = Label(self.IRGA_pump_frame, textvariable=self.IRGA_pump, height=1, font=("TkDefaultFont", 11))
+        self.IRGA_pump.set(self.MODES[0])
+        self.IRGA_pump_label.grid(row=0, column=1, sticky='w')
+
+
 
         label_parname = Label(self.Table_Frame,text="Parameter", bg="light gray",fg="black", width=15, relief="solid", padx=1, pady=1)
 
@@ -185,21 +206,21 @@ class CtrlSetup(Frame):
             self.DPG_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.DPG_power, value=MODES[i][1], height=1)
             self.DPG_rb1.grid(row=1, column=i+5, padx=1, pady=1, sticky=sticky_list[i])
         '''
-        self.SC_set = Entry(self.Table_Frame, bg="gray", fg="white", width=13)
-        self.SC_set.grid(row=2, column=1, columnspan=1, sticky="ew", padx=1, pady=1)
-        self.SC_set.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
+        self.SC_set_entry = Entry(self.Table_Frame, bg="gray", fg="white", width=13, textvariable=self.SC_set)
+        self.SC_set_entry.grid(row=2, column=1, columnspan=1, sticky="ew", padx=1, pady=1)
+        self.SC_set_entry.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
 
-        self.CC_set = Entry(self.Table_Frame, bg="gray", fg="white", width=13)
-        self.CC_set.grid(row=2, column=2, columnspan=1, sticky="ew", padx=1, pady=1)
-        self.CC_set.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
+        self.CC_set_entry = Entry(self.Table_Frame, bg="gray", fg="white", width=13, textvariable=self.CC_set)
+        self.CC_set_entry.grid(row=2, column=2, columnspan=1, sticky="ew", padx=1, pady=1)
+        self.CC_set_entry.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
 
-        self.pH2O_set = Entry(self.Table_Frame, bg="gray", fg="white", width=13)
-        self.pH2O_set.grid(row=4, column=3, columnspan=1, sticky="ew", padx=1, pady=1)
-        self.pH2O_set.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
+        self.pH2O_set_entry = Entry(self.Table_Frame, bg="gray", fg="white", width=13, textvariable=self.pH2O_set)
+        self.pH2O_set_entry.grid(row=4, column=3, columnspan=1, sticky="ew", padx=1, pady=1)
+        self.pH2O_set_entry.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
 
-        self.RH_set = Entry(self.Table_Frame, bg="gray", fg="white", width=13)
-        self.RH_set.grid(row=5,column=3, columnspan=1, sticky="ew", padx=1, pady=1)
-        self.RH_set.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
+        self.RH_set_entry = Entry(self.Table_Frame, bg="gray", fg="white", width=13, textvariable=self.RH_set)
+        self.RH_set_entry.grid(row=5,column=3, columnspan=1, sticky="ew", padx=1, pady=1)
+        self.RH_set_entry.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
 
         self.SC_apply_var = StringVar()
 
@@ -231,6 +252,29 @@ class CtrlSetup(Frame):
 
         self.DPG_apply_var.set("Apply")
 
+    def update_setup_table(self):
+
+        ################## Update power ################## 
+
+        self.SC_power.set(self.MODES[int(float(self.g_cal_instance.SC_power))])
+
+        self.SC_power_scale.set(int(float(self.g_cal_instance.SC_power)))
+
+        self.CC_power.set(self.MODES[int(float(self.g_cal_instance.CC_power))])
+
+        self.CC_power_scale.set(int(float(self.g_cal_instance.CC_power)))
+
+        self.DPG_power.set(self.MODES[int(float(self.g_cal_instance.DPG_power))])
+
+        self.DPG_power_scale.set(int(float(self.g_cal_instance.DPG_power)))
+
+        ################## Update Set Points ################## 
+
+        self.SC_set.set(str(self.g_cal_instance.SC_set))
+
+        self.CC_set.set(str(self.g_cal_instance.CC_set))
+
+
     def SC_power_switch(self, value):
 
         reply = self.cons.send_command_to_PC('s SC_power '+str(self.SC_power_scale.get()))
@@ -257,60 +301,139 @@ class CtrlSetup(Frame):
 
     def SC_bypass_switch(self, value):
 
-        self.SC_bypass.set(self.MODES[self.SC_bypass_scale.get()])
+        reply = self.cons.send_command_to_PC('s ByPass '+str(self.SC_bypass_scale.get()))
 
-        #self.SC_bypass_scale.get()
+        if reply == 'e 0\n':
+
+            self.SC_bypass.set(self.MODES[self.SC_bypass_scale.get()])
+
+    def IRGA_pump_switch(self, value):
+
+        reply = self.cons.send_command_to_PC('s IRGA_pump '+str(self.IRGA_pump_scale.get()))
+
+        if reply == 'e 0\n':
+
+            self.IRGA_pump.set(self.MODES[self.IRGA_pump_scale.get()])
 
     def SC_apply_func(self):
 
-        self.SC_set.config(bg='gray', fg = "white")
+        if self.MODES.index(self.SC_power.get()):
 
-        reply = self.cons.send_command_to_PC('s SC_set '+str(self.SC_set.get()))
+            self.SC_set_entry.config(bg='gray', fg = "white")
 
-        if reply == 'e 0\n':
+            self.update()
 
-            self.SC_set.config(bg='light gray', fg='black')
+            reply = self.cons.send_command_to_PC('s SC_set '+str(self.SC_set.get()))
+
+            if reply == 'e 0\n':
+
+                self.SC_set_entry.config(bg='light gray', fg='black')
+
+                self.update()
+
+            else:
+
+                messagebox.showwarning(title='Command Error', message="Check entry")
+        
+        else:
+
+            messagebox.showwarning(title='Power Error', message="Switch controller on")
+
 
     def CC_apply_func(self):
 
-        #self.validate(self.CC_set.get(), input_type, input_range, var_name)
+        if self.MODES.index(self.CC_power.get()):
 
-        self.CC_set.config(bg='gray', fg = "white")
+            #self.validate(self.CC_set.get(), input_type, input_range, var_name)
 
-        if self.CC_set.cget('bg') == 'gray' and self.CC_set.cget('fg') == 'white':
+            self.CC_set_entry.config(bg='gray', fg = "white")
 
-            self.CC_apply_func_finish()
+            self.update()
 
-    def CC_apply_func_finish(self):
+            reply = self.cons.send_command_to_PC('s CC_set '+str(self.CC_set.get()))
 
-        reply = self.cons.send_command_to_PC('s CC_set '+str(self.CC_set.get()))
+            if reply == 'e 0\n':
 
-        if reply == 'e 0\n':
+                self.CC_set_entry.config(bg='light gray', fg='black')
 
-            self.CC_set.config(bg='light gray', fg='black')
+                self.update()
 
-        #self.CC_set.config(command=self.CC_apply_func)
+            else:
 
-    
+                messagebox.showwarning(title='Command Error', message="Check entry")
+        else:
+
+            messagebox.showwarning(title='Power Error', message="Switch controller on")
+        
     def send_pH2O_command(self):
 
-        TSC = self.g_sys_instance.Temperatures_SC[-1]
+        if self.MODES.index(self.DPG_power.get()):
 
-        if len(self.RH_set.get()) == 0 and len(self.pH2O_set.get()) == 0:
+            self.RH_set_entry.config(bg='gray', fg = "white")
 
-            messagebox.showwarning(title='Input Error', message="No entry for RH or pH2O")
+            self.pH2O_set_entry.config(bg='gray', fg = "white")
 
-        elif len(self.RH_set.get()) > 0 and len(self.pH2O_set.get()) == 0: #RH entry
+            self.update()
 
-            RH_input = float(self.RH_set.get())
+            TSC = self.g_sys_instance.Temperatures_SC[-1]
 
-            if RH_input >=10 and RH_input <=90: #RH limits
+            if len(self.RH_set.get()) == 0 and len(self.pH2O_set.get()) == 0:
 
-                target_pressure = (RH_input/100.0)*self.ph2oSat(TSC)
+                messagebox.showwarning(title='Input Error', message="No entry for RH or pH2O")
+
+            elif len(self.RH_set.get()) > 0 and len(self.pH2O_set.get()) == 0: #RH entry
+
+                RH_input = float(self.RH_set.get())
+
+                if RH_input >=10 and RH_input <=90: #RH limits
+
+                    target_pressure = (RH_input/100.0)*self.ph2oSat(TSC)
+
+                    Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
+
+                    print('Cell_pressure_output', Cell_pressure_output)
+
+                    Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+
+                    Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+
+                    Cell_pressure = float(Cell_pressure_string)*1000
+
+                    #self.pH2O_set.set((target_pressure/Cell_pressure)*1000,2)
+
+                    self.pH2O_set.insert(0, str(round((target_pressure/Cell_pressure)*1000,2)))
+
+                    target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
+
+                    reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+
+                    if reply_DPG_set == 'e 0\n':
+
+                        print('Command success')
+
+                        self.pH2O_set.config(bg='light gray', fg='black')
+
+                        self.RH_set.config(bg='light gray', fg='black')
+
+                        self.update()
+
+                    reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                        
+                    #print('reply_DPG_set', reply_DPG_set)
+
+                elif RH_input >=90:
+
+                    messagebox.showwarning(title='RH offlimits', message="Condensation Warning")
+
+                else:
+
+                    messagebox.showwarning(title='RH offlimits', message="Low RH Warning")
+
+            elif len(self.RH_set.get()) == 0 and len(self.pH2O_set.get()) > 0: # pH2O entry
 
                 Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
 
-                print('Cell_pressure_output', Cell_pressure_output)
+                #print(Cell_pressure_output)
 
                 Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
 
@@ -318,75 +441,53 @@ class CtrlSetup(Frame):
 
                 Cell_pressure = float(Cell_pressure_string)*1000
 
-                #self.pH2O_set.set((target_pressure/Cell_pressure)*1000,2)
+                target_pressure = (float(self.pH2O_set.get())/1000.0)*Cell_pressure
 
-                self.pH2O_set.insert(0, str(round((target_pressure/Cell_pressure)*1000,2)))
+                RH_input = (target_pressure/self.ph2oSat(TSC))*100
 
-                target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
+                if RH_input >=10 and RH_input <=90: #RH limits
 
-                print(target_TDP)
+                    target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-                #reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
-                    
-                #print('reply_DPG_set', reply_DPG_set)
+                    self.RH_set.insert(0, str(round(RH_input,2)))
 
-            elif RH_input >=90:
+                    #print(target_TDP)
+                
+                    reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
 
-                messagebox.showwarning(title='RH offlimits', message="Condensation Warning")
+                    if reply_DPG_set == 'e 0\n':
 
-            else:
+                        print('Command success')
 
-                messagebox.showwarning(title='RH offlimits', message="Low RH Warning")
+                        self.pH2O_set.config(bg='light gray', fg='black')
 
-        elif len(self.RH_set.get()) == 0 and len(self.pH2O_set.get()) > 0: # pH2O entry
+                        self.RH_set.config(bg='light gray', fg='black')
 
-            Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
+                        self.update()
 
-            #print(Cell_pressure_output)
 
-            Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+                elif RH_input >=90:
 
-            Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+                    messagebox.showwarning(title='pH2O offlimits', message="Condensation Warning")
 
-            Cell_pressure = float(Cell_pressure_string)*1000
+                else:
 
-            target_pressure = (float(self.pH2O_set.get())/1000.0)*Cell_pressure
-
-            RH_input = (target_pressure/self.ph2oSat(TSC))*100
-
-            if RH_input >=10 and RH_input <=90: #RH limits
-
-                target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
-
-                self.RH_set.insert(0, str(round(RH_input,2)))
-
-                print(target_TDP)
-            
-                #reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
-
-                #print('reply_DPG_set', reply_DPG_set)
-
-            elif RH_input >=90:
-
-                messagebox.showwarning(title='pH2O offlimits', message="Condensation Warning")
+                    messagebox.showwarning(title='pH2O offlimits', message="Low pH2O warning")
 
             else:
 
-                messagebox.showwarning(title='pH2O offlimits', message="Low pH2O warning")
+                messagebox.showwarning(title='Input Error', message="Choose one entry for RH or pH2O")
 
         else:
 
-            messagebox.showwarning(title='Input Error', message="Choose one entry for RH or pH2O")
+            messagebox.showwarning(title='Power Error', message="Switch controller on")
 
-
-        #if self.label_RH_set.cget('state') == 'normal' and self.label_pH2O_set.cget('state') == 'disabled': #RH input
 
     def ph2oSat_solve(self, T, P):
         return 610.78 * exp((T * 17.2684) / (T + 238.3)) - P
 
     def ph2oSat(self, T):
         return 610.78 * exp((T * 17.2684) / (T + 238.3))
-
 
     '''
 

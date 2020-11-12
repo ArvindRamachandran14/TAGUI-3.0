@@ -39,8 +39,8 @@ class TAData(Structure) :
 class TAShare(Structure) :
     _pack_ = 4
     _fields_ = [ \
-            ('command', c_byte * 80),
-            ('reply', c_byte * 80),
+            ('command', c_byte * 256),
+            ('reply', c_byte * 256),
             ('recCount', c_int),
             ('recIdx', c_int),
             ('data', TAData * recCount)]
@@ -154,13 +154,49 @@ class consumer() :
             '''
             self.recsGot += 1
 
-            '''
+            
             if self.g_cal_instance.bcalibration:
 
                 cal_variable_output_string = self.send_command_to_PC('g cal_variables')
 
                 cal_variable_output_list = cal_variable_output_string.split(',')
-            '''
+
+                self.g_cal_instance.SC_power = cal_variable_output_list[0]
+
+                self.g_cal_instance.SC_P = cal_variable_output_list[1]
+
+                self.g_cal_instance.SC_I = cal_variable_output_list[2]
+
+                self.g_cal_instance.SC_D = cal_variable_output_list[3]
+
+                self.g_cal_instance.SC_set = cal_variable_output_list[4]
+
+                self.g_cal_instance.SC_output_list.append(cal_variable_output_list[5])
+
+                self.g_cal_instance.CC_power = cal_variable_output_list[6]
+
+                self.g_cal_instance.CC_P = cal_variable_output_list[7]
+
+                self.g_cal_instance.CC_I = cal_variable_output_list[8]
+
+                self.g_cal_instance.CC_D = cal_variable_output_list[9]
+
+                self.g_cal_instance.CC_set = cal_variable_output_list[10]
+
+                self.g_cal_instance.CC_output_list.append(cal_variable_output_list[11])
+
+                self.g_cal_instance.DPG_power = cal_variable_output_list[12]
+
+                self.g_cal_instance.DPG_P = cal_variable_output_list[13]
+
+                self.g_cal_instance.DPG_I = cal_variable_output_list[14]
+
+                self.g_cal_instance.DPG_D = cal_variable_output_list[15]
+
+                self.g_cal_instance.DPG_set = cal_variable_output_list[16]
+
+                self.g_cal_instance.DPG_output_list.append(cal_variable_output_list[17])
+
         return 0
 
     def initialize(self) :
@@ -194,7 +230,7 @@ class consumer() :
 
         shFile = Path('taShare')
         if shFile.is_file():
-            print('taShare exists')
+            #print('taShare exists')
             bconnected  = True
 
         if bconnected:
@@ -240,7 +276,7 @@ class consumer() :
         #print('command received is', command)
         reply = ''
         tash = TAShare.from_buffer(self.mmShare)
-        tash.reply = (c_byte * 80)(0)
+        tash.reply = (c_byte * 256)(0)
         cmdBuf = bytearray(command, encoding) 
         tash.command[0:len(cmdBuf)] = cmdBuf #adding command to shared memory
 
@@ -249,10 +285,10 @@ class consumer() :
             reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memor
             if '\n' in reply :
                 reply = reply[0:-1]
-                tash.command = (c_byte * 80)(0)
+                tash.command = (c_byte * 256)(0)
                 break
 
-        print('reply on the consumer end is ', reply)
+        #print('reply on the consumer end is ', reply)
 
         #print(type(reply))
 

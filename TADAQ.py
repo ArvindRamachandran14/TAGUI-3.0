@@ -40,8 +40,8 @@ class TAData(Structure) :
 class TAShare(Structure) :
     _pack_ = 4
     _fields_ = [ \
-            ('command', c_byte * 80), # 80 byte buffer
-            ('reply', c_byte * 80), # change reply buffer size to 256 from 80 and edit rest of the code accordingly 
+            ('command', c_byte * 256), # 256 byte buffer
+            ('reply', c_byte * 256), # change reply buffer size to 256 from 256 and edit rest of the code accordingly 
             ('recCount', c_int),
             ('recIdx', c_int),
             ('data', TAData * recCount)]
@@ -145,10 +145,10 @@ class producer() :
                 tash = TAShare.from_buffer(self.mmShare)
                 command = bytearray(tash.command).decode(encoding).rstrip('\x00')
                 if len(command) != 0 :
-                    print(f'Command received in TADAQ is: {command}')
-                    tash.reply = (c_byte * 80)(0)
+                    #print(f'Command received in TADAQ is: {command}')
+                    tash.reply = (c_byte * 256)(0)
 
-                    for idx in range(0,80) :
+                    for idx in range(0,256) :
                         tash.reply[idx] = 0
                         # tash.command[idx] = 0
                     if command == '@{EXIT}' :
@@ -176,8 +176,8 @@ class producer() :
 
     def initialize(self) :
         tempTASH = TAShare()
-        tempTASH.command[0:80] = [0] * 80
-        tempTASH.reply[0:80] = [0] * 80
+        tempTASH.command[0:256] = [0] * 256
+        tempTASH.reply[0:256] = [0] * 256
         tempTASH.recCount = recCount
         tempTASH.recIdx = -1
         self.mmfd = open('taShare', 'w+b') # read and write, binary file memory mapped file descriptor
@@ -339,7 +339,9 @@ async def main() :
     prod.connecttoTA(port, baud_rate, time_out)
 
     task1 = asyncio.create_task(prod.produce())
+
     task2 = asyncio.create_task(prod.doCmd())
+
     await task1
     await task2
        

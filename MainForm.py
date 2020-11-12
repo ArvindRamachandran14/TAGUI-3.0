@@ -58,6 +58,8 @@ class MainForm(Tk) :
         self.ctrlTab.select(self.tabSetup)
         self.dat_buf = []
 
+        self.filename = ''
+
         #self.dcoord = DCoord(Rec_num) # This is renaming the consumer class 
 
         #self.cmd = ''
@@ -195,8 +197,10 @@ class MainForm(Tk) :
         self.ctrlTab = ttk.Notebook(container)
         self.ctrlTab.grid(row=1, column=0)#tk.E+tk.W+tk.S+tk.N)
 
+        self.ctrlTab.bind("<<NotebookTabChanged>>", self.display_tab_selected)
+
         #self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance)
-        self.tabSetup = CtrlSetup_new.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance)
+        self.tabSetup = CtrlSetup_new.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance, self.g_cal_instance)
         self.ctrlTab.add(self.tabSetup, text = 'Setup')
         self.tabMon = CtrlMon.CtrlMon(self.ctrlTab, self.g_sys_instance, self.cons, self)
         self.tabMon2 = CtrlMon2.CtrlMon2(self.ctrlTab, self.g_sys_instance)
@@ -211,6 +215,19 @@ class MainForm(Tk) :
         self.calibTab = Calib_2.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
         
+    def display_tab_selected(self, event):
+
+        selected_tab = event.widget.select()
+
+        tab_text = event.widget.tab(selected_tab, "text")
+
+        if tab_text == "Calibration":
+
+            self.calibTab.update_calibration_table()
+
+        elif tab_text == "Setup":
+
+            self.tabSetup.update_setup_table()
 
     def set_mode(self, event):
 
@@ -252,23 +269,21 @@ class MainForm(Tk) :
 
     def onFileNew(self):
         
-        filename  = filedialog.asksaveasfilename(initialdir = "./",title = "Select file",filetypes = (("xml files","*.xml"), ("csv files","*.csv"), ("all files","*.*")))
+        self.filename  = filedialog.asksaveasfilename(initialdir = "./",title = "Select file",filetypes = (("xml files","*.xml"), ("csv files","*.csv"), ("all files","*.*")))
 
-        if filename != '':
+        if self.filename != '':
 
-            self.cons.f = open(filename, "w+")
-
+            self.cons.f = open(self.filename, "w+")
 
     def onFileOpen(self) :
 
         ftypes = [('xml files', '*.xml'), ("csv files","*.csv"), ('All files', '*')]
         dlg = filedialog.Open(self, filetypes = ftypes)
-        filename = dlg.show()
+        self.filename = dlg.show()
 
-        if filename != '':
+        if self.filename != '':
 
-            self.cons.f = open(filename, "a")
-
+            self.cons.f = open(self.filename, "a")
 
         #popupmsg("Not Implemented")
 
