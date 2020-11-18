@@ -88,6 +88,9 @@ def main(argv) :
 
     ani_calib_temperatures = animation.FuncAnimation(mainForm.calibTab.fig1, mainForm.calibTab.animate_temperatures, interval=1000)
 
+    ani_calib_RH = animation.FuncAnimation(mainForm.calibTab.fig2, mainForm.calibTab.animate_RH, interval=1000)
+
+
     mainForm.mainloop()
 
 # Actual main program

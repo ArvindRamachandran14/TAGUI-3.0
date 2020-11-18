@@ -40,4 +40,3 @@ class globals_:
         self.CC_output_list = [0]*25000
 
         self.DPG_output_list = [0]*25000
-

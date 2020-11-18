@@ -16,6 +16,7 @@ import json
 #import pykbhit as pykb
 import global_tech_var as g_tech_instance
 import dicttoxml
+from math import exp
 
 encoding = 'utf-8'
 loop = None
@@ -94,6 +95,18 @@ class consumer() :
 
                 self.g_sys_instance.pH2O_list.append(round(tad.pH2O,2))
 
+                #Cell_pressure_output = self.send_command_to_PC('g CellP')
+
+                #Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+
+                #Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+
+                #Cell_pressure = float(Cell_pressure_string)*1000
+
+                Cell_pressure = 97.0676*1000
+
+                self.g_sys_instance.RH_list.append(round(float(tad.pH2O*0.001*Cell_pressure*100)/self.ph2oSat(tad.SC_T),2))
+
                 self.g_sys_instance.pCO2_list.append(round(tad.pCO2,2))
 
                 self.g_sys_instance.sample_weight.append(round(tad.Sample_weight,2))
@@ -116,6 +129,8 @@ class consumer() :
 
                 temp_dict['pH2O'] = tad.pH2O
 
+                temp_dict['RH'] = tad.pH2O/self.ph2oSat(tad.SC_T)
+
                 temp_dict['Sample_weight'] = tad.Sample_weight
 
                 xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='TAData').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
@@ -131,6 +146,8 @@ class consumer() :
             self.g_sys_instance.Temperatures_DP.pop(0)
 
             self.g_sys_instance.pH2O_list.pop(0)
+
+            self.g_sys_instance.RH_list.pop(0)
 
             self.g_sys_instance.pCO2_list.pop(0)
 
@@ -171,7 +188,7 @@ class consumer() :
 
                 self.g_cal_instance.SC_set = cal_variable_output_list[4]
 
-                self.g_cal_instance.SC_output_list.append(cal_variable_output_list[5])
+                self.g_cal_instance.SC_output_list.append(round(float(cal_variable_output_list[5]),2))
 
                 self.g_cal_instance.CC_power = cal_variable_output_list[6]
 
@@ -183,7 +200,7 @@ class consumer() :
 
                 self.g_cal_instance.CC_set = cal_variable_output_list[10]
 
-                self.g_cal_instance.CC_output_list.append(cal_variable_output_list[11])
+                self.g_cal_instance.CC_output_list.append(round(float(cal_variable_output_list[11]),2))
 
                 self.g_cal_instance.DPG_power = cal_variable_output_list[12]
 
@@ -195,7 +212,13 @@ class consumer() :
 
                 self.g_cal_instance.DPG_set = cal_variable_output_list[16]
 
-                self.g_cal_instance.DPG_output_list.append(cal_variable_output_list[17])
+                self.g_cal_instance.DPG_output_list.append(round(float(cal_variable_output_list[17]),2))
+
+                self.g_cal_instance.SC_output_list.pop(0)
+
+                self.g_cal_instance.CC_output_list.pop(0)
+
+                self.g_cal_instance.DPG_output_list.pop(0)
 
         return 0
 
@@ -319,3 +342,7 @@ class consumer() :
         #print('Disconnected')
 
         #self.ser_PC.close()
+
+    def ph2oSat(self, T):
+        
+        return 610.78 * exp((T * 17.2684) / (T + 238.3))

@@ -15,6 +15,8 @@ class globals_:
 
         self.pH2O_list = [0]*25000
 
+        self.RH_list = [0]*25000
+
         self.sample_weight = [0]*25000
 
         self.time_list = [0]*25000

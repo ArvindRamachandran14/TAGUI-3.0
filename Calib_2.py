@@ -1,8 +1,10 @@
-from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, OptionMenu, Entry, Scale, HORIZONTAL, Checkbutton, IntVar, messagebox
+from tkinter import Frame, LabelFrame, Label, Spinbox, Button, Text, StringVar, Radiobutton, OptionMenu, Entry, Scale, HORIZONTAL, Checkbutton, IntVar, messagebox, VERTICAL
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from datetime import datetime
 import time
+from math import exp
+import scipy.optimize as opt
 
 class Calib(Frame) :
 
@@ -11,13 +13,17 @@ class Calib(Frame) :
         self.check_button_frame = Frame(self,padx=2, pady=2)
         #self.check_button_frame.grid(row=0,column=0,sticky='NW')
 
-        self.Table_Frame = Frame(self)
+        self.Table_Frame = Frame(self, padx=20)
 
         self.Table_Frame.grid(row=0, column=0, sticky='N')
 
-        self.Graph_Frame = Frame(self, padx=50)
+        self.Partition_Frame = Frame(self)
 
-        self.Graph_Frame.grid(row=0, column=1, sticky='N')
+        self.Partition_Frame.grid(row=0, column=1, sticky='N')
+
+        self.Graph_Frame = Frame(self)#, padx=50)
+
+        self.Graph_Frame.grid(row=0, column=2, sticky='NE')
  
         self.TC_Table_Frame = Frame(self.Table_Frame, highlightbackground='black', highlightthickness=2, relief='solid',padx=2, pady=2,height=300,width=400)
 
@@ -31,10 +37,6 @@ class Calib(Frame) :
 
         self.Humidity_Table_Frame.grid(row=2, column=0, sticky='NW')
 
-        self.Checkbutton_Frame = Frame(self.Graph_Frame, padx=50)
-
-        #self.Checkbutton_Frame.grid(row=0, column=0, sticky='N')
-
         self.Graph_1_Frame = Frame(self.Graph_Frame)
 
         self.Graph_1_Frame.grid(row=0, column=0, sticky='N')
@@ -43,10 +45,18 @@ class Calib(Frame) :
 
         self.Graph_2_Frame.grid(row=1, column=0, sticky='N')
 
+        self.Slider_1_Frame = Frame(self.Graph_Frame)
+
+        self.Slider_1_Frame.grid(row=0, column=1)
+
+        self.Slider_2_Frame = Frame(self.Graph_Frame)
+
+        self.Slider_2_Frame.grid(row=1, column=1)
+
         self.g_sys_instance = g_sys_instance
         self.g_cal_instance = g_cal_instance
         self.cons = cons
-        self.plot_density = 7
+        self.plot_density = 7.5
         self.slider_list = [0,1,2,3,4]
         self.slider_list_value = [0.5,1,15,30,60]
 
@@ -110,78 +120,87 @@ class Calib(Frame) :
 
     def buildFigure(self) :
 
-        #for i in range(12):
 
-        #Label(self.Middle_Frame, text="",width=6).grid(row=i,column=0)
+        Label(self.Partition_Frame, text="").grid(row=0,column=0)
 
         self.check_var1 = IntVar()
-        Checkbutton(self.Graph_1_Frame, text="TSC", variable=self.check_var1).grid(row=0, column=0, sticky='N')
+        Checkbutton(self.Partition_Frame, text="TSC", variable=self.check_var1).grid(row=1, column=0, sticky='W')
         self.check_var2 = IntVar()
-        Checkbutton(self.Graph_1_Frame, text="TCC", variable=self.check_var2).grid(row=0, column=1, sticky='N')
+        Checkbutton(self.Partition_Frame, text="TCC", variable=self.check_var2).grid(row=2, column=0, sticky='W')
         self.check_var3 = IntVar()
-        Checkbutton(self.Graph_1_Frame, text="TDPG", variable=self.check_var3).grid(row=0, column=2, sticky='N')
+        Checkbutton(self.Partition_Frame, text="TDPG", variable=self.check_var3).grid(row=3, column=0, sticky='W')
         self.check_var4 = IntVar()
-        Checkbutton(self.Graph_1_Frame, text="TDP", variable=self.check_var4).grid(row=0, column=3, sticky='N')
+        Checkbutton(self.Partition_Frame, text="TDP", variable=self.check_var4).grid(row=4, column=0, sticky='W')
+        self.check_var5 = IntVar()
+        Checkbutton(self.Partition_Frame, text="SC Output", variable=self.check_var5).grid(row=5, column=0, sticky='W')
+        self.check_var6 = IntVar()
+        Checkbutton(self.Partition_Frame, text="CC Output", variable=self.check_var6).grid(row=6, column=0, sticky='W')
+        self.check_var7 = IntVar()
+        Checkbutton(self.Partition_Frame, text="DPG Output", variable=self.check_var7).grid(row=7, column=0, sticky='W')
+
+
 
         self.output = StringVar()
 
-        self.scale_textvariable = StringVar()
+        self.scale_1_textvariable = StringVar()
+        self.scale_2_textvariable = StringVar()
 
-        self.fig1 = Figure(figsize=(4.5, 3))
-        #self.fig1 = Figure(figsize=(4, 2.5))
+        self.fig1 = Figure(figsize=(4, 3))
         self.ax1 = self.fig1.add_subplot(111)
+
         self.ax1.set_xlabel('Time (sec)')
         self.ax1.set_ylabel('Temperature ($^\circ$C)')
+
         self.ax1.set_autoscalex_on(True)
-        self.ax1.set_ybound(10, 40)
+        #self.ax1.set_ybound(10, 40)
         self.ax1.set_autoscaley_on(True)
         self.ax1.grid(True, 'major', 'both')
-
         self.ax1_twin = self.ax1.twinx()
-
         self.ax1_twin.set_ylabel('Controller power output')
-
         self.ax1_twin.set_autoscalex_on(True)
 
         #self.ax1.tick_params('y', colors='b')
         #self.ax1_twin.tick_params('y', colors='r')
 
         self.fig1.tight_layout()
-      
         self.cnvs1 = FigureCanvasTkAgg(self.fig1, self.Graph_1_Frame)
-        
-        self.cnvs1.get_tk_widget().grid(row=1, column=0, sticky='N', columnspan=4)
+        self.cnvs1.get_tk_widget().grid(row=0, column=0, sticky='N')
+        self.scale_1 = Scale(self.Slider_1_Frame, from_=min(self.slider_list), to=max(self.slider_list), command=self.scale_1_value_show, showvalue=0, orient=VERTICAL)#, command=set_plot_range(1))
+        self.scale_1.grid(row=0, column=0)
+        self.scale_1_textvariable.set('Plot range(m): '+ str(self.slider_list_value[0]))
+        self.scale_1_label = Label(self.Slider_1_Frame, textvariable=self.scale_1_textvariable,width=15)
+        self.scale_1_label.grid(row=0,column=1)
 
-        self.scale = Scale(self.Graph_1_Frame, from_=min(self.slider_list), to=max(self.slider_list), command=self.scale_value_show, showvalue=0, orient=HORIZONTAL)#, command=set_plot_range(1))
-        #self.scale.grid(row=1, column=0, rowspan=1)
-
-        self.scale_textvariable.set('Plot range(m): '+ str(self.slider_list_value[0]))
-
-        self.scale1_label = Label(self.Graph_1_Frame, textvariable=self.scale_textvariable)
-        #self.scale1_label.grid(row=2, column=0, rowspan=1)
-
-        self.fig2 = Figure(figsize=(4,2.5))
+        self.fig2 = Figure(figsize=(4,3))
         self.ax2 = self.fig2.add_subplot(111)
+
         self.ax2.set_xlabel('Time (sec)')
         self.ax2.set_ylabel('RH (%)')
+
         self.ax2.set_autoscalex_on(True)
-        self.ax2.set_ybound(10, 40)
+        #self.ax2.set_ybound(10, 40)
         self.ax2.set_autoscaley_on(True)
         self.ax2.grid(True, 'major', 'both')
-
-        self.ax2_twin = self.ax2.twinx()
-
-        self.ax2_twin.set_ylabel('pH2O (ppt)')
-
-        self.ax2_twin.set_autoscalex_on(True)
-
-        self.cnvs2 = FigureCanvasTkAgg(self.fig2, self.Graph_2_Frame)
         
+        self.ax2_twin = self.ax2.twinx()
+        self.ax2_twin.set_ylabel('pH2O (ppt)')
+        self.ax2_twin.set_autoscalex_on(True)
+        self.ax2.tick_params('y', colors='b')
+        self.ax2_twin.tick_params('y', colors='r')
+
+
+
+        self.fig2.tight_layout()
+        self.cnvs2 = FigureCanvasTkAgg(self.fig2, self.Graph_2_Frame)
         self.cnvs2.get_tk_widget().grid(row=0, column=0, sticky='N')
+        self.scale_2 = Scale(self.Slider_2_Frame, from_=min(self.slider_list), to=max(self.slider_list), command=self.scale_2_value_show, showvalue=0, orient=VERTICAL)#, command=set_plot_range(1))
+        self.scale_2.grid(row=0, column=0)
+        self.scale_2_textvariable.set('Plot range(m): '+ str(self.slider_list_value[0]))
+        self.scale_2_label = Label(self.Slider_2_Frame, textvariable=self.scale_2_textvariable,width=15)
+        self.scale_2_label.grid(row=0, column=1)
 
-
+ 
     def build_TC_table(self):
-
 
         self.TC_table_label = Label(self.TC_Table_Frame, text="Temperature control")
 
@@ -458,7 +477,6 @@ class Calib(Frame) :
 
         self.DPG_PID_apply_var.set("Apply")
 
-
         #################################### Frame 6 ####################################
 
         self.TC_frame_6 = Frame(self.TC_Table_Frame, height=5)
@@ -670,55 +688,93 @@ class Calib(Frame) :
 
             self.g_cal_instance.bcalibration = False
 
-    def scale_value_show(self, value):
+    def scale_1_value_show(self, value):
         
-        self.scale_textvariable.set('Plot range(m): '+ str(self.slider_list_value[int(value)]))
+        self.scale_1_textvariable.set('Plot range(m): '+ str(self.slider_list_value[int(value)]))
+
+    def scale_2_value_show(self, value):
+        
+        self.scale_2_textvariable.set('Plot range(m): '+ str(self.slider_list_value[int(value)]))
 
     def animate_temperatures(self, i):
-
+        
         self.ax1.clear()
+        self.ax1_twin.clear()
         self.ax1.set_xlabel('Time (sec)')
         self.ax1.set_ylabel('Temperature ($^\circ$C)')
         self.ax1.set_autoscalex_on(True)
+        self.ax1_twin.set_autoscalex_on(True)
         #self.ax1.set_ybound(10, 40)
         self.ax1.set_autoscaley_on(True)
         self.ax1.grid(True, 'major', 'both')
+        self.ax1_twin.set_ylabel('Power Output (%)')
 
-        self.plot_range = self.slider_list_value[self.scale.get()]*60 
+        self.ax2.clear()
+        self.ax2_twin.clear()
+        self.ax2.set_xlabel('Time (sec)')
+        self.ax2.set_ylabel('RH (%)')
+        self.ax2.set_autoscalex_on(True)
+        self.ax2_twin.set_autoscalex_on(True)
+        #self.ax1.set_ybound(10, 40)
+        self.ax2.set_autoscaley_on(True)
+        self.ax2.grid(True, 'major', 'both')
+        self.ax2_twin.set_ylabel('pH2O (ppt)')
 
-        #print('range type', type(range))
+        self.plot_1_range = self.slider_list_value[int(self.scale_1.get())]*60 
 
-        index = int(self.plot_range/15.0)
+        index = int(self.plot_1_range/15.0)
 
         outputstring= ""
+
+        limit = 25000 - int(self.plot_density*index)
 
         if self.calib_check_var.get():
 
             if self.check_var1.get():
 
-                self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_SC[(25000-self.plot_density*index):], 'k', label="TSC")
-                
-                self.ax1.legend()
-                
-                #self.plot_label_variable.set("  Sample Chamber Temperature")
+                self.ax1.plot(self.g_sys_instance.time_list[limit:], self.g_sys_instance.Temperatures_SC[limit:], 'k', label="TSC")
 
             if self.check_var2.get():
 
-                self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_CC[(25000-self.plot_density*index):], 'b', label="TCC")
-
-                self.ax1.legend()
-
-                #self.plot_label_variable.set("  Conditioning Chamber Temperature")
+                self.ax1.plot(self.g_sys_instance.time_list[limit:], self.g_sys_instance.Temperatures_CC[limit:], 'b', label="TCC")
 
             if self.check_var3.get():
-                
-                self.ax1.plot(self.g_sys_instance.time_list[(25000-self.plot_density*index):], self.g_sys_instance.Temperatures_DPG[(25000-self.plot_density*index):], 'r', label="TDPG")
+                    
+                self.ax1.plot(self.g_sys_instance.time_list[limit:], self.g_sys_instance.Temperatures_DPG[limit:], 'r', label="TDPG")
 
-                self.ax1.legend()
+            if self.check_var4.get():
 
-                #self.plot_label_variable.set("  Dew Point Generator Temperature")
+                self.ax1.plot(self.g_sys_instance.time_list[limit:], self.g_sys_instance.Temperatures_DP[limit:], 'y', label="TDP")
 
-                #self.animate_table()
+            if self.check_var5.get():
+
+                self.ax1_twin.plot(self.g_sys_instance.time_list[limit:], self.g_cal_instance.SC_output_list[limit:], 'k--', label="SC output")
+
+            if self.check_var6.get():
+
+                self.ax1_twin.plot(self.g_sys_instance.time_list[limit:], self.g_cal_instance.CC_output_list[limit:], 'b--', label="CC output")
+
+            if self.check_var7.get():
+
+                self.ax1_twin.plot(self.g_sys_instance.time_list[limit:], self.g_cal_instance.DPG_output_list[limit:], 'r--', label="DPG output")
+
+            self.ax1.legend()
+
+            self.ax1_twin.legend()
+
+    def animate_RH(self, i):
+
+        if self.calib_check_var.get():
+
+            self.plot_2_range = self.slider_list_value[int(self.scale_2.get())]*60 
+
+            index = int(self.plot_2_range/15.0)
+
+            limit = 25000 - int(self.plot_density*index)
+
+            self.ax2.plot(self.g_sys_instance.time_list[limit:], self.g_sys_instance.RH_list[limit:], color='b', label='pCO2')
+
+            self.ax2_twin.plot(self.g_sys_instance.time_list[limit:], self.g_sys_instance.pH2O_list[limit:], color='r', label='pH2O')
 
     def animate_calibration_table(self):
 
@@ -869,8 +925,165 @@ class Calib(Frame) :
 
     def pH2O_set_apply_func(self):
 
-        pass
+        if self.MODES.index(self.DPG_power.get()):
 
+            self.TDP_set_entry.config(bg='gray', fg = "white")
+
+            self.RH_set_entry.config(bg='gray', fg = "white")
+
+            self.pH2O_set_entry.config(bg='gray', fg = "white")
+
+            self.update()
+
+            TSC = self.g_sys_instance.Temperatures_SC[-1]
+
+            if len(self.TDP_set_entry.get()) == 0 and len(self.RH_set.get()) == 0 and len(self.pH2O_set.get()) == 0:
+
+                messagebox.showwarning(title='Input Error', message="No entry for TDP or RH or pH2O")
+
+            elif len(self.TDP_set_entry.get()) > 0: #TDP entry
+
+                if len(self.RH_set.get()) == 0 and len(self.pH2O_set.get()) == 0:
+
+                    target_TDP = float(self.TDP_set_entry.get())
+
+                    #print(target_TDP)
+
+                    reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+
+                    if reply_DPG_set == 'e 0\n':
+
+                        print('Command success')
+
+                        self.TDP_set_entry.config(bg='light gray', fg='black')
+
+                        self.pH2O_set_entry.config(bg='light gray', fg='black')
+
+                        self.RH_set_entry.config(bg='light gray', fg='black')
+
+                        self.update()
+
+                else:
+
+                    messagebox.showwarning(title='Input Error', message="Choose one input")
+
+            elif len(self.RH_set.get()) > 0: #RH entry
+
+                if len(self.TDP_set_entry.get()) == 0 and len(self.pH2O_set.get()) == 0: 
+
+                    RH_input = float(self.RH_set.get())
+
+                    if RH_input >=10 and RH_input <=90: #RH limits
+
+                        target_pressure = (RH_input/100.0)*self.ph2oSat(TSC)
+
+                        Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
+
+                        print('Cell_pressure_output', Cell_pressure_output)
+
+                        Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+
+                        Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+
+                        Cell_pressure = float(Cell_pressure_string)*1000
+
+                        #self.pH2O_set.set((target_pressure/Cell_pressure)*1000,2)
+
+                        self.pH2O_set_entry.insert(0, str(round((target_pressure/Cell_pressure)*1000,2)))
+
+                        target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
+
+                        reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+
+                        self.TDP_set_entry.insert(0, str(round(target_TDP,2)))
+
+                        if reply_DPG_set == 'e 0\n':
+
+                            print('Command success')
+
+                            self.pH2O_set_entry.config(bg='light gray', fg='black')
+
+                            self.RH_set_entry.config(bg='light gray', fg='black')
+
+                            self.TDP_set_entry.config(bg='light gray', fg='black')
+
+                            self.update()
+
+                        reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                            
+                        #print('reply_DPG_set', reply_DPG_set)
+
+                    elif RH_input >=90:
+
+                        messagebox.showwarning(title='RH offlimits', message="Condensation Warning")
+
+                    else:
+
+                        messagebox.showwarning(title='RH offlimits', message="Low RH Warning")
+
+                else:
+
+                     messagebox.showwarning(title='Input Error', message="Choose one input")
+
+            elif len(self.pH2O_set.get()) > 0: # pH2O entry
+
+                if len(self.TDP_set_entry.get()) == 0 and len(self.RH_set.get()) == 0:
+
+                    Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
+
+                    #print(Cell_pressure_output)
+
+                    Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+
+                    Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+
+                    Cell_pressure = float(Cell_pressure_string)*1000
+
+                    target_pressure = (float(self.pH2O_set.get())/1000.0)*Cell_pressure
+
+                    RH_input = (target_pressure/self.ph2oSat(TSC))*100
+
+                    if RH_input >=10 and RH_input <=90: #RH limits
+
+                        target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
+
+                        self.RH_set_entry.insert(0, str(round(RH_input,2)))
+
+                        self.TDP_set_entry.insert(0, str(round(target_TDP,2)))
+                    
+                        reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+
+                        if reply_DPG_set == 'e 0\n':
+
+                            print('Command success')
+
+                            self.pH2O_set_entry.config(bg='light gray', fg='black')
+
+                            self.RH_set_entry.config(bg='light gray', fg='black')
+
+                            self.TDP_set_entry.config(bg='light gray', fg='black')
+
+                            self.update()
+
+                    elif RH_input >=90:
+
+                        messagebox.showwarning(title='pH2O offlimits', message="Condensation Warning")
+
+                    else:
+
+                        messagebox.showwarning(title='pH2O offlimits', message="Low pH2O warning")
+
+                else:
+
+                    messagebox.showwarning(title='Input Error', message="Choose one entry for RH or pH2O")
+
+            else:
+
+                messagebox.showwarning(title='Input Error', message="Choose one input")
+
+        else:
+
+            messagebox.showwarning(title='Power Error', message="Switch controller on")
 
     def SC_set_apply_func(self):
 
@@ -950,4 +1163,13 @@ class Calib(Frame) :
 
         else:
 
-            messagebox.showwarning(title='Power Error', message="Switch controller on")     
+            messagebox.showwarning(title='Power Error', message="Switch controller on")
+
+
+    def ph2oSat_solve(self, T, P):
+
+        return 610.78 * exp((T * 17.2684) / (T + 238.3)) - P
+
+    def ph2oSat(self, T):
+
+        return 610.78 * exp((T * 17.2684) / (T + 238.3))

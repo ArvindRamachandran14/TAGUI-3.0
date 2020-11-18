@@ -484,9 +484,11 @@ class CtrlSetup(Frame):
 
 
     def ph2oSat_solve(self, T, P):
+
         return 610.78 * exp((T * 17.2684) / (T + 238.3)) - P
 
     def ph2oSat(self, T):
+
         return 610.78 * exp((T * 17.2684) / (T + 238.3))
 
     '''
