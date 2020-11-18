@@ -10,6 +10,7 @@ from tkinter import Tk, ttk, Frame, Menu, Menubutton, Button, Label, StringVar, 
 import sys
 from datetime import datetime
 import CtrlSetup
+import CtrlSetup_new
 import CtrlMon
 import CtrlMon2
 import global_tech_var as g_tech_instance
@@ -17,7 +18,7 @@ import CtrlTerm
 import CtrlCfg
 import serial
 import time
-import Calib
+import Calib_2
 #import TADAQ
 import Data_coord
 import json
@@ -25,7 +26,7 @@ import difflib
 
 class MainForm(Tk) :
     
-    def __init__(self, g_sys_instance, cons, *args, **kwargs) :
+    def __init__(self, g_sys_instance, g_cal_instance, cons, *args, **kwargs) :
         
 
         tk.Tk.__init__(self, *args, **kwargs) 
@@ -44,6 +45,7 @@ class MainForm(Tk) :
         container.grid_columnconfigure(0, weight=1) # Makes sure there is no empty space in the horizontal direction
 
         self.g_sys_instance = g_sys_instance
+        self.g_cal_instance = g_cal_instance
         self.cons = cons
 
         self.minsize(height = 700, width = 1024) # setting window size
@@ -55,6 +57,8 @@ class MainForm(Tk) :
         self.buildStatusBar(container)
         self.ctrlTab.select(self.tabSetup)
         self.dat_buf = []
+
+        self.filename = ''
 
         #self.dcoord = DCoord(Rec_num) # This is renaming the consumer class 
 
@@ -87,7 +91,7 @@ class MainForm(Tk) :
 
         self.serialBar = tk.Frame(container, relief=tk.SUNKEN)
 
-        self.serialBar.grid(row=0, column=0) # Serial bar is positioned at the top row of the frame
+        self.serialBar.grid(row=0, column=0, sticky='w') # Serial bar is positioned at the top row of the frame
 
         choose_mode_list = ["TA Experiment", "TA Simulation"]
 
@@ -99,7 +103,9 @@ class MainForm(Tk) :
 
         self.choose_mode_widget = OptionMenu(self.serialBar, self.choose_mode_variable, *choose_mode_list, command=self.set_mode)
 
-        self.choose_mode_widget.grid(row=0, column=1)
+        self.choose_mode_widget.config(width=11)#, direction='left')
+
+        self.choose_mode_widget.grid(row=0, column=1, sticky='w')
 
         self.choose_mode_variable.set("TA Experiment")
 
@@ -117,6 +123,8 @@ class MainForm(Tk) :
 
         self.serial_port_widget = OptionMenu(self.serialBar, self.tty_variable, *tty_list, command=self.update_json_file)
 
+        self.serial_port_widget.config(width=21)#, justify='left')
+
         self.serial_port_widget.grid(row=0, column=3)
 
         self.baud_rate_label = Label(self.serialBar, text="Baud")
@@ -130,6 +138,8 @@ class MainForm(Tk) :
         self.baud_rate_variable.set(g_tech_instance.baud_rate)
 
         self.baud_rate_list = OptionMenu(self.serialBar, self.baud_rate_variable, *baud_rate_list, command=self.update_json_file)
+
+        self.baud_rate_list.config(width=6)
 
         self.baud_rate_list.grid(row=0, column=5)        
 
@@ -180,8 +190,17 @@ class MainForm(Tk) :
         
         ################# Hosts the different tabs such as SetUp, Monitor, Terminal, and Config #################
         
+
+        s = ttk.Style()
+        s.configure('TNotebook', tabposition='nw')
+
         self.ctrlTab = ttk.Notebook(container)
-        self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance)
+        self.ctrlTab.grid(row=1, column=0)#tk.E+tk.W+tk.S+tk.N)
+
+        self.ctrlTab.bind("<<NotebookTabChanged>>", self.display_tab_selected)
+
+        #self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance)
+        self.tabSetup = CtrlSetup_new.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance, self.g_cal_instance)
         self.ctrlTab.add(self.tabSetup, text = 'Setup')
         self.tabMon = CtrlMon.CtrlMon(self.ctrlTab, self.g_sys_instance, self.cons, self)
         self.tabMon2 = CtrlMon2.CtrlMon2(self.ctrlTab, self.g_sys_instance)
@@ -193,9 +212,22 @@ class MainForm(Tk) :
         self.tabTerm = CtrlTerm.CtrlTerm(self.ctrlTab, self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.tabTerm, text = 'Terminal')
         self.tabCfg = CtrlCfg.CtrlCfg(self.ctrlTab)
-        self.calibTab = Calib.Calib(self.ctrlTab,  self.g_sys_instance, self.cons)
+        self.calibTab = Calib_2.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
-        self.ctrlTab.grid(row=1, column=0, sticky=tk.E+tk.W+tk.S+tk.N)
+        
+    def display_tab_selected(self, event):
+
+        selected_tab = event.widget.select()
+
+        tab_text = event.widget.tab(selected_tab, "text")
+
+        if tab_text == "Calibration":
+
+            self.calibTab.update_calibration_table()
+
+        elif tab_text == "Setup":
+
+            self.tabSetup.update_setup_table()
 
     def set_mode(self, event):
 
@@ -237,23 +269,21 @@ class MainForm(Tk) :
 
     def onFileNew(self):
         
-        filename  = filedialog.asksaveasfilename(initialdir = "./",title = "Select file",filetypes = (("xml files","*.xml"), ("csv files","*.csv"), ("all files","*.*")))
+        self.filename  = filedialog.asksaveasfilename(initialdir = "./",title = "Select file",filetypes = (("xml files","*.xml"), ("csv files","*.csv"), ("all files","*.*")))
 
-        if filename != '':
+        if self.filename != '':
 
-            self.cons.f = open(filename, "w+")
-
+            self.cons.f = open(self.filename, "w+")
 
     def onFileOpen(self) :
 
         ftypes = [('xml files', '*.xml'), ("csv files","*.csv"), ('All files', '*')]
         dlg = filedialog.Open(self, filetypes = ftypes)
-        filename = dlg.show()
+        self.filename = dlg.show()
 
-        if filename != '':
+        if self.filename != '':
 
-            self.cons.f = open(filename, "a")
-
+            self.cons.f = open(self.filename, "a")
 
         #popupmsg("Not Implemented")
 

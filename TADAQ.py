@@ -11,8 +11,8 @@ import datetime as dt
 import asyncio #timing to work right asychronous call - go and read the data and the meanwhile you can do other things
 import socket
 import xml.etree.ElementTree as ET
-import time
 import global_tech_var as g
+import time
 import sys
 import json
 import serial
@@ -40,14 +40,14 @@ class TAData(Structure) :
 class TAShare(Structure) :
     _pack_ = 4
     _fields_ = [ \
-            ('command', c_byte * 80), # 80 byte buffer
-            ('reply', c_byte * 80),
+            ('command', c_byte * 256), # 256 byte buffer
+            ('reply', c_byte * 256), # change reply buffer size to 256 from 256 and edit rest of the code accordingly 
             ('recCount', c_int),
             ('recIdx', c_int),
             ('data', TAData * recCount)]
 
 class producer() :
-    def __init__(self, interval) :
+    def __init__(self, interval, bsimulation) :
         self.startTime = None
         self.bDone = False 
         self.interval = interval
@@ -62,9 +62,12 @@ class producer() :
         self.sock = None
         self.host = 'localhost'     # localhost
         self.port = 50007
+        self.bsimulation = bsimulation
+        self.bconnected = False
+        self.ser = None
         self.initialize()
 
-    async def produce(self, ser) :
+    async def produce(self) :
         TCC = TSC = TSC2 = TDP = TDP2 = Wgt = pH2O = pCO2 = 0.0 # Changed temp1, temp2, temp3 to TCC TSC TDP, added Wgt 
         status = 0
         tash = TAShare.from_buffer(self.mmShare) 
@@ -80,7 +83,7 @@ class producer() :
                         recIdx = 0
 
                     # Get some data
-                    taData = self.getDataFromTA('g all', ser) #added 'g all' paramter to  self.getDataFromTA()
+                    taData = self.getDataFromTA('g all') #added 'g all' paramter to  self.getDataFromTA()
 
                     # Get the time
                     now = datetime.now()
@@ -97,6 +100,9 @@ class producer() :
                     if isinstance(taData, list) :
                         (TSC, TSC2, TCC, TDP, pH2O, pCO2, TDP2, Wgt, status) = taData #Watch out for the order of variables
                         tash.data[recIdx].SC_T = TSC
+
+                        #print('status type is', type(status))
+
                         #tash.data[recIdx].SC_T2 = data_list[1] #SC_T2 omitted in this model
                         tash.data[recIdx].CC_T = TCC
                         tash.data[recIdx].DPG_T = TDP
@@ -119,7 +125,6 @@ class producer() :
                         tash.data[recIdx].Status = -1
 
                     tash.recIdx = recIdx
-
                 
                 # Print the TADAQ output
                 '''
@@ -134,25 +139,31 @@ class producer() :
         
         return 0
         
-    async def doCmd(self, ser) :
+    async def doCmd(self) :
         while not self.bDone :
             async with self.sem:            # async with added here to control access
                 tash = TAShare.from_buffer(self.mmShare)
                 command = bytearray(tash.command).decode(encoding).rstrip('\x00')
                 if len(command) != 0 :
-                    print(f'Command received in TADAQ is: {command}')
-                    tash.reply = (c_byte * 80)(0)
+                    #print(f'Command received in TADAQ is: {command}')
+                    tash.reply = (c_byte * 256)(0)
 
-                    for idx in range(0,80) :
+                    for idx in range(0,256) :
                         tash.reply[idx] = 0
                         # tash.command[idx] = 0
                     if command == '@{EXIT}' :
                         self.bDone = True
                         sReply = 'OK\n'
                     else :
-                        sReply = self.getDataFromTA(command, ser)
-
-                    sReply+='\n'
+                        sReply = self.getDataFromTA(command)
+                    if command == 'g all':
+                        sReply =  'v {0:.4f},{1:.4f},{2:.4f},{3:.4f},{4:.2f},{5:.2f},{6:.4f},{7:d}\n'.format( \
+                        sReply[0], sReply[1], sReply[2], sReply[3], \
+                        sReply[4], sReply[5], sReply[6], int(sReply[7]))
+                    elif isinstance(sReply, int):
+                        sReply = 'e SOCKERR\n'
+                    else:                      
+                        sReply += '\n'
 
                     #print('Reply is', sReply)
 
@@ -165,8 +176,8 @@ class producer() :
 
     def initialize(self) :
         tempTASH = TAShare()
-        tempTASH.command[0:80] = [0] * 80
-        tempTASH.reply[0:80] = [0] * 80
+        tempTASH.command[0:256] = [0] * 256
+        tempTASH.reply[0:256] = [0] * 256
         tempTASH.recCount = recCount
         tempTASH.recIdx = -1
         self.mmfd = open('taShare', 'w+b') # read and write, binary file memory mapped file descriptor
@@ -176,22 +187,44 @@ class producer() :
         ### Creating shared memory region between TADAQ and TAGUI ### 
         self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(tempTASH))
         self.sem = asyncio.Semaphore(1)         # Added semaphore creation
-
-    def socket_connection(self):
-
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((self.host, self.port))
+        if self.bsimulation:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((self.host, self.port))
 
     # getDataFromTA
     # Query the TA for the current record
 
+    def connecttoTA(self, port, baud_rate, time_out):
 
-    def getDataFromTA(self, cmd, ser) :
+        if self.bsimulation:
+
+            self.bconnected = True
+
+        else:
+
+            #try :
+                #baud_rate = int(baud_rate)
+            self.ser = serial.Serial(port, baud_rate, timeout=time_out)
+            self.ser.write('c-check\n'.encode()) #Send connection check command to TAC program
+            self.connection_reply = self.ser.readline().decode()
+
+            #except :
+            #self.connection_reply = 'e INVTTY\n'
+            
+            print('TADAQ reply was', self.connection_reply)
+
+            if self.connection_reply == "Ok\n":
+   
+                self.bconnected = True
+
+
+    def getDataFromTA(self, cmd) :
 
         #print(dt.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
 
         retval = ''
-        if g.bsimulation == 1: #Simulation mode on
+
+        if self.bsimulation: #Simulation mode on
 
             cmdBytes = bytearray(cmd, 'utf-8')
             try :
@@ -203,6 +236,9 @@ class producer() :
                 retval = -1
             else :
                 sData = rData.decode('utf-8')
+
+                #print(cmd)
+
                 if cmd == 'g all' :
                     if sData[0] == 'v' :
                         sData = sData[2:]
@@ -218,15 +254,26 @@ class producer() :
             return retval
 
         else:
+
             #print('commmand received in TADAQ end is', cmd)
 
             if cmd == 'g all':
                 
                 cmd+='\n'
 
-                ser.write(cmd.encode())
+                output_length = 0
 
-                Output_string = ser.readline().decode()
+                self.ser.write(cmd.encode())
+
+                while output_length<2:
+
+                    Output_string = self.ser.readline().decode()
+
+                    output_length = len(Output_string)
+
+                #print('output_length', output_length)
+
+                #print('Output string', Output_string)
 
                 Split_strings_list  = Output_string.split(',')
 
@@ -251,11 +298,11 @@ class producer() :
                 
                 print('Command sent is', cmd)
 
-                ser.write(cmd.encode())
+                self.ser.write(cmd.encode())
 
                 while True:
 
-                    Output = ser.readline().decode()
+                    Output = self.ser.readline().decode()
 
                     if len(Output) > 0:
 
@@ -265,70 +312,39 @@ class producer() :
 
 async def main() :
 
-    with open(g.cfgFile, 'r') as fCfg :
-        config = json.loads(fCfg.read())        # Read config file
-        g.initialize(config)              # Initialize the globals
-
-    #print(len(sys.argv))
+    bsimulation = False
 
     if len(sys.argv) == 1: # No arguments passed i.e. simulation mode on
 
         print('Simulation mode on')
 
-        g.bsimulation = 1
+        bsimulation = True
 
-        g.bconnected = 1 
+        port = None
+        baud_rate = None
+        time_out = None
 
-    elif len(sys.argv) > 1: # arguments passed i.e. experiment mode on
+    else: # arguments passed i.e. experiment mode on 
 
         print('Experiment mode on')
 
-        g.bsimulation = 0
+        bsimulation = False
 
         port = sys.argv[1]
         baud_rate = sys.argv[2]
         time_out = int(sys.argv[3])
 
-        try :
-            ser = serial.Serial(port, baud_rate, timeout=time_out)
-            ser.write('c-check\n'.encode()) #Send connection check command to TAC program
-            reply = ser.readline().decode()
+    prod = producer(2, bsimulation)
 
-        except :
+    prod.connecttoTA(port, baud_rate, time_out)
 
-            reply = 'e INVTTY\n'
-            
-        print('TADAQ reply was', reply)
+    task1 = asyncio.create_task(prod.produce())
 
-        if reply == "Ok\n":
+    task2 = asyncio.create_task(prod.doCmd())
 
-        #print('TADAQ reply was', reply)
-   
-            g.bconnected = 1
-
-            time.sleep(1)
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
-
-    g.update()
-
-    if g.bconnected:
-        
-        prod = producer(2)      # Interval argument
-
-        if g.bsimulation:
-            prod.socket_connection()
-            task1 = asyncio.create_task(prod.produce(None))
-            task2 = asyncio.create_task(prod.doCmd(None))
-            await task1
-            await task2
-
-        else:
-            task1 = asyncio.create_task(prod.produce(ser))
-            task2 = asyncio.create_task(prod.doCmd(ser))
-            await task1
-            await task2
+    await task1
+    await task2
        
-        print('Done')
+    print('Done')
 
 asyncio.run(main())

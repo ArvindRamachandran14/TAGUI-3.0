@@ -16,6 +16,7 @@ import json
 #import pykbhit as pykb
 import global_tech_var as g_tech_instance
 import dicttoxml
+from math import exp
 
 encoding = 'utf-8'
 loop = None
@@ -39,17 +40,18 @@ class TAData(Structure) :
 class TAShare(Structure) :
     _pack_ = 4
     _fields_ = [ \
-            ('command', c_byte * 80),
-            ('reply', c_byte * 80),
+            ('command', c_byte * 256),
+            ('reply', c_byte * 256),
             ('recCount', c_int),
             ('recIdx', c_int),
             ('data', TAData * recCount)]
 
 class consumer() :
-    def __init__(self, g_sys_instance) :
+    def __init__(self, g_sys_instance, g_cal_instance) :
 
         #self.g_tech_instance= g_tech_instance
         self.g_sys_instance = g_sys_instance
+        self.g_cal_instance = g_cal_instance
         self.startTime = None
         self.bDone = False
         self.recNum = 0
@@ -82,6 +84,7 @@ class consumer() :
             temp_dict = {}
 
             if tad.SC_T > 0.0:
+                
                 self.g_sys_instance.Temperatures_SC.append(round(tad.SC_T,2))
 
                 self.g_sys_instance.Temperatures_CC.append(round(tad.CC_T,2))
@@ -91,6 +94,18 @@ class consumer() :
                 self.g_sys_instance.Temperatures_DP.append(round(tad.TDP,2))
 
                 self.g_sys_instance.pH2O_list.append(round(tad.pH2O,2))
+
+                #Cell_pressure_output = self.send_command_to_PC('g CellP')
+
+                #Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
+
+                #Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
+
+                #Cell_pressure = float(Cell_pressure_string)*1000
+
+                Cell_pressure = 97.0676*1000
+
+                self.g_sys_instance.RH_list.append(round(float(tad.pH2O*0.001*Cell_pressure*100)/self.ph2oSat(tad.SC_T),2))
 
                 self.g_sys_instance.pCO2_list.append(round(tad.pCO2,2))
 
@@ -114,6 +129,8 @@ class consumer() :
 
                 temp_dict['pH2O'] = tad.pH2O
 
+                temp_dict['RH'] = tad.pH2O/self.ph2oSat(tad.SC_T)
+
                 temp_dict['Sample_weight'] = tad.Sample_weight
 
                 xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='TAData').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
@@ -129,6 +146,8 @@ class consumer() :
             self.g_sys_instance.Temperatures_DP.pop(0)
 
             self.g_sys_instance.pH2O_list.pop(0)
+
+            self.g_sys_instance.RH_list.pop(0)
 
             self.g_sys_instance.pCO2_list.pop(0)
 
@@ -151,6 +170,55 @@ class consumer() :
                 tad.Sample_weight, tad.Status))
             '''
             self.recsGot += 1
+
+            
+            if self.g_cal_instance.bcalibration:
+
+                cal_variable_output_string = self.send_command_to_PC('g cal_variables')
+
+                cal_variable_output_list = cal_variable_output_string.split(',')
+
+                self.g_cal_instance.SC_power = cal_variable_output_list[0]
+
+                self.g_cal_instance.SC_P = cal_variable_output_list[1]
+
+                self.g_cal_instance.SC_I = cal_variable_output_list[2]
+
+                self.g_cal_instance.SC_D = cal_variable_output_list[3]
+
+                self.g_cal_instance.SC_set = cal_variable_output_list[4]
+
+                self.g_cal_instance.SC_output_list.append(round(float(cal_variable_output_list[5]),2))
+
+                self.g_cal_instance.CC_power = cal_variable_output_list[6]
+
+                self.g_cal_instance.CC_P = cal_variable_output_list[7]
+
+                self.g_cal_instance.CC_I = cal_variable_output_list[8]
+
+                self.g_cal_instance.CC_D = cal_variable_output_list[9]
+
+                self.g_cal_instance.CC_set = cal_variable_output_list[10]
+
+                self.g_cal_instance.CC_output_list.append(round(float(cal_variable_output_list[11]),2))
+
+                self.g_cal_instance.DPG_power = cal_variable_output_list[12]
+
+                self.g_cal_instance.DPG_P = cal_variable_output_list[13]
+
+                self.g_cal_instance.DPG_I = cal_variable_output_list[14]
+
+                self.g_cal_instance.DPG_D = cal_variable_output_list[15]
+
+                self.g_cal_instance.DPG_set = cal_variable_output_list[16]
+
+                self.g_cal_instance.DPG_output_list.append(round(float(cal_variable_output_list[17]),2))
+
+                self.g_cal_instance.SC_output_list.pop(0)
+
+                self.g_cal_instance.CC_output_list.pop(0)
+
+                self.g_cal_instance.DPG_output_list.pop(0)
 
         return 0
 
@@ -179,15 +247,14 @@ class consumer() :
 
             Popen(['python3', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
 
-        time.sleep(2) #Time for TADAQ to edit bconnected flag in taui.json
+        time.sleep(2) #Time for TADAQ to edit bconnected flag
 
-        with open('taui.json', 'r') as fCfg :
-            
-            config = json.loads(fCfg.read())
+        bconnected = False
 
-            bconnected = config["bconnected"] 
-
-            #print('bconnected is', bconnected)
+        shFile = Path('taShare')
+        if shFile.is_file():
+            #print('taShare exists')
+            bconnected  = True
 
         if bconnected:
 
@@ -232,7 +299,7 @@ class consumer() :
         #print('command received is', command)
         reply = ''
         tash = TAShare.from_buffer(self.mmShare)
-        tash.reply = (c_byte * 80)(0)
+        tash.reply = (c_byte * 256)(0)
         cmdBuf = bytearray(command, encoding) 
         tash.command[0:len(cmdBuf)] = cmdBuf #adding command to shared memory
 
@@ -241,10 +308,10 @@ class consumer() :
             reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memor
             if '\n' in reply :
                 reply = reply[0:-1]
-                tash.command = (c_byte * 80)(0)
+                tash.command = (c_byte * 256)(0)
                 break
 
-        print('reply on the consumer end is ', reply)
+        #print('reply on the consumer end is ', reply)
 
         #print(type(reply))
 
@@ -260,13 +327,9 @@ class consumer() :
 
         tash.command[0:len(cmdBuf)] = cmdBuf
 
-        g_tech_instance.bconnected = 0
-
         mainform_object.status_label_text.set('Idle')
 
         #self.g_sys_instance.run_experiment = False
-
-        print(g_tech_instance.cfg)
 
         monitor_object.ax1.clear()
 
@@ -279,3 +342,7 @@ class consumer() :
         #print('Disconnected')
 
         #self.ser_PC.close()
+
+    def ph2oSat(self, T):
+        
+        return 610.78 * exp((T * 17.2684) / (T + 238.3))
