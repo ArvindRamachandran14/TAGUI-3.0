@@ -921,7 +921,29 @@ class Calib(Frame) :
 
     def pH2O_PID_apply_func(self):
 
-        pass
+        self.pH2O_P_entry.config(bg='gray', fg = "white")
+
+        self.pH2O_I_entry.config(bg='gray', fg = "white")
+
+        self.pH2O_D_entry.config(bg='gray', fg = "white")
+
+        self.update()
+
+        reply_P = self.cons.send_command_to_PC('s pH2O_P '+str(self.pH2O_P.get()))
+
+        reply_I = self.cons.send_command_to_PC('s pH2O_I '+str(self.pH2O_I.get()))
+
+        reply_D = self.cons.send_command_to_PC('s pH2O_D '+str(self.pH2O_D.get()))
+
+        if reply_P == reply_I == reply_D == 'e 0\n':
+
+            self.pH2O_P_entry.config(bg='light gray', fg='black')
+
+            self.pH2O_I_entry.config(bg='light gray', fg='black')
+
+            self.pH2O_D_entry.config(bg='light gray', fg='black')
+
+            self.update()
 
     def pH2O_set_apply_func(self):
 
