@@ -577,7 +577,6 @@ class Calib(Frame) :
 
             label.config(highlightbackground="black") 
 
-
         ###################### Set Points ########################
 
         self.TDP_set_entry = Entry(self.Humidity_Table_Frame, bg="gray", fg="white", width=11, textvariable=self.TDP_set)
@@ -611,7 +610,6 @@ class Calib(Frame) :
         self.pH2O_set_apply.grid(row=4, column=1, padx=1, pady=1)
 
         self.pH2O_set_apply_var.set("Apply")
-
 
         ###################### PID ########################
 
@@ -796,49 +794,53 @@ class Calib(Frame) :
 
     def update_calibration_table(self):
 
-        ################## Update power ################## 
-        
-        self.SC_power.set(self.MODES[int(float(self.g_cal_instance.SC_power))])
+        Output = self.cons.get_all_cal_variables()
 
-        self.SC_power_scale.set(int(float(self.g_cal_instance.SC_power)))
+        if Output:
 
-        self.CC_power.set(self.MODES[int(float(self.g_cal_instance.CC_power))])
+            ################## Update power ###################
 
-        self.CC_power_scale.set(int(float(self.g_cal_instance.CC_power)))
+            self.SC_power.set(self.MODES[int(float(self.g_cal_instance.SC_power))])
 
-        self.DPG_power.set(self.MODES[int(float(self.g_cal_instance.DPG_power))])
+            self.SC_power_scale.set(int(float(self.g_cal_instance.SC_power)))
 
-        self.DPG_power_scale.set(int(float(self.g_cal_instance.DPG_power)))
+            self.CC_power.set(self.MODES[int(float(self.g_cal_instance.CC_power))])
 
-        ################## Update PID ################## 
+            self.CC_power_scale.set(int(float(self.g_cal_instance.CC_power)))
 
-        self.SC_P.set(str(self.g_cal_instance.SC_P))
+            self.DPG_power.set(self.MODES[int(float(self.g_cal_instance.DPG_power))])
 
-        self.SC_I.set(str(self.g_cal_instance.SC_I))
+            self.DPG_power_scale.set(int(float(self.g_cal_instance.DPG_power)))
 
-        self.SC_D.set(str(self.g_cal_instance.SC_D))
+            ################## Update PID ################## 
 
-        self.CC_P.set(str(self.g_cal_instance.CC_P))
+            self.SC_P.set(str(self.g_cal_instance.SC_P))
 
-        self.CC_I.set(str(self.g_cal_instance.CC_I))
+            self.SC_I.set(str(self.g_cal_instance.SC_I))
 
-        self.CC_D.set(str(self.g_cal_instance.CC_D))
+            self.SC_D.set(str(self.g_cal_instance.SC_D))
 
-        self.DPG_P.set(str(self.g_cal_instance.DPG_P))
+            self.CC_P.set(str(self.g_cal_instance.CC_P))
 
-        self.DPG_I.set(str(self.g_cal_instance.DPG_I))
+            self.CC_I.set(str(self.g_cal_instance.CC_I))
 
-        self.DPG_D.set(str(self.g_cal_instance.DPG_D))
+            self.CC_D.set(str(self.g_cal_instance.CC_D))
 
-        ################## Update Set Points ################## 
+            self.DPG_P.set(str(self.g_cal_instance.DPG_P))
 
-        self.SC_set.set(str(self.g_cal_instance.SC_set))
+            self.DPG_I.set(str(self.g_cal_instance.DPG_I))
 
-        self.CC_set.set(str(self.g_cal_instance.CC_set))
+            self.DPG_D.set(str(self.g_cal_instance.DPG_D))
 
-        self.DPG_set.set(str(self.g_cal_instance.DPG_set))
+            ################## Update Set Points ################## 
 
-        self.update()
+            self.SC_set.set(str(self.g_cal_instance.SC_set))
+
+            self.CC_set.set(str(self.g_cal_instance.CC_set))
+
+            self.DPG_set.set(str(self.g_cal_instance.DPG_set))
+
+            self.update()
 
     def SC_PID_apply_func(self):
 
@@ -997,6 +999,13 @@ class Calib(Frame) :
 
                     if RH_input >=10 and RH_input <=90: #RH limits
 
+                        reply_RH_set =  self.cons.send_command_to_PC('s RH_set '+  str(RH_input))
+
+                        if reply_DPG_set == 'e 0\n':
+
+                            self.RH_set_entry.config(bg='light gray', fg='black')
+
+                        '''
                         target_pressure = (RH_input/100.0)*self.ph2oSat(TSC)
 
                         Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
@@ -1015,7 +1024,9 @@ class Calib(Frame) :
 
                         target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-                        reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                        #reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+
+        
 
                         self.TDP_set_entry.insert(0, str(round(target_TDP,2)))
 
@@ -1034,6 +1045,7 @@ class Calib(Frame) :
                         reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
                             
                         #print('reply_DPG_set', reply_DPG_set)
+                        '''
 
                     elif RH_input >=90:
 
@@ -1051,6 +1063,7 @@ class Calib(Frame) :
 
                 if len(self.TDP_set_entry.get()) == 0 and len(self.RH_set.get()) == 0:
 
+
                     Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
 
                     #print(Cell_pressure_output)
@@ -1066,6 +1079,14 @@ class Calib(Frame) :
                     RH_input = (target_pressure/self.ph2oSat(TSC))*100
 
                     if RH_input >=10 and RH_input <=90: #RH limits
+
+                        reply_pH2O_set =  self.cons.send_command_to_PC('s pH2O_set '+  self.pH2O_set.get())
+
+                        if reply_pH2O_set == 'e 0\n':
+
+                            self.pH2O_set_entry.config(bg='light gray', fg='black')
+
+                        '''
 
                         target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
@@ -1086,6 +1107,8 @@ class Calib(Frame) :
                             self.TDP_set_entry.config(bg='light gray', fg='black')
 
                             self.update()
+
+                         '''
 
                     elif RH_input >=90:
 

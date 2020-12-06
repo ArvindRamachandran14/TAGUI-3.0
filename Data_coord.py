@@ -64,6 +64,7 @@ class consumer() :
         self.f = None
         self.last_logged_time = datetime.now()
         self.log_frequency = 2
+        self.block = False
         #self.f = open('data_file_'+str(datetime.now())+'.xml', "w+")
         #self.kb = pykb.KBHit()
 
@@ -171,56 +172,80 @@ class consumer() :
             '''
             self.recsGot += 1
 
-            
-            if self.g_cal_instance.bcalibration:
+                
+        if self.g_cal_instance.bcalibration:
 
-                cal_variable_output_string = self.send_command_to_PC('g cal_variables')
+            print('Getting basic cal variables')
 
-                cal_variable_output_list = cal_variable_output_string.split(',')
+            cal_variable_output_string = self.send_command_to_PC('g cal_basic_variables')
 
-                self.g_cal_instance.SC_power = cal_variable_output_list[0]
+            cal_variable_output_list = cal_variable_output_string.split(',')
 
-                self.g_cal_instance.SC_P = cal_variable_output_list[1]
+            self.g_cal_instance.SC_output_list.append(round(float(cal_variable_output_list[0]),2))
 
-                self.g_cal_instance.SC_I = cal_variable_output_list[2]
+            self.g_cal_instance.CC_output_list.append(round(float(cal_variable_output_list[1]),2))
 
-                self.g_cal_instance.SC_D = cal_variable_output_list[3]
+            self.g_cal_instance.DPG_output_list.append(round(float(cal_variable_output_list[2]),2))
 
-                self.g_cal_instance.SC_set = cal_variable_output_list[4]
+            self.g_cal_instance.SC_output_list.pop(0)
 
-                self.g_cal_instance.SC_output_list.append(round(float(cal_variable_output_list[5]),2))
+            self.g_cal_instance.CC_output_list.pop(0)
 
-                self.g_cal_instance.CC_power = cal_variable_output_list[6]
-
-                self.g_cal_instance.CC_P = cal_variable_output_list[7]
-
-                self.g_cal_instance.CC_I = cal_variable_output_list[8]
-
-                self.g_cal_instance.CC_D = cal_variable_output_list[9]
-
-                self.g_cal_instance.CC_set = cal_variable_output_list[10]
-
-                self.g_cal_instance.CC_output_list.append(round(float(cal_variable_output_list[11]),2))
-
-                self.g_cal_instance.DPG_power = cal_variable_output_list[12]
-
-                self.g_cal_instance.DPG_P = cal_variable_output_list[13]
-
-                self.g_cal_instance.DPG_I = cal_variable_output_list[14]
-
-                self.g_cal_instance.DPG_D = cal_variable_output_list[15]
-
-                self.g_cal_instance.DPG_set = cal_variable_output_list[16]
-
-                self.g_cal_instance.DPG_output_list.append(round(float(cal_variable_output_list[17]),2))
-
-                self.g_cal_instance.SC_output_list.pop(0)
-
-                self.g_cal_instance.CC_output_list.pop(0)
-
-                self.g_cal_instance.DPG_output_list.pop(0)
+            self.g_cal_instance.DPG_output_list.pop(0)
 
         return 0
+
+    def get_all_cal_variables(self):
+
+        print('Getting all cal variables')
+
+        cal_variable_output_string = self.send_command_to_PC('g cal_all_variables')
+
+        cal_variable_output_list = cal_variable_output_string.split(',')
+
+        self.g_cal_instance.SC_power = cal_variable_output_list[0]
+
+        self.g_cal_instance.SC_P = cal_variable_output_list[1]
+
+        self.g_cal_instance.SC_I = cal_variable_output_list[2]
+
+        self.g_cal_instance.SC_D = cal_variable_output_list[3]
+
+        self.g_cal_instance.SC_set = cal_variable_output_list[4]
+
+        self.g_cal_instance.SC_output_list.append(round(float(cal_variable_output_list[5]),2))
+
+        self.g_cal_instance.CC_power = cal_variable_output_list[6]
+
+        self.g_cal_instance.CC_P = cal_variable_output_list[7]
+
+        self.g_cal_instance.CC_I = cal_variable_output_list[8]
+
+        self.g_cal_instance.CC_D = cal_variable_output_list[9]
+
+        self.g_cal_instance.CC_set = cal_variable_output_list[10]
+
+        self.g_cal_instance.CC_output_list.append(round(float(cal_variable_output_list[11]),2))
+
+        self.g_cal_instance.DPG_power = cal_variable_output_list[12]
+
+        self.g_cal_instance.DPG_P = cal_variable_output_list[13]
+
+        self.g_cal_instance.DPG_I = cal_variable_output_list[14]
+
+        self.g_cal_instance.DPG_D = cal_variable_output_list[15]
+
+        self.g_cal_instance.DPG_set = cal_variable_output_list[16]
+
+        self.g_cal_instance.DPG_output_list.append(round(float(cal_variable_output_list[17]),2))
+
+        self.g_cal_instance.SC_output_list.pop(0)
+
+        self.g_cal_instance.CC_output_list.pop(0)
+
+        self.g_cal_instance.DPG_output_list.pop(0)   
+
+        return True 
 
     def initialize(self) :
 
@@ -296,7 +321,8 @@ class consumer() :
 
     def send_command_to_PC(self, command):
 
-        #print('command received is', command)
+        print('command received is', command)
+
         reply = ''
         tash = TAShare.from_buffer(self.mmShare)
         tash.reply = (c_byte * 256)(0)
@@ -311,7 +337,7 @@ class consumer() :
                 tash.command = (c_byte * 256)(0)
                 break
 
-        #print('reply on the consumer end is ', reply)
+        print('reply on the consumer end is ', reply)
 
         #print(type(reply))
 

@@ -157,9 +157,9 @@ class producer() :
                     else :
                         sReply = self.getDataFromTA(command)
                     if command == 'g all':
-                        sReply =  'v {0:.4f},{1:.4f},{2:.4f},{3:.4f},{4:.2f},{5:.2f},{6:.4f},{7:d}\n'.format( \
+                        sReply =  'v {0:.4f},{1:.4f},{2:.4f},{3:.4f},{4:.4f},{5:.4f},{6:.4f},{7:.4f},{8:d}\n'.format( \
                         sReply[0], sReply[1], sReply[2], sReply[3], \
-                        sReply[4], sReply[5], sReply[6], int(sReply[7]))
+                        sReply[4], sReply[5], sReply[6], sReply[7], int(sReply[8]))
                     elif isinstance(sReply, int):
                         sReply = 'e SOCKERR\n'
                     else:                      
@@ -186,7 +186,7 @@ class producer() :
         print('Mapped size: ', L)
         ### Creating shared memory region between TADAQ and TAGUI ### 
         self.mmShare = mmap.mmap(self.mmfd.fileno(), sizeof(tempTASH))
-        self.sem = asyncio.Semaphore(1)         # Added semaphore creation
+        self.sem = asyncio.Semaphore(1)         # Added semaphore creation 1 is how many active things you can have at the same time
         if self.bsimulation:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect((self.host, self.port))
@@ -334,7 +334,7 @@ async def main() :
         baud_rate = sys.argv[2]
         time_out = int(sys.argv[3])
 
-    prod = producer(2, bsimulation)
+    prod = producer(3, bsimulation)
 
     prod.connecttoTA(port, baud_rate, time_out)
 
@@ -343,6 +343,7 @@ async def main() :
     task2 = asyncio.create_task(prod.doCmd())
 
     await task1
+
     await task2
        
     print('Done')
