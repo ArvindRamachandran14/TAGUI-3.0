@@ -1001,7 +1001,7 @@ class Calib(Frame) :
 
                         reply_RH_set =  self.cons.send_command_to_PC('s RH_set '+  str(RH_input))
 
-                        if reply_DPG_set == 'e 0\n':
+                        if reply_RH_set == 'e 0\n':
 
                             self.RH_set_entry.config(bg='light gray', fg='black')
 
