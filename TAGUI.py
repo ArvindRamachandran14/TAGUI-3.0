@@ -68,13 +68,15 @@ def main(argv) :
     
             #print('Consumption in progress')
 
+            #if cons.block == False:
+
             cons.consume() #indentation removed, consume all the time
 
             mainForm.status_time_text.set('Run time: ' + str(datetime.timedelta(seconds=round(g_sys_instance.time_list[-1]))))
 
             mainForm.calibTab.animate_calibration_table()
 
-        mainForm.after(2000, apploop)
+        mainForm.after(3800, apploop)
 
     apploop()
 
@@ -89,7 +91,6 @@ def main(argv) :
     ani_calib_temperatures = animation.FuncAnimation(mainForm.calibTab.fig1, mainForm.calibTab.animate_temperatures, interval=1000)
 
     ani_calib_RH = animation.FuncAnimation(mainForm.calibTab.fig2, mainForm.calibTab.animate_RH, interval=1000)
-
 
     mainForm.mainloop()
 
