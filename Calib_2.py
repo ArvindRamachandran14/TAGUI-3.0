@@ -975,7 +975,11 @@ class Calib(Frame) :
 
                     reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
 
-                    if reply_DPG_set == 'e 0\n':
+                    reply_RH_set = self.cons.send_command_to_PC('r RH_set 0')
+
+                    reply_pH2O_set = self.cons.send_command_to_PC('r pH2O_set 0')
+
+                    if reply_DPG_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
 
                         print('Command success')
 
@@ -999,9 +1003,13 @@ class Calib(Frame) :
 
                     if RH_input >=10 and RH_input <=90: #RH limits
 
+                        reply_DPG_set = self.cons.send_command_to_PC('r DPG_set 0')
+
                         reply_RH_set =  self.cons.send_command_to_PC('s RH_set '+  str(RH_input))
 
-                        if reply_RH_set == 'e 0\n':
+                        reply_pH2O_set = self.cons.send_command_to_PC('r pH2O_set 0')
+
+                        if reply_DPG_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
 
                             self.RH_set_entry.config(bg='light gray', fg='black')
 
@@ -1063,7 +1071,6 @@ class Calib(Frame) :
 
                 if len(self.TDP_set_entry.get()) == 0 and len(self.RH_set.get()) == 0:
 
-
                     Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
 
                     #print(Cell_pressure_output)
@@ -1080,9 +1087,15 @@ class Calib(Frame) :
 
                     if RH_input >=10 and RH_input <=90: #RH limits
 
+                        reply_DPG_set = self.cons.send_command_to_PC('r DPG_set 0')
+
+                        reply_RH_set = self.cons.send_command_to_PC('r RH_set 0')
+
                         reply_pH2O_set =  self.cons.send_command_to_PC('s pH2O_set '+  self.pH2O_set.get())
 
-                        if reply_pH2O_set == 'e 0\n':
+                        #Need to set RH and TDPG = 0
+
+                        if reply_DPG_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
 
                             self.pH2O_set_entry.config(bg='light gray', fg='black')
 
