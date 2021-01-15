@@ -567,7 +567,7 @@ class Calib(Frame) :
 
         self.Humidity_table_label.grid(row=0,column=0,sticky='N')
 
-        Humidity_table_var_names = ["TDPG", "RH (%)", "pH2O (ppt)", " ",  "P", "I", "D", ""]
+        Humidity_table_var_names = ["TDP", "RH (%)", "pH2O (ppt)", " ",  "P", "I", "D", ""]
 
         for i in range(0,len(Humidity_table_var_names)):
 
