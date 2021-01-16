@@ -12,9 +12,9 @@ import numpy as np
 
 #root = tree.getroot()
 
-f = open("Data_01_08_2021_part1.xml", "r") 
+f2 = open("Data_01_14_2021_part2.xml", "r") 
 
-lines = f.readlines() 
+lines = f2.readlines() 
 
 DPG_T = []
 
@@ -62,14 +62,22 @@ fig, ax1 = plt.subplots()
 ax1.set_xlabel('Time (min)')
 ax1.set_ylabel('Temperature ($^\circ$C)')
 ax1.grid(True, 'major', 'both')
-#ax1_twin = ax1.twinx()
-#ax1_twin.set_ylabel('pH2O (ppt)')
+
+ax1_twin = ax1.twinx()
+ax1_twin.set_ylabel('pH2O (ppt)')
 
 ax1.plot(T/60.0, DPG_T, 'b', label='DPG temperature')
 
 ax1.plot(T/60.0, DPT, 'r', label='Dew point temperature')
 
 #ax1_twin.plot(T/60.0, pH2O, 'k', label = 'pH2O')
+
+ax1.set_xlim(1,7)
+
+ax1.set_ylim(0,30)
+
+#ax1_twin.set_ylim(0,300)
+
 
 plt.legend()
 
