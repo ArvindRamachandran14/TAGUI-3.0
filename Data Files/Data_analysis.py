@@ -8,13 +8,19 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-#tree = ET.parse('Data_01_08_2021_part1.xml')
 
-#root = tree.getroot()
+f = open("Data_01_25_2021.xml", "r") 
 
-f2 = open("Data_01_14_2021_part2.xml", "r") 
+#f2 = open("Data_01_19_2021.xml", "r") 
 
-lines = f2.readlines() 
+#f3 = open("Data_1_14_2021_part3.xml", "r") 
+
+
+lines = f.readlines() 
+
+CC_T = []
+
+SC_T = []
 
 DPG_T = []
 
@@ -26,12 +32,18 @@ date_time_list = []
 
 pH2O = []
 
+pCO2 = []
+
 T = []
 
 for line in lines:
 
 	root = ET.fromstring(line)
 	
+	SC_T.append(float(root[2].text))
+
+	CC_T.append(float(root[3].text))
+
 	DPG_T.append(float(root[4].text))
 
 	date_time.append((root[1].text))
@@ -39,6 +51,8 @@ for line in lines:
 	DPT.append(float(root[5].text))
 
 	pH2O.append(float(root[7].text))
+
+	pCO2.append(float(root[6].text))
 
 
 for date_time_string in date_time:
@@ -55,31 +69,46 @@ DPT = np.asarray(DPT)
 
 pH2O = np.asarray(pH2O)
 
+#print(len(T))
+
 T = np.asarray(T)
 
 fig, ax1 = plt.subplots()
 
 ax1.set_xlabel('Time (min)')
-ax1.set_ylabel('Temperature ($^\circ$C)')
+ax1.set_ylabel('pCO2 (ppm)')
+#ax1.set_ylabel('Temperature ($^\circ$C)')
 ax1.grid(True, 'major', 'both')
 
-ax1_twin = ax1.twinx()
-ax1_twin.set_ylabel('pH2O (ppt)')
+#ax1_twin = ax1.twinx()
+#ax1_twin.set_ylabel('pH2O (ppt)')
 
-ax1.plot(T/60.0, DPG_T, 'b', label='DPG temperature')
+ax1.plot(T/60.0, pCO2, 'k', label = 'pH2O')
 
-ax1.plot(T/60.0, DPT, 'r', label='Dew point temperature')
+#ax1.plot(T/60.0, SC_T, 'y', label='SC temperature')
+
+#ax1.plot(T/60.0, CC_T, 'm', label='CC temperature')
+
+#ax1.plot(T/60.0, DPG_T, 'b', label='DPG temperature')
+
+#ax1.plot(T/60.0, DPT, 'r', label='Dew point temperature')
+
+#ax1.legend(loc=2)
 
 #ax1_twin.plot(T/60.0, pH2O, 'k', label = 'pH2O')
 
-ax1.set_xlim(1,7)
+#ax1_twin.legend(loc=1)
 
-ax1.set_ylim(0,30)
+#ax1.set_xlim(90,108)
 
-#ax1_twin.set_ylim(0,300)
+#ax1.set_ylim(10,35)
+
+#ax1_twin.set_ylim(13,31)
+
+#ax1_twin.set_ylim(14,33)
 
 
-plt.legend()
+
 
 plt.tight_layout()
 
