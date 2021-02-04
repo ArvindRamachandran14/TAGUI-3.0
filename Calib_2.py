@@ -973,13 +973,13 @@ class Calib(Frame) :
 
                     #print(target_TDP)
 
-                    reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                    reply_DP_set = self.cons.send_command_to_PC('s DP_set '+  str(target_TDP))
 
                     reply_RH_set = self.cons.send_command_to_PC('r RH_set 0')
 
                     reply_pH2O_set = self.cons.send_command_to_PC('r pH2O_set 0')
 
-                    if reply_DPG_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
+                    if reply_DP_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
 
                         print('Command success')
 
@@ -1003,13 +1003,13 @@ class Calib(Frame) :
 
                     if RH_input >=10 and RH_input <=90: #RH limits
 
-                        reply_DPG_set = self.cons.send_command_to_PC('r DPG_set 0')
+                        reply_DP_set = self.cons.send_command_to_PC('r DP_set 0')
 
                         reply_RH_set =  self.cons.send_command_to_PC('s RH_set '+  str(RH_input))
 
                         reply_pH2O_set = self.cons.send_command_to_PC('r pH2O_set 0')
 
-                        if reply_DPG_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
+                        if reply_DP_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
 
                             self.RH_set_entry.config(bg='light gray', fg='black')
 
@@ -1032,13 +1032,13 @@ class Calib(Frame) :
 
                         target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-                        #reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                        #reply_DP_set = self.cons.send_command_to_PC('s DP_set '+  str(target_TDP))
 
         
 
                         self.TDP_set_entry.insert(0, str(round(target_TDP,2)))
 
-                        if reply_DPG_set == 'e 0\n':
+                        if reply_DP_set == 'e 0\n':
 
                             print('Command success')
 
@@ -1050,9 +1050,9 @@ class Calib(Frame) :
 
                             self.update()
 
-                        reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                        reply_DP_set = self.cons.send_command_to_PC('s DP_set '+  str(target_TDP))
                             
-                        #print('reply_DPG_set', reply_DPG_set)
+                        #print('reply_DP_set', reply_DP_set)
                         '''
 
                     elif RH_input >=90:
@@ -1087,7 +1087,7 @@ class Calib(Frame) :
 
                     if RH_input >=10 and RH_input <=90: #RH limits
 
-                        reply_DPG_set = self.cons.send_command_to_PC('r DPG_set 0')
+                        reply_DP_set = self.cons.send_command_to_PC('r DP_set 0')
 
                         reply_RH_set = self.cons.send_command_to_PC('r RH_set 0')
 
@@ -1095,7 +1095,7 @@ class Calib(Frame) :
 
                         #Need to set RH and TDPG = 0
 
-                        if reply_DPG_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
+                        if reply_DP_set == reply_RH_set == reply_pH2O_set == 'e 0\n':
 
                             self.pH2O_set_entry.config(bg='light gray', fg='black')
 
@@ -1107,9 +1107,9 @@ class Calib(Frame) :
 
                         self.TDP_set_entry.insert(0, str(round(target_TDP,2)))
                     
-                        reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
+                        reply_DP_set = self.cons.send_command_to_PC('s DP_set '+  str(target_TDP))
 
-                        if reply_DPG_set == 'e 0\n':
+                        if reply_DP_set == 'e 0\n':
 
                             print('Command success')
 
