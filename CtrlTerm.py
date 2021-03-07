@@ -40,10 +40,10 @@ class CtrlTerm(Frame) :
 
         command = self.input_text.get("end-1c linestart", "end-1c lineend") 
 
-        #print('command sent form terminal is', command)
+        print('command sent form terminal is', command)
         
         reply = self.cons.send_command_to_PC(command)
 
-        #print('reply on the consumer end after decoding is', reply)
+        print('reply on the consumer end after decoding is', reply)
 
         self.input_text.insert(tk.END,'\n'+reply)

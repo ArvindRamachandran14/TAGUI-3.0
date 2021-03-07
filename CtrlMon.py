@@ -5,11 +5,11 @@
 #   20191115:KDT - Original issue
 
 import tkinter as tk 
-from tkinter import ttk, Frame, Canvas, LabelFrame, Label, Spinbox, OptionMenu, StringVar, Button, Scale, HORIZONTAL, VERTICAL, Text, Entry
+from tkinter import ttk, Frame, Canvas, LabelFrame, Label, Spinbox, OptionMenu, StringVar, Button, Scale, HORIZONTAL, VERTICAL, Text, Entry, filedialog
 import matplotlib
 import numpy as np
-matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+matplotlib.use("Agg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 from matplotlib import style
@@ -299,7 +299,13 @@ class CtrlMon(Frame) :
 
         if str(self.log_btn_text.get()) == "Record data": 
 
-            self.consumer_object.log_data(self, datetime.now(), self.log_frequency_scale.get()) 
+            if self.mainform_object.filename == "":
+
+                self.mainform_object.filename = filedialog.asksaveasfilename(initialdir = "./",title = "Select file",filetypes = (("xml files","*.xml"), ("csv files","*.csv"), ("all files","*.*")))
+
+            if self.mainform_object.filename != "":
+
+                self.consumer_object.log_data(self, datetime.now(), self.log_frequency_scale.get()) 
 
         elif str(self.log_btn_text.get()) == 'Stop recording':
 

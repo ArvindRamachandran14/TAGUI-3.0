@@ -194,6 +194,8 @@ class CtrlSetup(Frame) :
 
         reply_DPG_Power = self.cons.send_command_to_PC('s DPG_power '+str(int(self.v_DPG_power.get())))
 
+        print('reply_DPG_Power', reply_DPG_Power)
+
         print(self.label_RH_set.cget('state'))
 
         print(self.label_pH2O_set.cget('state'))
@@ -212,9 +214,7 @@ class CtrlSetup(Frame) :
 
                 Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
 
-                time.sleep(0.5)
-
-                print(Cell_pressure_output)
+                print('Cell_pressure_output', Cell_pressure_output)
 
                 Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
 
@@ -228,11 +228,12 @@ class CtrlSetup(Frame) :
 
                 target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
 
-                if int(self.v_DPG_power.get()) == 1 and reply_DPG_Power == str('Done\n'):
+                if int(self.v_DPG_power.get()) == 1: #and reply_DPG_Power == str('Done\n'):
+
+                    #print('Sending DPG set point')
 
                     reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
                     
-
                     print('reply_DPG_set', reply_DPG_set)
 
             elif RH_input >=90:
