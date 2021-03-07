@@ -20,8 +20,6 @@ encoding = 'utf-8' # covers straight ascii 8 bit char codes
 loop = None #variable timeer uses
 recCount = 21 #how many records are in the shared memory 
 
-#ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=3) #Define serial port
-
 class TAData(Structure) :
     _pack_ = 4
     _fields_ = [ \
@@ -41,7 +39,7 @@ class TAShare(Structure) :
     _pack_ = 4
     _fields_ = [ \
             ('command', c_byte * 256), # 256 byte buffer
-            ('reply', c_byte * 256), # change reply buffer size to 256 from 256 and edit rest of the code accordingly 
+            ('reply', c_byte * 256), 
             ('recCount', c_int),
             ('recIdx', c_int),
             ('data', TAData * recCount)]
@@ -164,9 +162,6 @@ class producer() :
                         sReply = 'e SOCKERR\n'
                     else:                      
                         sReply += '\n'
-
-                    #print('Reply is', sReply)
-
                     # Put the reply into the shared reply buffer
                     repBuf = bytearray(sReply, encoding)
                     tash.reply[0:len(repBuf)] = repBuf
@@ -220,8 +215,6 @@ class producer() :
 
     def getDataFromTA(self, cmd) :
 
-        #print(dt.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
-
         retval = ''
 
         if self.bsimulation: #Simulation mode on
@@ -270,10 +263,6 @@ class producer() :
                     Output_string = self.ser.readline().decode()
 
                     output_length = len(Output_string)
-
-                #print('output_length', output_length)
-
-                #print('Output string', Output_string)
 
                 Split_strings_list  = Output_string.split(',')
 

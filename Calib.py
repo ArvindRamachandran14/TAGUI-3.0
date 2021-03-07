@@ -10,8 +10,6 @@ class Calib(Frame) :
 
     def __init__(self, parent, g_sys_instance, g_cal_instance, cons, *args, **kwargs) :
         Frame.__init__(self, *args, **kwargs)
-        self.check_button_frame = Frame(self,padx=2, pady=2)
-        #self.check_button_frame.grid(row=0,column=0,sticky='NW')
 
         self.Table_Frame = Frame(self, padx=20)
 
@@ -21,7 +19,7 @@ class Calib(Frame) :
 
         self.Partition_Frame.grid(row=0, column=1, sticky='N')
 
-        self.Graph_Frame = Frame(self)#, padx=50)
+        self.Graph_Frame = Frame(self)
 
         self.Graph_Frame.grid(row=0, column=2, sticky='NE')
  
@@ -54,10 +52,15 @@ class Calib(Frame) :
         self.Slider_2_Frame.grid(row=1, column=1)
 
         self.g_sys_instance = g_sys_instance
+
         self.g_cal_instance = g_cal_instance
+
         self.cons = cons
+
         self.plot_density = 7.5
+
         self.slider_list = [0,1,2,3,4]
+
         self.slider_list_value = [0.5,1,15,30,60]
 
         self.TSC = StringVar()
@@ -108,8 +111,6 @@ class Calib(Frame) :
 
         self.RH_set = StringVar()
 
-        #self.parent = parent
-
         self.MODES = ['OFF', 'ON']
 
         self.build_TC_table()
@@ -119,7 +120,6 @@ class Calib(Frame) :
         self.buildFigure()
 
     def buildFigure(self) :
-
 
         Label(self.Partition_Frame, text="").grid(row=0,column=0)
 
@@ -137,8 +137,6 @@ class Calib(Frame) :
         Checkbutton(self.Partition_Frame, text="CC Output", variable=self.check_var6).grid(row=6, column=0, sticky='W')
         self.check_var7 = IntVar()
         Checkbutton(self.Partition_Frame, text="DPG Output", variable=self.check_var7).grid(row=7, column=0, sticky='W')
-
-
 
         self.output = StringVar()
 
@@ -187,8 +185,6 @@ class Calib(Frame) :
         self.ax2_twin.set_autoscalex_on(True)
         self.ax2.tick_params('y', colors='b')
         self.ax2_twin.tick_params('y', colors='r')
-
-
 
         self.fig2.tight_layout()
         self.cnvs2 = FigureCanvasTkAgg(self.fig2, self.Graph_2_Frame)
@@ -246,12 +242,6 @@ class Calib(Frame) :
 
         label_DPG.config(highlightbackground="black") 
 
-        #label_pH2O =  Label(self.TC_frame_1,text="pH2O", bg="light gray",fg="black", width=10, relief="solid")
-
-        #label_pH2O.grid(row=0,column=4, sticky="ew", padx=1, pady=1)
-
-        #label_pH2O.config(highlightbackground="black")
-
         self.TSC_entry = Entry(self.TC_frame_1, bg="light gray", fg="black", width=11, textvariable=self.TSC)
 
         self.TSC_entry.grid(row=1,column=1, sticky="ew", padx=1, pady=1)
@@ -293,10 +283,6 @@ class Calib(Frame) :
         self.TC_frame_2 = Frame(self.TC_Table_Frame, height=5)
         self.TC_frame_2.grid(row=2,column=0,columnspan=4, sticky='NW')
 
-        #for i in range(0,4):
-
-        #Label(self.TC_frame_2, text="",height=1).grid(row=0, column=i,sticky='N')
-
         #################################### Frame 3 ####################################
 
         self.TC_frame_3 = Frame(self.TC_Table_Frame)
@@ -307,9 +293,6 @@ class Calib(Frame) :
 
         self.SC_power_outer_frame =  Label(self.TC_frame_3, text="", bg="white", fg="black", width=11, relief="solid")
         self.SC_power_outer_frame.grid(row=0, column=1, sticky="ew", padx=1, pady=1)
-
-        #self.SC_power_outer_frame = Label(self.TC_frame_3, text="", bg="white", fg="black", relief="solid", width=10)#, padx=1, pady=1)
-        #self.SC_power_outer_frame.grid(row=0, column=1, padx=1, pady=1, sticky='NSEW')
 
         self.SC_power_frame = Frame(self.TC_frame_3)
         self.SC_power_frame.grid(row=0, column=1)
@@ -358,10 +341,6 @@ class Calib(Frame) :
 
         self.TC_frame_4 = Frame(self.TC_Table_Frame, height=5)
         self.TC_frame_4.grid(row=4,column=0,columnspan=4,sticky='w')
-
-        #for i in range(0,4):
-
-        #Label(self.TC_frame_4, text="", height=1).grid(row=0, column=i)
 
         #################################### Frame 5 ####################################
 
@@ -482,10 +461,6 @@ class Calib(Frame) :
         self.TC_frame_6 = Frame(self.TC_Table_Frame, height=5)
         self.TC_frame_6.grid(row=6,column=0,columnspan=4,sticky='w')
 
-        #for i in range(0,4):
-
-        #Label(self.TC_frame_6, text="", height=1).grid(row=0, column=i)
-
         #################################### Frame 7 ####################################
 
         self.TC_frame_7 = Frame(self.TC_Table_Frame)
@@ -557,9 +532,6 @@ class Calib(Frame) :
         self.DPG_set_apply.grid(row=1, column=3, padx=1, pady=1)
 
         self.DPG_set_apply_var.set("Apply")
-
-        #self.TC_frame_8 = Frame(self.TC_Table_Frame, height=10)
-        #self.TC_frame_8.grid(row=8,column=0,columnspan=4,sticky='w')
 
     def build_Humidity_table(self):
 
@@ -1013,48 +985,6 @@ class Calib(Frame) :
 
                             self.RH_set_entry.config(bg='light gray', fg='black')
 
-                        '''
-                        target_pressure = (RH_input/100.0)*self.ph2oSat(TSC)
-
-                        Cell_pressure_output = self.cons.send_command_to_PC('g CellP')
-
-                        print('Cell_pressure_output', Cell_pressure_output)
-
-                        Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
-
-                        Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
-
-                        Cell_pressure = float(Cell_pressure_string)*1000
-
-                        #self.pH2O_set.set((target_pressure/Cell_pressure)*1000,2)
-
-                        self.pH2O_set_entry.insert(0, str(round((target_pressure/Cell_pressure)*1000,2)))
-
-                        target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
-
-                        #reply_DP_set = self.cons.send_command_to_PC('s DP_set '+  str(target_TDP))
-
-        
-
-                        self.TDP_set_entry.insert(0, str(round(target_TDP,2)))
-
-                        if reply_DP_set == 'e 0\n':
-
-                            print('Command success')
-
-                            self.pH2O_set_entry.config(bg='light gray', fg='black')
-
-                            self.RH_set_entry.config(bg='light gray', fg='black')
-
-                            self.TDP_set_entry.config(bg='light gray', fg='black')
-
-                            self.update()
-
-                        reply_DP_set = self.cons.send_command_to_PC('s DP_set '+  str(target_TDP))
-                            
-                        #print('reply_DP_set', reply_DP_set)
-                        '''
-
                     elif RH_input >=90:
 
                         messagebox.showwarning(title='RH offlimits', message="Condensation Warning")
@@ -1099,30 +1029,6 @@ class Calib(Frame) :
 
                             self.pH2O_set_entry.config(bg='light gray', fg='black')
 
-                        '''
-
-                        target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
-
-                        self.RH_set_entry.insert(0, str(round(RH_input,2)))
-
-                        self.TDP_set_entry.insert(0, str(round(target_TDP,2)))
-                    
-                        reply_DP_set = self.cons.send_command_to_PC('s DP_set '+  str(target_TDP))
-
-                        if reply_DP_set == 'e 0\n':
-
-                            print('Command success')
-
-                            self.pH2O_set_entry.config(bg='light gray', fg='black')
-
-                            self.RH_set_entry.config(bg='light gray', fg='black')
-
-                            self.TDP_set_entry.config(bg='light gray', fg='black')
-
-                            self.update()
-
-                         '''
-
                     elif RH_input >=90:
 
                         messagebox.showwarning(title='pH2O offlimits', message="Condensation Warning")
@@ -1146,8 +1052,6 @@ class Calib(Frame) :
     def SC_set_apply_func(self):
 
         if self.MODES.index(self.SC_power.get()):
-
-            #self.validate(self.SC_set.get(), input_type, input_range, var_name)
 
             self.SC_set_entry.config(bg='gray', fg = "white")
 
@@ -1174,8 +1078,6 @@ class Calib(Frame) :
 
         if self.MODES.index(self.CC_power.get()):
 
-            #self.validate(self.CC_set.get(), input_type, input_range, var_name)
-
             self.CC_set_entry.config(bg='gray', fg = "white")
 
             self.update()
@@ -1200,8 +1102,6 @@ class Calib(Frame) :
     def DPG_set_apply_func(self):
 
         if self.MODES.index(self.DPG_power.get()):
-
-            #self.validate(self.DPG_set.get(), input_type, input_range, var_name)
 
             self.DPG_set_entry.config(bg='gray', fg = "white")
 

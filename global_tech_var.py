@@ -10,12 +10,11 @@ import json
 cfgFile = 'taui.json'
 
 baud_rate = 9600
-cfg = {}                        # Config object
-tty = "/dev/ttyUSB0"                      # TTY or COM port to use for TA comms
+cfg = {}  # Config object
+tty = "/dev/ttyUSB0"  # TTY or COM port to use for TA comms
 time_out = 5
 time_interval = 5
 
-# initialize
 # Initialize globals from the cfg object
 def initialize(config) :
     global cfg, tty, baud_rate, time_out, time_interval, ser, bconnected, bsimulation
@@ -26,9 +25,9 @@ def initialize(config) :
     time_interval = cfg["time_interval"]
     update()
 
-def update():
 
-    #Updates json file with new parameters
+#Function updates json file with new parameters
+def update():
 
     cfg["tty"] = tty
 
@@ -37,8 +36,6 @@ def update():
     cfg["time_out"] = time_out
 
     cfg["time_interval"] = time_interval
-
-    #print(cfg)
 
     with open(cfgFile, 'w') as fCfg:
 

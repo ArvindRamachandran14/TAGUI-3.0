@@ -28,9 +28,7 @@ class MainForm(Tk) :
     
     def __init__(self, g_sys_instance, g_cal_instance, cons, *args, **kwargs) :
         
-
         tk.Tk.__init__(self, *args, **kwargs) 
-
 
         tk.Tk.wm_title(self, 'Main Window') #window title
 
@@ -57,14 +55,7 @@ class MainForm(Tk) :
         self.buildStatusBar(container)
         self.ctrlTab.select(self.tabSetup)
         self.dat_buf = []
-
         self.filename = ''
-
-        #self.dcoord = DCoord(Rec_num) # This is renaming the consumer class 
-
-        #self.cmd = ''
-
-        #self.parm = ''
 
     def buildMenuBar(self, container) :
         # Menu
@@ -80,8 +71,7 @@ class MainForm(Tk) :
         menuBar.add_cascade(label='File', menu=fileMenu)
         tk.Tk.config(self, menu = menuBar)
 
-    #Build serial bar - lets the user choose the serial port, baud rate and establish connection through a "connect" button
-
+    # Serial bar is at the top of the window and lets the user choose between experiment/simulation mode, the serial port, the baud rate and connect/disconnect to the ThermoAnalyzer
 
     def buildserialBar(self, container):
 
@@ -149,19 +139,7 @@ class MainForm(Tk) :
 
         self.button.grid(row=0, column=6)
 
-        #self.button = Button(self.serialBar, textvariable=self.log_btn_text, command=self.log_data)
-
-        #self.log_btn_text.set("log data")
-
-        #self.button.grid(row=0, column=5)
-
-        #print(self.connect_btn_text.get())
-
-    # buildStatusBar
-    # Make the status bar on the bottom of the screen.  This has
-    # a text status message on the left and the experiment time on
-    # the right.  The time is not being updated in this prototype code.
-
+    #Status bar is at the bottom of the window and text status message on the left and the experiment time on the right
 
     def buildStatusBar(self, container):
 
@@ -185,12 +163,10 @@ class MainForm(Tk) :
 
         self.status_time.pack(side=tk.RIGHT)
 
+    # CtrlTab hosts the different tabs such as SetUp, Monitor, Terminal, and Config 
 
     def buildCtrlTab(self, container) :
         
-        ################# Hosts the different tabs such as SetUp, Monitor, Terminal, and Config #################
-        
-
         s = ttk.Style()
         s.configure('TNotebook', tabposition='nw')
 
@@ -206,7 +182,10 @@ class MainForm(Tk) :
         self.tabCfg = CtrlCfg.CtrlCfg(self.ctrlTab)
         self.calibTab = Calib.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
-        
+    
+
+    #Function to update the tables in the tab selected by the user
+
     def display_tab_selected(self, event):
 
         selected_tab = event.widget.select()
@@ -222,8 +201,6 @@ class MainForm(Tk) :
             self.tabSetup.update_setup_table()
 
     def set_mode(self, event):
-
-        #print('\n'.join(difflib.Differ().compare("TA Experiment", self.choose_mode_variable.get())))
 
         if self.choose_mode_variable.get() == "TA Experiment":
 
@@ -282,11 +259,9 @@ class MainForm(Tk) :
             tree_TAdata = ET.ElementTree(root_TAdata)
 
             m2 = ET.Element("CalData") 
-            #root.append (m2) 
 
             m3 = ET.Element("Commands") 
-            #root.append (m3) 
-        
+
             tree_main.write(self.cons.f)
 
             tree_TAdata.write(self.cons.f_TAdata)
@@ -301,8 +276,6 @@ class MainForm(Tk) :
 
             self.cons.f = open(self.filename, "a")
 
-        #popupmsg("Not Implemented")
-
     def onFileExit(self) :
         # Need to do cleanup here, save files, etc. before quitting.
         # quit()
@@ -315,8 +288,6 @@ def popupmsg(msg):
     popup = tk.Tk()
     popup.wm_title("Information")
     label = ttk.Label(popup, text=msg)
-    #label.pack(side="top", fill="x", pady=10)
     B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
-    #B1.pack()
     popup.mainloop()
 

@@ -14,8 +14,6 @@ import datetime
 
 from MainForm import MainForm
 
-
-
 def reset_bconnected():
 
     g_tech_instance.bconnected = "False"
@@ -35,10 +33,6 @@ def main(argv) :
     if not option == None :
         print(option)
 
-        # Read config file
-    
-    #g_tech_instance = g_tech.globals_()              # Initialize the globals
-
     g_sys_instance = g_sys.globals_() #Create an instance of the globals class in the lobal_sys_var module
 
     g_cal_instance = g_cal.globals_()
@@ -51,21 +45,7 @@ def main(argv) :
 
     def apploop():
 
-        #check if there is ~/.TAGUI file and modify any of the values
-
-        '''
-        with open('taui.json', 'r') as fCfg : 
-
-            config = json.loads(fCfg.read())
-            
-            bconnected = config["bconnected"]
-
-        '''
         if mainForm.connect_btn_text.get() == "Disconnect":
-    
-            #print('Consumption in progress')
-
-            #if cons.block == False:
 
             cons.consume() #indentation removed, consume all the time
 
@@ -77,7 +57,7 @@ def main(argv) :
 
     apploop()
 
-    ######################## To create real time plotting of system variables #######################
+    # To create real time plotting of system variables
 
     ani_temperatures = animation.FuncAnimation(mainForm.tabMon.fig1, mainForm.tabMon.animate_temperatures, interval=1000)
 
@@ -90,7 +70,5 @@ def main(argv) :
     ani_calib_RH = animation.FuncAnimation(mainForm.calibTab.fig2, mainForm.calibTab.animate_RH, interval=1000)
 
     mainForm.mainloop()
-
-# Actual main program
 
 main(sys.argv)

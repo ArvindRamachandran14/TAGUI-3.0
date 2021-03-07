@@ -1,8 +1,5 @@
 #! /usr/local/bin/python3 
 # -*- coding: utf-8 -*-
-
-# This is a conumer example.
-
 from ctypes import c_int, c_double, c_byte, c_bool, Structure, sizeof
 from random import random
 import mmap
@@ -97,14 +94,6 @@ class consumer() :
                 self.g_sys_instance.Temperatures_DP.append(round(tad.TDP,2))
 
                 self.g_sys_instance.pH2O_list.append(round(tad.pH2O,2))
-
-                #Cell_pressure_output = self.send_command_to_PC('g CellP')
-
-                #Cell_pressure_string_list = Cell_pressure_output.split('\n')  #Convert to Pa
-
-                #Cell_pressure_string = Cell_pressure_string_list[0].split('---')[0]
-
-                #Cell_pressure = float(Cell_pressure_string)*1000
 
                 Cell_pressure = 97.0676*1000
 
@@ -305,16 +294,6 @@ class consumer() :
                 mainform_object.connect_btn_text.set("Disconnect")
 
                 mainform_object.status_label_text.set('Running')
-
-            #monitor_object.ax1.clear()
-
-            #monitor_object.ax2.clear()
-
-            #monitor_object.ax2_twin.clear()
-
-            #monitor_object.ax3.clear()
-
-            #self.g_sys_instance.run_experiment = True
 
     def log_data(self, monitor_object, start_time, log_frequency):
 

@@ -1,4 +1,3 @@
-# CtrlMon.py
 # Class to define content of the Monitor tab.
 #
 # Change history:
@@ -32,12 +31,11 @@ class CtrlMon(Frame) :
         self.log_btn_text.set('Record data')
         self.exp_btn_text.set('Start experiment')
         self.plot1_density = 7 #7 data points leads to 15 second data
-        self.plot2_density = 7 #7 data points leads to 15 second data
-        self.plot3_density = 7 #7 data points leads to 15 second data
+        self.plot2_density = 7 
+        self.plot3_density = 7 
         self.log_frequency_list = [2, 4, 10, 60]
         self.slider_list = [0,1,2,3,4,5]
         self.slider_list_value = [1,15,30,60,120,7200]
-        #self.slider_list_log = (np.log(self.slider_list)*100).tolist()
         self.buildContent()
 
     def buildContent(self) :
@@ -63,12 +61,6 @@ class CtrlMon(Frame) :
   
         self.label3 = Label(self, text = 'Sample Weight')
         self.label3.grid(row = 5, column = 2, padx = 3, pady = 3)
-
-        self.toolbarframe1 = Frame(self)
-
-        self.toolbarframe2 = Frame(self)
-
-        self.toolbarframe3 = Frame(self)
 
         self.scale1_textvariable = StringVar()
 
@@ -122,12 +114,6 @@ class CtrlMon(Frame) :
         self.outputtextbox1 = Label(self, textvariable=self.outputtextbox1_variable)
 
         self.outputtextbox1.grid(row=9, column=0)
-
-        #self.toolbarframe1.grid(row=8, column=0)
-
-        #self.toolbar1 = NavigationToolbar2Tk(self.cnvs1,self.toolbarframe1)
-       
-        #self.cnvs1.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
       
         #Plot Conditioning Chamber temperature
 
@@ -153,13 +139,6 @@ class CtrlMon(Frame) :
 
         self.outputtextbox2.grid(row=9, column=1)
 
-        #self.toolbarframe2.grid(row=8, column=1)
-
-        #self.toolbar2 = NavigationToolbar2Tk(self.cnvs2,self.toolbarframe2)
-
-       
-        #self.cnvs2.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
         # Plot DPG temperature
 
         self.fig3 = Figure(figsize=(3.8, 3.8))
@@ -180,28 +159,6 @@ class CtrlMon(Frame) :
         self.outputtextbox3 = Label(self, textvariable=self.outputtextbox3_variable)
 
         self.outputtextbox3.grid(row=9, column=2)
-
-        #self.toolbarframe3.grid(row=8, column=2)
-
-        #self.toolbar3 = NavigationToolbar2Tk(self.cnvs3,self.toolbarframe3)
-       
-        #self.cnvs3.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    '''
-    def set_plot_range(graph_no):
-
-        if graph_no == 1:
-
-            self.plot1_range = self.scale1.get()
-
-        elif graph_no == 2:
-
-            self.plot2_range = self.scale2.get()
-
-         elif graph_no == 3:
-
-            self.plot3_range = self.scale3.get()
-    '''
 
     def log_frequency_scale_value_check(self, value):
 

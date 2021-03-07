@@ -39,8 +39,6 @@ class CtrlSetup(Frame):
 
         column_span = [1, 1, 1, 1, 1, 1, 1, 1]
 
-        #colors =  ["white"]*len(var_names)
-
         colors = ["white", "white", "gray25", "gray25", "gray25", "gray25", "white", "gray25" ]
 
         var_names_dummy = [""]*len(var_names)
@@ -63,33 +61,24 @@ class CtrlSetup(Frame):
 
                 j_list = [3]
 
-                #j_list = [7]
-
             elif i==3 or i==7:
 
                 j_list = [2,3]
-
-                #j_list = [4, 7]
 
             elif i==4 or i==5:
 
                 j_list = [1,2]
 
-                #j_list = [1, 4]
 
             else:
 
                 j_list = [1,2,3]
-
-                #j_list = [1, 4, 7]
             
             for j in j_list:
 
                 label = Label(self.Table_Frame, text=var_names_dummy[i], bg=colors[i], fg="black", relief="solid", width=12)#, padx=1, pady=1)
 
                 label.grid(row=row_count, column=j, rowspan=row_span[i], columnspan=column_span[i], padx=1, pady=1, sticky='NSEW')
-                
-                #label.config(highlightbackground="black") 
             
             row_count+=row_span[i]
 
@@ -177,35 +166,6 @@ class CtrlSetup(Frame):
 
         label_DPG.grid(row=0,column=3, columnspan=1, sticky="ew", padx=1, pady=1)
         
-        '''
-      
-        #Label(self.Table_Frame, text="  ", bg="white", fg="black", width=15, relief="solid", padx=1, pady=1).grid(row=3, column=1, columnspan=2, padx=1, pady=1, sticky='N')
-
-        MODES = [("ON", "1"),("OFF", "0")]
-
-        self.SC_power = StringVar()
-        self.SC_power.set("0") # initialize
-
-        sticky_list = ['e','w']
-
-        for i in range(2):
-            self.SC_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.SC_power, value=MODES[i][1], height=1)
-            self.SC_rb1.grid(row=1, column=i+1, padx=1, pady=1, sticky=sticky_list[i])
-
-        self.CC_power = StringVar()
-        self.CC_power.set("0") # initialize
-
-        for i in range(2):
-            self.CC_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.CC_power, value=MODES[i][1], height=1)
-            self.CC_rb1.grid(row=1, column=i+3, padx=1, pady=1, sticky=sticky_list[i])
-
-        self.DPG_power = StringVar()
-        self.DPG_power.set("0") # initialize
-
-        for i in range(2):
-            self.DPG_rb1 = Radiobutton(self.Table_Frame, text=MODES[i][0], variable=self.DPG_power, value=MODES[i][1], height=1)
-            self.DPG_rb1.grid(row=1, column=i+5, padx=1, pady=1, sticky=sticky_list[i])
-        '''
         self.SC_set_entry = Entry(self.Table_Frame, bg="gray", fg="white", width=13, textvariable=self.SC_set)
         self.SC_set_entry.grid(row=2, column=1, columnspan=1, sticky="ew", padx=1, pady=1)
         self.SC_set_entry.config(highlightbackground="black", highlightthickness=0, relief='solid', justify='right')
@@ -399,8 +359,6 @@ class CtrlSetup(Frame):
 
                     Cell_pressure = float(Cell_pressure_string)*1000
 
-                    #self.pH2O_set.set((target_pressure/Cell_pressure)*1000,2)
-
                     self.pH2O_set.insert(0, str(round((target_pressure/Cell_pressure)*1000,2)))
 
                     target_TDP = opt.brentq(lambda T: self.ph2oSat_solve(T, target_pressure), -50, 50)
@@ -418,8 +376,6 @@ class CtrlSetup(Frame):
                         self.update()
 
                     reply_DPG_set = self.cons.send_command_to_PC('s DPG_set '+  str(target_TDP))
-                        
-                    #print('reply_DPG_set', reply_DPG_set)
 
                 elif RH_input >=90:
 
@@ -490,27 +446,3 @@ class CtrlSetup(Frame):
     def ph2oSat(self, T):
 
         return 610.78 * exp((T * 17.2684) / (T + 238.3))
-
-    '''
-
-    def validate(self):
-
-        if 
-
-            return string1
-
-        elif
-
-            return string2
-
-
-        elif
-
-            return string3
-
-        else
-
-            return string4
-    '''
-
-
