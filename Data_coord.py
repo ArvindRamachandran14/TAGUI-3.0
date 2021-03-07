@@ -62,6 +62,9 @@ class consumer() :
         self.lastIdx = -1
         self.recsGot = 0
         self.f = None
+        self.f_TAdata = None
+        self.f_Caldata = None
+        self.f_Commands_to_PC = None
         self.last_logged_time = datetime.now()
         self.log_frequency = 2
         self.block = False
@@ -114,6 +117,28 @@ class consumer() :
 
                 self.g_sys_instance.time_list.append(tad.recTime)
 
+                xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='Data').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
+
+            self.g_sys_instance.time_list.pop(0)
+
+            self.g_sys_instance.Temperatures_SC.pop(0)
+
+            self.g_sys_instance.Temperatures_CC.pop(0)
+
+            self.g_sys_instance.Temperatures_DPG.pop(0)
+
+            self.g_sys_instance.Temperatures_DP.pop(0)
+
+            self.g_sys_instance.pH2O_list.pop(0)
+
+            self.g_sys_instance.RH_list.pop(0)
+
+            self.g_sys_instance.pCO2_list.pop(0)
+
+            self.g_sys_instance.sample_weight.pop(0)
+
+            if self.g_sys_instance.blogging == True and temp_dict['datetime'] >= self.last_logged_time + timedelta(seconds=self.log_frequency):   
+            
                 temp_dict['datetime'] = datetime.now()
 
                 temp_dict['time'] = str(temp_dict['datetime'])
@@ -134,32 +159,9 @@ class consumer() :
 
                 temp_dict['Sample_weight'] = tad.Sample_weight
 
-                xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='TAData').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
-
-            self.g_sys_instance.time_list.pop(0)
-
-            self.g_sys_instance.Temperatures_SC.pop(0)
-
-            self.g_sys_instance.Temperatures_CC.pop(0)
-
-            self.g_sys_instance.Temperatures_DPG.pop(0)
-
-            self.g_sys_instance.Temperatures_DP.pop(0)
-
-            self.g_sys_instance.pH2O_list.pop(0)
-
-            self.g_sys_instance.RH_list.pop(0)
-
-            self.g_sys_instance.pCO2_list.pop(0)
-
-            self.g_sys_instance.sample_weight.pop(0)
-
-
-            if self.g_sys_instance.blogging == True and temp_dict['datetime'] >= self.last_logged_time + timedelta(seconds=self.log_frequency):   
-
                 #print(xmlstring.decode("utf-8"))
 
-                self.f.write(xmlstring.decode("utf-8")+'\n')
+                self.f_TAdata.write(xmlstring.decode("utf-8")+'\n')
 
                 self.last_logged_time += timedelta(seconds=self.log_frequency)
 
@@ -174,6 +176,8 @@ class consumer() :
 
                 
         if self.g_cal_instance.bcalibration:
+
+            temp_dict_cal = {}
 
             print('Getting basic cal variables')
 
@@ -192,6 +196,20 @@ class consumer() :
             self.g_cal_instance.CC_output_list.pop(0)
 
             self.g_cal_instance.DPG_output_list.pop(0)
+
+            temp_dict_cal['datetime'] = datetime.now()
+
+            temp_dict_cal['time'] = str(temp_dict_cal['datetime'])
+
+            temp_dict_cal['SC_output'] = float(cal_variable_output_list[0])
+
+            temp_dict_cal['CC_output'] = float(cal_variable_output_list[1])
+
+            temp_dict_cal['DPG_output'] = float(cal_variable_output_list[2])
+
+            xmlstring_cal = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='Data').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
+
+            self.f_Caldata.write(xmlstring_cal.decode("utf-8")+'\n')
 
         return 0
 
@@ -322,6 +340,16 @@ class consumer() :
     def send_command_to_PC(self, command):
 
         print('command received is', command)
+
+        temp_dict_command = {}
+
+        if command[0] == s:
+
+            temp_dict_command['command'] = command
+
+            xmlstring_command = dicttoxml.dicttoxml(temp_dict_command, attr_type=False, custom_root='Cmd').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
+
+            self.f_Commands_to_PC.write(xmlstring_cal.decode("utf-8")+'\n')
 
         reply = ''
         tash = TAShare.from_buffer(self.mmShare)

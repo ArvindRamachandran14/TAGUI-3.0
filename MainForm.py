@@ -23,6 +23,8 @@ import Calib_2
 import Data_coord
 import json
 import difflib
+import xml.etree.ElementTree as ET 
+
 
 class MainForm(Tk) :
     
@@ -273,7 +275,31 @@ class MainForm(Tk) :
 
         if self.filename != '':
 
-            self.cons.f = open(self.filename, "w+")
+            self.cons.f = open(self.filename, "wb")
+
+            self.cons.f_TAdata = open(self.filename[:-4] +"_TAdata.xml", "wb")
+
+            self.cons.f_Caldata = open(self.filename[:-4] +"_Caldata.xml", "wb")
+
+            self.cons.f_Commands_to_PC = open(self.filename[:-4] +"_Commands_to_PC.xml", "wb")
+
+            root_main = ET.Element("TADataLog") 
+
+            tree_main = ET.ElementTree(root_main) 
+    
+            root_TAdata = ET.Element("TAData") 
+
+            tree_TAdata = ET.ElementTree(root_TAdata)
+
+            m2 = ET.Element("CalData") 
+            #root.append (m2) 
+
+            m3 = ET.Element("Commands") 
+            #root.append (m3) 
+        
+            tree_main.write(self.cons.f)
+
+            tree_TAdata.write(self.cons.f_TAdata)
 
     def onFileOpen(self) :
 
