@@ -13,7 +13,6 @@ from subprocess import Popen
 from pathlib import Path
 import tkinter as tk
 import json
-#import pykbhit as pykb
 import global_tech_var as g_tech_instance
 import dicttoxml
 from math import exp
@@ -343,7 +342,7 @@ class consumer() :
 
         temp_dict_command = {}
 
-        if command[0] == s:
+        if command[0] == 's':
 
             temp_dict_command['command'] = command
 

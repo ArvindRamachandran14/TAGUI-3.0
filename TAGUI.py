@@ -7,8 +7,6 @@ import sys
 import json
 import global_tech_var as g_tech_instance
 import matplotlib.animation as animation
-import CtrlMon
-import CtrlMon2
 import global_sys_var as g_sys
 import global_cal_var as g_cal
 import Data_coord
@@ -16,7 +14,6 @@ import datetime
 
 from MainForm import MainForm
 
-from Calib_new import Calib
 
 
 def reset_bconnected():

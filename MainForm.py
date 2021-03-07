@@ -10,15 +10,13 @@ from tkinter import Tk, ttk, Frame, Menu, Menubutton, Button, Label, StringVar, 
 import sys
 from datetime import datetime
 import CtrlSetup
-import CtrlSetup_new
 import CtrlMon
-import CtrlMon2
 import global_tech_var as g_tech_instance
 import CtrlTerm
 import CtrlCfg
 import serial
 import time
-import Calib_2
+import Calib
 #import TADAQ
 import Data_coord
 import json
@@ -198,23 +196,15 @@ class MainForm(Tk) :
 
         self.ctrlTab = ttk.Notebook(container)
         self.ctrlTab.grid(row=1, column=0)#tk.E+tk.W+tk.S+tk.N)
-
         self.ctrlTab.bind("<<NotebookTabChanged>>", self.display_tab_selected)
-
-        #self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance)
-        self.tabSetup = CtrlSetup_new.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance, self.g_cal_instance)
+        self.tabSetup = CtrlSetup.CtrlSetup(self.ctrlTab, self.cons, self.g_sys_instance, self.g_cal_instance)
         self.ctrlTab.add(self.tabSetup, text = 'Setup')
         self.tabMon = CtrlMon.CtrlMon(self.ctrlTab, self.g_sys_instance, self.cons, self)
-        self.tabMon2 = CtrlMon2.CtrlMon2(self.ctrlTab, self.g_sys_instance)
-
         self.ctrlTab.add(self.tabMon, text = 'Monitor')
-
-        #self.ctrlTab.add(self.tabMon2, text = 'Monitor 2')
-
         self.tabTerm = CtrlTerm.CtrlTerm(self.ctrlTab, self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.tabTerm, text = 'Terminal')
         self.tabCfg = CtrlCfg.CtrlCfg(self.ctrlTab)
-        self.calibTab = Calib_2.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
+        self.calibTab = Calib.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
         
     def display_tab_selected(self, event):
