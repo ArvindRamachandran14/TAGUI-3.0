@@ -11,8 +11,7 @@ This is the latest graphical user interface program developed to visualize and r
 
 To run download this repository and run the TAGUI.py program and you should be able to see the GUI developed for this project
 
-The TA is controlled by the thermodynamic analyzer controller (TAC), which in our set up is a program running on a Raspberry Pi 3 computer. 
-The software for the TAC can be found at https://github.com/ArvindRamachandran14/TAC-2.0
+The TA is controlled by the thermodynamic analyzer controller (TAC), which in our set up is a program running on a Raspberry Pi 3 computer. The software for the TAC can be found at https://github.com/ArvindRamachandran14/TAC-2.0 
 
 ## ThermoAnalyzer
 
