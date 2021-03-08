@@ -15,7 +15,7 @@ The TA is controlled by the thermodynamic analyzer controller (TAC), which in ou
 
 ## Module Functionality 
 
-### MainForm.py 
+#### MainForm.py 
 This is the topleel of the GUI tree.
 
 
