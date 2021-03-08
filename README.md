@@ -16,9 +16,25 @@ The TA is controlled by the thermodynamic analyzer controller (TAC), which in ou
 ## Module Functionality 
 
 #### MainForm.py 
-This is the topleel of the GUI tree.
+This is the top level of the GUI tree. Contains the Menu bar, serial bar, status bar and the hosts the notebook containing different tabs 
+
+#### CtrtSetup.py 
+Module for the set up tab, which allows the user to set sample chamber, conditioning chamber, and humidity conditions
+
+#### CtrlMon.py 
+Module for the monitor tab, which allows the user to monitor system variables such as temperature, partial pressures, and sample weight. Also enables the user to record data
+
+#### CtrlTerm.py 
+Module for the terminal tab, which allows the user to type commands to be sent to the TA and receive responses
+
+#### TADAQ.py
+
+Responsible for establishing the initial serial connection to the TA, data acquisition from the TA and processing the command queue from the user
+
+#### TAGUI.py
+
+Responsible for the running the TAGUI application loop
 
 
-
-The TA is an apparatus that is used to study the thermodynamics of Direct Air Capture sorbents. Direct Air Capture (DAC) is the process of capturing CO2 from the atmosphere, as a way of managing the build up of CO2 in the atomsphere. To learm more about DAC visit https://cnce.engineering.asu.edu/
+The TA is an apparatus that is used to study the thermodynamics of Direct Air Capture sorbents. Direct Air Capture (DAC) is the process of capturing CO2 from the atmosphere, as a way of managing the build up of CO2 in the atmosphere. To learn more about DAC visit https://cnce.engineering.asu.edu/
 
