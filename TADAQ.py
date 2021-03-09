@@ -79,17 +79,14 @@ class producer() :
                     recIdx = tash.recIdx + 1
                     if recIdx >= tash.recCount :
                         recIdx = 0
-
                     # Get some data
                     taData = self.getDataFromTA('g all') #added 'g all' paramter to  self.getDataFromTA()
-
                     # Get the time
                     now = datetime.now()
                     seconds = now.hour * 3600 + now.minute * 60 + now.second + now.microsecond / 1000000
                     if self.startTime == None :
                         self.startTime = seconds
                     seconds = seconds - self.startTime
-
                     tash.data[recIdx].recNum = self.recNum
                     self.recNum += 1
                     tash.data[recIdx].recTime = seconds
@@ -98,9 +95,7 @@ class producer() :
                     if isinstance(taData, list) :
                         (TSC, TSC2, TCC, TDP, pH2O, pCO2, TDP2, Wgt, status) = taData #Watch out for the order of variables
                         tash.data[recIdx].SC_T = TSC
-
                         #print('status type is', type(status))
-
                         #tash.data[recIdx].SC_T2 = data_list[1] #SC_T2 omitted in this model
                         tash.data[recIdx].CC_T = TCC
                         tash.data[recIdx].DPG_T = TDP
@@ -111,7 +106,6 @@ class producer() :
                         tash.data[recIdx].Status = status
                     
                     else:
-
                         tash.data[recIdx].SC_T = 0
                         #tash.data[recIdx].SC_T2 = data_list[1] #SC_T2 omitted in this model
                         tash.data[recIdx].CC_T = 0
@@ -122,8 +116,7 @@ class producer() :
                         tash.data[recIdx].Sample_weight = 0
                         tash.data[recIdx].Status = -1
 
-                    tash.recIdx = recIdx
-                
+                    tash.recIdx = recIdx           
                 # Print the TADAQ output
                 '''
                 print('P: {0:4d} {1:10.3f} {2:10.3f} {3:10.3f} {4:10.3f} {5:10.3f} {6:10.3f} {7:10.3f}{8:d}'.format( \
@@ -131,10 +124,8 @@ class producer() :
                     tash.data[recIdx].SC_T1, tash.data[recIdx].CC_T1, tash.data[recIdx].DPG_T1, \
                     tash.data[recIdx].pH2O, tash.data[recIdx].pCO2, \
                     tash.data[recIdx].Sample_weight, tash.data[recIdx].Status)) #SC_T2 and Dew Point Temp deleted from print statement
-                '''
-                    
+                '''               
             await asyncio.sleep(self.interval)
-        
         return 0
         
     async def doCmd(self) :
@@ -190,35 +181,24 @@ class producer() :
     # Query the TA for the current record
 
     def connecttoTA(self, port, baud_rate, time_out):
-
         if self.bsimulation:
-
             self.bconnected = True
-
         else:
-
             #try :
                 #baud_rate = int(baud_rate)
             self.ser = serial.Serial(port, baud_rate, timeout=time_out)
             self.ser.write('c-check\n'.encode()) #Send connection check command to TAC program
             self.connection_reply = self.ser.readline().decode()
-
             #except :
             #self.connection_reply = 'e INVTTY\n'
-            
             print('TADAQ reply was', self.connection_reply)
-
             if self.connection_reply == "Ok\n":
-   
                 self.bconnected = True
 
 
     def getDataFromTA(self, cmd) :
-
         retval = ''
-
         if self.bsimulation: #Simulation mode on
-
             cmdBytes = bytearray(cmd, 'utf-8')
             try :
                 self.sock.send(cmdBytes)
@@ -229,9 +209,7 @@ class producer() :
                 retval = -1
             else :
                 sData = rData.decode('utf-8')
-
                 #print(cmd)
-
                 if cmd == 'g all' :
                     if sData[0] == 'v' :
                         sData = sData[2:]
@@ -247,54 +225,33 @@ class producer() :
             return retval
 
         else:
-
             #print('commmand received in TADAQ end is', cmd)
-
             if cmd == 'g all':
-                
                 cmd+='\n'
-
                 output_length = 0
-
                 self.ser.write(cmd.encode())
 
                 while output_length<2:
-
                     Output_string = self.ser.readline().decode()
-
                     output_length = len(Output_string)
 
                 Split_strings_list  = Output_string.split(',')
-
                 data_list = []
-
                 for i in range(9):
-                
                     if i < 8:
-
                         data_list.append(float(Split_strings_list[i]))
-
                     else:
-                        
                         data_list.append(int(Split_strings_list[i]))
-
                 return(data_list)
 
             else:                 
-
                 #print('Command sent is', cmd)
                 cmd+='\n'
-                
                 print('Command sent is', cmd)
-
                 self.ser.write(cmd.encode())
-
                 while True:
-
                     Output = self.ser.readline().decode()
-
                     if len(Output) > 0:
-
                         return(Output)
 
 # main program
@@ -302,39 +259,26 @@ class producer() :
 async def main() :
 
     bsimulation = False
-
     if len(sys.argv) == 1: # No arguments passed i.e. simulation mode on
-
         print('Simulation mode on')
-
         bsimulation = True
-
         port = None
         baud_rate = None
         time_out = None
 
     else: # arguments passed i.e. experiment mode on 
-
         print('Experiment mode on')
-
         bsimulation = False
-
         port = sys.argv[1]
         baud_rate = sys.argv[2]
         time_out = int(sys.argv[3])
 
     prod = producer(3, bsimulation)
-
     prod.connecttoTA(port, baud_rate, time_out)
-
     task1 = asyncio.create_task(prod.produce())
-
     task2 = asyncio.create_task(prod.doCmd())
-
     await task1
-
     await task2
-       
     print('Done')
 
 asyncio.run(main())

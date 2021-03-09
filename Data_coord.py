@@ -44,7 +44,6 @@ class TAShare(Structure) :
 
 class consumer() :
     def __init__(self, g_sys_instance, g_cal_instance) :
-
         #self.g_tech_instance= g_tech_instance
         self.g_sys_instance = g_sys_instance
         self.g_cal_instance = g_cal_instance
@@ -73,86 +72,51 @@ class consumer() :
     def consume(self) :
 
         tash = TAShare.from_buffer(self.mmShare)
-
         while not self.lastIdx == tash.recIdx :
             self.lastIdx += 1
             if self.lastIdx == recCount :
                 self.lastIdx = 0
-
             tad = TAData.from_buffer(tash.data[self.lastIdx])
-
             temp_dict = {}
 
-            if tad.SC_T > 0.0:
-                
+            if tad.SC_T > 0.0:                
                 self.g_sys_instance.Temperatures_SC.append(round(tad.SC_T,2))
-
                 self.g_sys_instance.Temperatures_CC.append(round(tad.CC_T,2))
-
                 self.g_sys_instance.Temperatures_DPG.append(round(tad.DPG_T,2))
-
                 self.g_sys_instance.Temperatures_DP.append(round(tad.TDP,2))
-
                 self.g_sys_instance.pH2O_list.append(round(tad.pH2O,2))
-
                 Cell_pressure = 97.0676*1000
-
                 self.g_sys_instance.RH_list.append(round(float(tad.pH2O*0.001*Cell_pressure*100)/self.ph2oSat(tad.SC_T),2))
-
                 self.g_sys_instance.pCO2_list.append(round(tad.pCO2,2))
-
                 self.g_sys_instance.sample_weight.append(round(tad.Sample_weight,2))
-
                 self.g_sys_instance.time_list.append(tad.recTime)
-
                 xmlstring = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='Data').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
 
             self.g_sys_instance.time_list.pop(0)
-
             self.g_sys_instance.Temperatures_SC.pop(0)
-
             self.g_sys_instance.Temperatures_CC.pop(0)
-
             self.g_sys_instance.Temperatures_DPG.pop(0)
-
             self.g_sys_instance.Temperatures_DP.pop(0)
-
             self.g_sys_instance.pH2O_list.pop(0)
-
             self.g_sys_instance.RH_list.pop(0)
-
             self.g_sys_instance.pCO2_list.pop(0)
-
             self.g_sys_instance.sample_weight.pop(0)
 
-            if self.g_sys_instance.blogging == True and temp_dict['datetime'] >= self.last_logged_time + timedelta(seconds=self.log_frequency):   
-            
+            if self.g_sys_instance.blogging == True and temp_dict['datetime'] >= self.last_logged_time + timedelta(seconds=self.log_frequency):       
                 temp_dict['datetime'] = datetime.now()
-
                 temp_dict['time'] = str(temp_dict['datetime'])
-
                 temp_dict['SC_T'] = tad.SC_T
-
                 temp_dict['CC_T'] = tad.CC_T
-
                 temp_dict['DPG_T'] = tad.DPG_T
-
                 temp_dict['TDP'] = tad.TDP
-
                 temp_dict['pCO2'] = tad.pCO2
-
                 temp_dict['pH2O'] = tad.pH2O
-
                 temp_dict['RH'] = tad.pH2O/self.ph2oSat(tad.SC_T)
-
                 temp_dict['Sample_weight'] = tad.Sample_weight
 
                 #print(xmlstring.decode("utf-8"))
-
                 self.f_TAdata.write(xmlstring.decode("utf-8")+'\n')
-
                 self.last_logged_time += timedelta(seconds=self.log_frequency)
-
             '''
             print('P: {0:4d} {1:10.3f} {2:10.3f} {3:10.3f} {4:10.3f} {5:10.3f} {6:10.3f} {7:10.3f} {8:d}'.format( \
                 tad.recNum, tad.recTime, \
@@ -161,42 +125,28 @@ class consumer() :
                 tad.Sample_weight, tad.Status))
             '''
             self.recsGot += 1
-
-                
+  
         if self.g_cal_instance.bcalibration:
 
             temp_dict_cal = {}
-
             print('Getting basic cal variables')
-
             cal_variable_output_string = self.send_command_to_PC('g cal_basic_variables')
-
             cal_variable_output_list = cal_variable_output_string.split(',')
 
             self.g_cal_instance.SC_output_list.append(round(float(cal_variable_output_list[0]),2))
-
             self.g_cal_instance.CC_output_list.append(round(float(cal_variable_output_list[1]),2))
-
             self.g_cal_instance.DPG_output_list.append(round(float(cal_variable_output_list[2]),2))
-
             self.g_cal_instance.SC_output_list.pop(0)
-
             self.g_cal_instance.CC_output_list.pop(0)
-
             self.g_cal_instance.DPG_output_list.pop(0)
 
             temp_dict_cal['datetime'] = datetime.now()
-
             temp_dict_cal['time'] = str(temp_dict_cal['datetime'])
-
             temp_dict_cal['SC_output'] = float(cal_variable_output_list[0])
-
             temp_dict_cal['CC_output'] = float(cal_variable_output_list[1])
-
             temp_dict_cal['DPG_output'] = float(cal_variable_output_list[2])
 
             xmlstring_cal = dicttoxml.dicttoxml(temp_dict, attr_type=False, custom_root='Data').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
-
             self.f_Caldata.write(xmlstring_cal.decode("utf-8")+'\n')
 
         return 0
@@ -204,51 +154,32 @@ class consumer() :
     def get_all_cal_variables(self):
 
         print('Getting all cal variables')
-
         cal_variable_output_string = self.send_command_to_PC('g cal_all_variables')
-
         cal_variable_output_list = cal_variable_output_string.split(',')
 
         self.g_cal_instance.SC_power = cal_variable_output_list[0]
-
         self.g_cal_instance.SC_P = cal_variable_output_list[1]
-
         self.g_cal_instance.SC_I = cal_variable_output_list[2]
-
         self.g_cal_instance.SC_D = cal_variable_output_list[3]
-
         self.g_cal_instance.SC_set = cal_variable_output_list[4]
-
         self.g_cal_instance.SC_output_list.append(round(float(cal_variable_output_list[5]),2))
 
         self.g_cal_instance.CC_power = cal_variable_output_list[6]
-
         self.g_cal_instance.CC_P = cal_variable_output_list[7]
-
         self.g_cal_instance.CC_I = cal_variable_output_list[8]
-
         self.g_cal_instance.CC_D = cal_variable_output_list[9]
-
         self.g_cal_instance.CC_set = cal_variable_output_list[10]
-
         self.g_cal_instance.CC_output_list.append(round(float(cal_variable_output_list[11]),2))
 
         self.g_cal_instance.DPG_power = cal_variable_output_list[12]
-
         self.g_cal_instance.DPG_P = cal_variable_output_list[13]
-
         self.g_cal_instance.DPG_I = cal_variable_output_list[14]
-
         self.g_cal_instance.DPG_D = cal_variable_output_list[15]
-
         self.g_cal_instance.DPG_set = cal_variable_output_list[16]
-
         self.g_cal_instance.DPG_output_list.append(round(float(cal_variable_output_list[17]),2))
 
         self.g_cal_instance.SC_output_list.pop(0)
-
         self.g_cal_instance.CC_output_list.pop(0)
-
         self.g_cal_instance.DPG_output_list.pop(0)   
 
         return True 
@@ -271,70 +202,47 @@ class consumer() :
             os.remove('taShare')
 
         if self.g_sys_instance.bsimulation == True:
-
             Popen(['python3', 'TADAQ.py']) #Starts the TADAQ program
 
         elif self.g_sys_instance.bsimulation == False:
-
             Popen(['python3', 'TADAQ.py', serial_port, baud_rate, time_out]) #Starts the TADAQ program
 
         time.sleep(2) #Time for TADAQ to edit bconnected flag
-
         bconnected = False
-
         shFile = Path('taShare')
         if shFile.is_file():
             #print('taShare exists')
             bconnected  = True
 
         if bconnected:
-
             if self.initialize():
-
                 mainform_object.connect_btn_text.set("Disconnect")
-
                 mainform_object.status_label_text.set('Running')
 
     def log_data(self, monitor_object, start_time, log_frequency):
-
         #self.f.write('<Data>')
-
         self.g_sys_instance.blogging = True
-
         self.last_logged_time = start_time
-
         self.log_frequency = log_frequency
-
         monitor_object.log_btn_text.set("Stop recording")
 
     def stop_logging(self):
-
         self.g_sys_instance.blogging = False
-
         #self.f.write('<\Data>')
-
         self.f.close()
 
     def send_command_to_PC(self, command):
-
         print('command received is', command)
-
         temp_dict_command = {}
-
         if command[0] == 's':
-
             temp_dict_command['command'] = command
-
             xmlstring_command = dicttoxml.dicttoxml(temp_dict_command, attr_type=False, custom_root='Cmd').replace(b'<?xml version="1.0" encoding="UTF-8" ?>', b'')
-
             self.f_Commands_to_PC.write(xmlstring_cal.decode("utf-8")+'\n')
-
         reply = ''
         tash = TAShare.from_buffer(self.mmShare)
         tash.reply = (c_byte * 256)(0)
         cmdBuf = bytearray(command, encoding) 
         tash.command[0:len(cmdBuf)] = cmdBuf #adding command to shared memory
-
         # Wait for reply to be ready
         while True:
             reply = bytearray(tash.reply).decode(encoding).rstrip('\x00') # Decoding reply from shared memor
@@ -342,39 +250,24 @@ class consumer() :
                 reply = reply[0:-1]
                 tash.command = (c_byte * 256)(0)
                 break
-
         print('reply on the consumer end is ', reply)
-
         #print(type(reply))
-
         return(reply)
         
     def Disconnect(self, mainform_object, monitor_object):
-
         print('Disconnecting')
-
         tash = TAShare.from_buffer(self.mmShare)
-
         cmdBuf = bytearray('@{EXIT}', encoding) #send the EXIT command to the shared memory, the TADAQ reads this and exits thhe program
-
         tash.command[0:len(cmdBuf)] = cmdBuf
-
         mainform_object.status_label_text.set('Idle')
-
         #self.g_sys_instance.run_experiment = False
-
         monitor_object.ax1.clear()
-
         monitor_object.ax2.clear()
-
         monitor_object.ax2_twin.clear()
-
         monitor_object.ax3.clear()
-
         #print('Disconnected')
-
         #self.ser_PC.close()
 
+    #Function to calculate the saturation pressure at a given temeprature
     def ph2oSat(self, T):
-        
         return 610.78 * exp((T * 17.2684) / (T + 238.3))
