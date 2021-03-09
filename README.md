@@ -7,7 +7,7 @@ Contact - aramac13@asu.edu
 
 # TAGUI-3.0
 
-TAGUI-3.0 is the latest graphical user interface program developed to interface with the TAC program and ultimately the the ThermoAnalyzer(TA).It enables the experimenter to visualize and record data from the TA, as well as send commands and receive responses. 
+A Python-based graphical user interface program developed to interface with the TAC program and ultimately the ThermoAnalyzer(TA). It enables the experimenter to visualize and record data from the TA, as well as send commands and receive responses. 
 
 To run the GUI, download this repository and run the TAGUI.py program using Python 3 and you should be able to view the GUI developed for this project
 
