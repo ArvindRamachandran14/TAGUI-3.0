@@ -19,6 +19,9 @@ loop = None
 recCount = 21
 
 class TAData(Structure) :
+
+    """class to store the basic system variables"""
+
     _pack_ = 4
     _fields_ = [ \
         ('recNum', c_int),
@@ -34,6 +37,9 @@ class TAData(Structure) :
         ]
 
 class TAShare(Structure) :
+
+    """class to store the TAData object, command, reply, record count, and record index"""    
+
     _pack_ = 4
     _fields_ = [ \
             ('command', c_byte * 256),
@@ -43,6 +49,9 @@ class TAShare(Structure) :
             ('data', TAData * recCount)]
 
 class consumer() :
+
+    """class to facilitate connection and communication with the TA, consume the data produced by the TADAQ"""    
+
     def __init__(self, g_sys_instance, g_cal_instance) :
         #self.g_tech_instance= g_tech_instance
         self.g_sys_instance = g_sys_instance
@@ -64,12 +73,10 @@ class consumer() :
         self.log_frequency = 2
         self.block = False
         #self.f = open('data_file_'+str(datetime.now())+'.xml', "w+")
-        #self.kb = pykb.KBHit()
 
-    # consume
-    # This function gets unread data from the shared memory circular
-    # buffer at the specified interval.
     def consume(self) :
+
+        """Function to get unread data from the shared memory circular buffer at the specified interval"""
 
         tash = TAShare.from_buffer(self.mmShare)
         while not self.lastIdx == tash.recIdx :
@@ -153,6 +160,8 @@ class consumer() :
 
     def get_all_cal_variables(self):
 
+        """Function to get all the variables involved in the calibration tab"""
+
         print('Getting all cal variables')
         cal_variable_output_string = self.send_command_to_PC('g cal_all_variables')
         cal_variable_output_list = cal_variable_output_string.split(',')
@@ -186,6 +195,8 @@ class consumer() :
 
     def initialize(self) :
 
+        """Function to initialize the shared memory file"""
+
         bOK = True
         try :
             self.mmfd = open('taShare', 'r+b')
@@ -197,6 +208,8 @@ class consumer() :
 
     def Connect(self, mainform_object,  monitor_object, serial_port, baud_rate, time_out):
         
+        """Function to actuate the connection to the TA via RS232 serial communication"""
+
         shFile = Path('taShare')
         if shFile.is_file() :
             os.remove('taShare')
@@ -232,6 +245,9 @@ class consumer() :
         self.f.close()
 
     def send_command_to_PC(self, command):
+
+        """Function to transmit the user input command to the TA"""
+
         print('command received is', command)
         temp_dict_command = {}
         if command[0] == 's':
@@ -268,6 +284,8 @@ class consumer() :
         #print('Disconnected')
         #self.ser_PC.close()
 
-    #Function to calculate the saturation pressure at a given temeprature
     def ph2oSat(self, T):
+
+        """Function to calculate the saturation pressure at a given temperature"""
+
         return 610.78 * exp((T * 17.2684) / (T + 238.3))

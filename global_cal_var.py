@@ -1,4 +1,7 @@
 class globals_:
+
+    """ class to store the global calibration variables """
+
     def __init__(self):
         self.bcalibration = False
         self.SC_power = 0

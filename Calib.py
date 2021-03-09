@@ -8,6 +8,8 @@ import scipy.optimize as opt
 
 class Calib(Frame) :
 
+    """class to build and add functionality to the calibration tab"""
+
     def __init__(self, parent, g_sys_instance, g_cal_instance, cons, *args, **kwargs) :
         Frame.__init__(self, *args, **kwargs)
         self.Table_Frame = Frame(self, padx=20)
@@ -74,6 +76,8 @@ class Calib(Frame) :
 
     def buildFigure(self) :
 
+        """ Function to build Fig.1 to show the temperatures and Fig. 2 to show the relative humidity and partial pressure of water """
+
         Label(self.Partition_Frame, text="").grid(row=0,column=0)
         self.check_var1 = IntVar()
         Checkbutton(self.Partition_Frame, text="TSC", variable=self.check_var1).grid(row=1, column=0, sticky='W')
@@ -138,6 +142,9 @@ class Calib(Frame) :
         self.scale_2_label.grid(row=0, column=1)
 
     def build_TC_table(self):
+
+        """ Function to build the temperature control table"""
+
         self.TC_table_label = Label(self.TC_Table_Frame, text="Temperature control")
         self.TC_table_label.grid(row=0,column=0)
         self.calib_check_var = IntVar()
@@ -192,7 +199,7 @@ class Calib(Frame) :
         self.TC_frame_2 = Frame(self.TC_Table_Frame, height=5)
         self.TC_frame_2.grid(row=2,column=0,columnspan=4, sticky='NW')
 
-        # Frame 3 
+        #Frame 3 
         self.TC_frame_3 = Frame(self.TC_Table_Frame)
         self.TC_frame_3.grid(row=3,column=0,columnspan=4, sticky='NSEW')
         self.power_label = Label(self.TC_frame_3,text="Power",bg="light gray", fg="black", width=13, relief="solid")#, padx=1, pady=1)
@@ -236,7 +243,7 @@ class Calib(Frame) :
         self.DPG_power.set(self.MODES[0])
         self.DPG_power_label.grid(row=0, column=1)
 
-        # Frame 4
+        #Frame 4
         self.TC_frame_4 = Frame(self.TC_Table_Frame, height=5)
         self.TC_frame_4.grid(row=4,column=0,columnspan=4,sticky='w')
 
@@ -315,11 +322,10 @@ class Calib(Frame) :
         self.DPG_PID_apply_var.set("Apply")
 
         #Frame 6
-
         self.TC_frame_6 = Frame(self.TC_Table_Frame, height=5)
         self.TC_frame_6.grid(row=6,column=0,columnspan=4,sticky='w')
 
-        # Frame 7 
+        #Frame 7 
         self.TC_frame_7 = Frame(self.TC_Table_Frame)
         self.TC_frame_7.grid(row=7,column=0,columnspan=4,sticky='w')
 
@@ -369,6 +375,8 @@ class Calib(Frame) :
 
     def build_Humidity_table(self):
 
+        """ Function to build the humidity control table"""
+
         self.Humidity_table_label = Label(self.Humidity_Table_Frame, text="Humidity control")
         self.Humidity_table_label.grid(row=0,column=0,sticky='N')
         Humidity_table_var_names = ["TDP", "RH (%)", "pH2O (ppt)", " ",  "P", "I", "D", ""]
@@ -378,7 +386,7 @@ class Calib(Frame) :
             label.grid(row=i+1, column=0, padx=1, pady=1, sticky='N')
             label.config(highlightbackground="black") 
 
-        # Set Points 
+        # Set points 
 
         self.TDP_set_entry = Entry(self.Humidity_Table_Frame, bg="gray", fg="white", width=11, textvariable=self.TDP_set)
         self.TDP_set_entry.grid(row=1, column=1, sticky="ew", padx=1, pady=1)
@@ -400,7 +408,7 @@ class Calib(Frame) :
         self.pH2O_set_apply.grid(row=4, column=1, padx=1, pady=1)
         self.pH2O_set_apply_var.set("Apply")
 
-        ###################### PID ########################
+        # PID
 
         self.pH2O_P_entry = Entry(self.Humidity_Table_Frame, bg="gray", fg="white", width=11, textvariable=self.pH2O_P) 
         self.pH2O_P_entry.grid(row=5, column=1, sticky="ew", padx=1, pady=1)
@@ -424,36 +432,56 @@ class Calib(Frame) :
         self.pH2O_PID_apply_var.set("Apply")
 
     def SC_power_switch(self, value):
+
+        """Function to switch the power of the sample chamber controller"""
+
         self.g_cal_instance.SC_power = int(self.SC_power_scale.get())
         reply = self.cons.send_command_to_PC('s SC_power '+str(self.SC_power_scale.get()))
         if reply == 'e 0\n':
             self.SC_power.set(self.MODES[self.SC_power_scale.get()])
 
     def CC_power_switch(self, value):
+
+        """Function to switch the power of the conditioning chamber controller"""
+
         self.g_cal_instance.CC_power = int(self.SC_power_scale.get())
         reply = self.cons.send_command_to_PC('s CC_power '+str(self.CC_power_scale.get()))
         if reply == 'e 0\n':    
             self.CC_power.set(self.MODES[self.CC_power_scale.get()])
 
     def DPG_power_switch(self, value):
+
+        """Function to switch the power of the dew point generator controller"""
+
         self.g_cal_instance.DPG_power = int(self.DPG_power_scale.get())
         reply = self.cons.send_command_to_PC('s DPG_power '+str(self.DPG_power_scale.get()))
         if reply == 'e 0\n':    
             self.DPG_power.set(self.MODES[self.DPG_power_scale.get()])
 
     def set_bcalibration(self):
+
+        """Function to set the calibration mode on or off"""
+
         if self.calib_check_var.get():
             self.g_cal_instance.bcalibration = True
         else:
             self.g_cal_instance.bcalibration = False
 
     def scale_1_value_show(self, value): 
+
+        """Function to display the plotting range in the temperature figure"""
+
         self.scale_1_textvariable.set('Plot range(m): '+ str(self.slider_list_value[int(value)]))
 
     def scale_2_value_show(self, value):
+
+        """Function to display the plotting range in the humidity figure"""
+
         self.scale_2_textvariable.set('Plot range(m): '+ str(self.slider_list_value[int(value)]))
 
     def animate_temperatures(self, i):
+
+        """Function to animate the temperature plot """
 
         self.ax1.clear()
         self.ax1_twin.clear()
@@ -509,6 +537,9 @@ class Calib(Frame) :
             self.ax1_twin.legend()
 
     def animate_RH(self, i):
+
+        """Function to animate the humidity plot """
+
         if self.calib_check_var.get():
             self.plot_2_range = self.slider_list_value[int(self.scale_2.get())]*60 
             index = int(self.plot_2_range/15.0)
@@ -517,6 +548,9 @@ class Calib(Frame) :
             self.ax2_twin.plot(self.g_sys_instance.time_list[limit:], self.g_sys_instance.pH2O_list[limit:], color='r', label='pH2O')
 
     def animate_calibration_table(self):   
+
+        """Function to animate the temperature controller table """
+
         # Measured var - temp and output
         self.TSC.set(str(self.g_sys_instance.Temperatures_SC[-1]))
         self.TCC.set(str(self.g_sys_instance.Temperatures_CC[-1]))
@@ -529,6 +563,9 @@ class Calib(Frame) :
         self.update()
 
     def update_calibration_table(self):
+
+        """Function to update the calibration tab when the user switches to it """
+
         Output = self.cons.get_all_cal_variables()
         if Output:
             # Update power 
@@ -559,6 +596,8 @@ class Calib(Frame) :
 
     def SC_PID_apply_func(self):
 
+        """Function to transmit the sample chamber PID values to the TA when the user hits apply """
+
         self.SC_P_entry.config(bg='gray', fg = "white")
         self.SC_I_entry.config(bg='gray', fg = "white")
         self.SC_D_entry.config(bg='gray', fg = "white")
@@ -575,6 +614,8 @@ class Calib(Frame) :
 
     def CC_PID_apply_func(self):
 
+        """Function to transmit the conditioning chamber PID values to the TA when the user hits apply """
+
         self.CC_P_entry.config(bg='gray', fg = "white")
         self.CC_I_entry.config(bg='gray', fg = "white")
         self.CC_D_entry.config(bg='gray', fg = "white")
@@ -590,6 +631,8 @@ class Calib(Frame) :
             self.update()
 
     def DPG_PID_apply_func(self):
+
+        """Function to transmit the dew point generator PID values to the TA when the user hits apply """
 
         self.DPG_P_entry.config(bg='gray', fg = "white")
         self.DPG_I_entry.config(bg='gray', fg = "white")
@@ -608,6 +651,8 @@ class Calib(Frame) :
 
     def pH2O_PID_apply_func(self):
 
+        """Function to transmit the humidity control PID values to the TA when the user hits apply """
+
         self.pH2O_P_entry.config(bg='gray', fg = "white")
         self.pH2O_I_entry.config(bg='gray', fg = "white")
         self.pH2O_D_entry.config(bg='gray', fg = "white")
@@ -623,6 +668,14 @@ class Calib(Frame) :
             self.update()
 
     def pH2O_set_apply_func(self):
+
+        """
+        Function to transmit the humidity control set point value to the TA when the user hits apply 
+        It is checked whether the user has set the dew point temperature, pH2O, or the relative humidity - only one entry is permitted by the GUI
+        The appropriate variable is set to the set point value and the remaining two variables are registered as 0
+    
+        Condensation and low relative humidity limits are checked for and the appropriate warning messages are displayed as warranted
+        """
 
         if self.MODES.index(self.DPG_power.get()):
             self.TDP_set_entry.config(bg='gray', fg = "white")
@@ -706,6 +759,8 @@ class Calib(Frame) :
 
     def SC_set_apply_func(self):
 
+        """Function to transmit the sample chamber temperature set point to the TA when the user hits apply """
+
         if self.MODES.index(self.SC_power.get()):
             self.SC_set_entry.config(bg='gray', fg = "white")
             self.update()
@@ -719,6 +774,8 @@ class Calib(Frame) :
             messagebox.showwarning(title='Power Error', message="Switch controller on")        
 
     def CC_set_apply_func(self):
+
+        """Function to transmit the conditioning chamber temperature set point to the TA when the user hits apply """
 
         if self.MODES.index(self.CC_power.get()):
             self.CC_set_entry.config(bg='gray', fg = "white")
@@ -734,6 +791,8 @@ class Calib(Frame) :
 
     def DPG_set_apply_func(self):
 
+        """Function to transmit the dew point generator temperature set point to the TA when the user hits apply """
+
         if self.MODES.index(self.DPG_power.get()):
             self.DPG_set_entry.config(bg='gray', fg = "white")
             self.update()
@@ -746,10 +805,15 @@ class Calib(Frame) :
         else:
             messagebox.showwarning(title='Power Error', message="Switch controller on")
 
-    #Function to solve for the dew point for a given  pressure 
+    
     def ph2oSat_solve(self, T, P):
+
+        """ Function to solve for the dew point for a given  pressure """
+
         return 610.78 * exp((T * 17.2684) / (T + 238.3)) - P
 
-    #Function to calculate the saturation pressure at a given temeprature
     def ph2oSat(self, T):
+
+        """Function to calculate the saturation pressure at a given temperature"""
+
         return 610.78 * exp((T * 17.2684) / (T + 238.3))

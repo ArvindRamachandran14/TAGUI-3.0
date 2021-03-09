@@ -1,14 +1,14 @@
 #! /usr/local/bin/python3 
 # -*- coding: utf-8 -*-
+#Thermodynamic Analyzer Data Acquisition Program 
 
-#################################### Thermodynammic Analyzer Data Acqusition Program #################################### 
 from ctypes import c_int, c_double, c_byte, c_bool, Structure, sizeof #creates c type structures
 from random import random #random numbers
 import mmap #memory map
 import os 
 from datetime import datetime
 import datetime as dt 
-import asyncio #timing to work right asychronous call - go and read the data and the meanwhile you can do other things
+import asyncio #timing to work right asynchronous call - go and read the data and the meanwhile you can do other things
 import socket
 import xml.etree.ElementTree as ET
 import global_tech_var as g
@@ -16,11 +16,14 @@ import time
 import sys
 import json
 import serial
-encoding = 'utf-8' # covers straight ascii 8 bit char codes 
-loop = None #variable timeer uses
+encoding = 'utf-8' # covers straight ASCII 8 bit char codes 
+loop = None #variable timer uses
 recCount = 21 #how many records are in the shared memory 
 
 class TAData(Structure) :
+
+    """class to store the basic system variables"""
+
     _pack_ = 4
     _fields_ = [ \
         ('recNum', c_int),
@@ -36,6 +39,9 @@ class TAData(Structure) :
         ]
 
 class TAShare(Structure) :
+
+    """class to store the TAData object, command, reply, record count, and record index"""    
+
     _pack_ = 4
     _fields_ = [ \
             ('command', c_byte * 256), # 256 byte buffer
@@ -45,6 +51,9 @@ class TAShare(Structure) :
             ('data', TAData * recCount)]
 
 class producer() :
+
+    """class to perform data acquisition from the TA and process user commands in the order it was received """    
+
     def __init__(self, interval, bsimulation) :
         self.startTime = None
         self.bDone = False 
@@ -58,7 +67,7 @@ class producer() :
         self.startTime = None
         self.sem = None             # Added semaphore instance here
         self.sock = None
-        self.host = 'localhost'     # localhost
+        self.host = 'localhost'     # local host
         self.port = 50007
         self.bsimulation = bsimulation
         self.bconnected = False
@@ -66,6 +75,9 @@ class producer() :
         self.initialize()
 
     async def produce(self) :
+
+        """Function to add data to the shared memory circular buffer at the specified interval"""
+
         TCC = TSC = TSC2 = TDP = TDP2 = Wgt = pH2O = pCO2 = 0.0 # Changed temp1, temp2, temp3 to TCC TSC TDP, added Wgt 
         status = 0
         tash = TAShare.from_buffer(self.mmShare) 
@@ -80,7 +92,7 @@ class producer() :
                     if recIdx >= tash.recCount :
                         recIdx = 0
                     # Get some data
-                    taData = self.getDataFromTA('g all') #added 'g all' paramter to  self.getDataFromTA()
+                    taData = self.getDataFromTA('g all') #added 'g all' parameter to  self.getDataFromTA()
                     # Get the time
                     now = datetime.now()
                     seconds = now.hour * 3600 + now.minute * 60 + now.second + now.microsecond / 1000000
@@ -91,7 +103,7 @@ class producer() :
                     self.recNum += 1
                     tash.data[recIdx].recTime = seconds
 
-                    #################### Transfer data to the data buffer ####################
+                    #Transfer data to the data buffer
                     if isinstance(taData, list) :
                         (TSC, TSC2, TCC, TDP, pH2O, pCO2, TDP2, Wgt, status) = taData #Watch out for the order of variables
                         tash.data[recIdx].SC_T = TSC
@@ -129,6 +141,9 @@ class producer() :
         return 0
         
     async def doCmd(self) :
+
+        """Function to process user commands in the order it was received"""
+
         while not self.bDone :
             async with self.sem:            # async with added here to control access
                 tash = TAShare.from_buffer(self.mmShare)
@@ -161,6 +176,9 @@ class producer() :
         self.mmfd.close()   
 
     def initialize(self) :
+
+        """Function to initialize the shared memory file"""
+
         tempTASH = TAShare()
         tempTASH.command[0:256] = [0] * 256
         tempTASH.reply[0:256] = [0] * 256
@@ -177,10 +195,11 @@ class producer() :
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect((self.host, self.port))
 
-    # getDataFromTA
-    # Query the TA for the current record
-
+  
     def connecttoTA(self, port, baud_rate, time_out):
+
+        """Function to establish serial connection with the TA"""
+
         if self.bsimulation:
             self.bconnected = True
         else:
@@ -197,6 +216,9 @@ class producer() :
 
 
     def getDataFromTA(self, cmd) :
+
+        """ Function to query the TA for the current record """
+
         retval = ''
         if self.bsimulation: #Simulation mode on
             cmdBytes = bytearray(cmd, 'utf-8')
@@ -225,7 +247,7 @@ class producer() :
             return retval
 
         else:
-            #print('commmand received in TADAQ end is', cmd)
+            #print('command received in TADAQ end is', cmd)
             if cmd == 'g all':
                 cmd+='\n'
                 output_length = 0
@@ -254,9 +276,9 @@ class producer() :
                     if len(Output) > 0:
                         return(Output)
 
-# main program
-
 async def main() :
+
+    """main program that runs the functions in this code"""
 
     bsimulation = False
     if len(sys.argv) == 1: # No arguments passed i.e. simulation mode on

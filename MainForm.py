@@ -24,6 +24,9 @@ import xml.etree.ElementTree as ET
 
 
 class MainForm(Tk) :
+
+    """class to build and add functionality to the main page of TAGUI"""
+
     def __init__(self, g_sys_instance, g_cal_instance, cons, *args, **kwargs) :
         tk.Tk.__init__(self, *args, **kwargs) 
         tk.Tk.wm_title(self, 'Main Window') #window title

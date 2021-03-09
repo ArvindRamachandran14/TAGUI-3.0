@@ -1,4 +1,7 @@
 class globals_:
+
+    """ class to store the global system variables """
+
     def __init__(self):
         self.Temperatures_SC = [0]*25000
         self.Temperatures_CC = [0]*25000

@@ -12,8 +12,10 @@ tty = "/dev/ttyUSB0"  # TTY or COM port to use for TA comms
 time_out = 5
 time_interval = 5
 
-# Initialize globals from the cfg object
 def initialize(config) :
+
+    """Function to initialize the global variables based on the cfg object"""
+
     global cfg, tty, baud_rate, time_out, time_interval, ser, bconnected, bsimulation
     cfg = config                            # Set the cfg
     tty = cfg["tty"]
@@ -22,8 +24,11 @@ def initialize(config) :
     time_interval = cfg["time_interval"]
     update()
 
-#Function updates json file with new parameters
+
 def update():
+
+    """Function to update json file with new config parameters"""
+
     cfg["tty"] = tty
     cfg["baud_rate"] = baud_rate
     cfg["time_out"] = time_out
