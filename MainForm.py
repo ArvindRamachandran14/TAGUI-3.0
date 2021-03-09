@@ -13,7 +13,6 @@ import ctrl_setup
 import ctrl_mon
 import global_tech_var as g_tech_instance
 import ctrl_term
-import ctrl_cfg
 import serial
 import time
 import calib
@@ -133,7 +132,6 @@ class MainForm(Tk) :
         self.ctrlTab.add(self.tabMon, text = 'Monitor')
         self.tabTerm = ctrl_term.CtrlTerm(self.ctrlTab, self.g_sys_instance, self.cons)
         self.ctrlTab.add(self.tabTerm, text = 'Terminal')
-        self.tabCfg = ctrl_cfg.CtrlCfg(self.ctrlTab)
         self.calibTab = calib.Calib(self.ctrlTab,  self.g_sys_instance, self.g_cal_instance, self.cons)
         self.ctrlTab.add(self.calibTab, text = 'Calibration')
     

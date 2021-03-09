@@ -9,32 +9,35 @@ Contact - aramac13@asu.edu
 
 TAGUI-3.0 is the latest graphical user interface program developed to interface with the TAC program and ultimately the the ThermoAnalyzer(TA).It enables the experimenter to visualize and record data from the TA, as well as send commands and receive responses. 
 
-To run download this repository and run the TAGUI.py program and you should be able to see the GUI developed for this project
+To run the GUI, download this repository and run the TAGUI.py program using Python 3 and you should be able to view the GUI developed for this project
 
 The TA is controlled by the thermodynamic analyzer controller (TAC), which in our set up is a program running on a Raspberry Pi 3 computer. The software for the TAC can be found at https://github.com/ArvindRamachandran14/TAC-2.0 
 
 ## Module Functionality 
 
-#### MainForm.py 
-This is the top level of the GUI tree. Contains the Menu bar, serial bar, status bar and the hosts the notebook containing different tabs 
+1. `tagui.py` Responsible for the running the TAGUI application loop
 
-#### CtrtSetup.py 
-Module for the set up tab, which allows the user to set sample chamber, conditioning chamber, and humidity conditions
+2. `mainform.py` This is the top level of the GUI tree. Contains the Menu bar, serial bar, status bar and the hosts the notebook containing different tabs 
 
-#### CtrlMon.py 
-Module for the monitor tab, which allows the user to monitor system variables such as temperature, partial pressures, and sample weight. Also enables the user to record data
+3. `ctrt_setup.py` Module for the set up tab, which enables the user to set sample chamber, conditioning chamber, and humidity conditions
 
-#### CtrlTerm.py 
-Module for the terminal tab, which allows the user to type commands to be sent to the TA and receive responses
+4. `ctrl_mon.py` Module for the monitor tab, which enables the user to monitor system variables such as temperature, partial pressures, and sample weight. Also enables the user to record data
 
-#### TADAQ.py
+5. `ctrl_term.py` Module for the terminal tab, which enables the user to type commands to be sent to the TA and receive responses
 
-Responsible for establishing the initial serial connection to the TA, data acquisition from the TA and processing the command queue from the user
+6. `calib.py` Module for the calibration tab, which enables the user to calibrate the temperature controllers and the humidity control algorthim
 
-#### TAGUI.py
+7. `tadaq.py` Responsible for establishing the initial serial connection to the TA, data acquisition from the TA and processing the command queue from the user
 
-Responsible for the running the TAGUI application loop
+8. `data_coord.py` Consumes the data produced by the tadaq and updates the local data structures with the latest values from the TA. Dispatches commands from the user to the TA and gets the reply back from the TA
 
+9. `global_sys_var.py` Module containing global system variables
+
+10. `global_cal_var.py` Module containing global calibration variables
+
+11. `global_tech_var.py` Module containing global technical variables
+
+12. `taui.json` Contains parameters pertaining to serial connection
 
 The TA is an apparatus that is used to study the thermodynamics of Direct Air Capture sorbents. Direct Air Capture (DAC) is the process of capturing CO2 from the atmosphere, as a way of managing the build up of CO2 in the atmosphere. To learn more about DAC visit https://cnce.engineering.asu.edu/
 
