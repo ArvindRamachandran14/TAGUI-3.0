@@ -12,7 +12,7 @@ ThermoAnalyzer Graphical User Interface (TAGUI) is a Python-based graphical user
 To run the GUI follow these steps
 
 1. Download this repository 
-2. From a terminal window, run "python3 `tagui.py`" 
+2. From a terminal window, run "python3 tagui.py" 
 
 Then you should be able to view the GUI developed for this project
 
