@@ -9,13 +9,6 @@ Contact - aramac13@asu.edu
 
 ThermoAnalyzer Graphical User Interface (TAGUI) is a Python-based graphical user interface program developed to interface with the TAC program and ultimately the ThermoAnalyzer(TA). It enables the experimenter to visualize and record data from the TA, as well as send commands and receive responses. 
 
-To run the GUI follow these steps
-
-1. Download this repository 
-2. From a terminal window, run "python3 tagui.py" 
-
-Then you should be able to view the GUI developed for this project.
-
 The TA is controlled by the thermodynamic analyzer controller (TAC), which in our set up is a program running on a Raspberry Pi 3 computer. The software for the TAC can be found [here](https://github.com/ArvindRamachandran14/TAC-2.0). 
 
 ## Module Functionality 
